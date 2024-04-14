@@ -6,7 +6,7 @@
 <?import javafx.scene.chart.NumberAxis?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="dev.esgi.javaclient.BaseController">
+      fx:controller="dev.esgi.javaclient.controller.BaseController">
     <LineChart prefHeight="600" fx:id="chart">
         <xAxis>
             <CategoryAxis label="Time"/>

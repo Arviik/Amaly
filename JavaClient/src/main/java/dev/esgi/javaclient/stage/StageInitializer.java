@@ -1,6 +1,5 @@
-package dev.esgi.javaclient;
+package dev.esgi.javaclient.stage;
 
-import dev.esgi.javaclient.JavaClientUIApplication.StageReadyEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -16,7 +15,7 @@ import java.io.IOException;
 @Component
 public class StageInitializer implements ApplicationListener<StageReadyEvent> {
 
-    @Value("classpath:/base.fxml")
+    @Value("classpath:/view/base.fxml")
     private Resource baseFxmlResource;
     private final String applicationTitle;
     private final ApplicationContext applicationContext;

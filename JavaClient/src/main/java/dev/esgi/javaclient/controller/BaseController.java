@@ -1,4 +1,4 @@
-package dev.esgi.javaclient;
+package dev.esgi.javaclient.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;

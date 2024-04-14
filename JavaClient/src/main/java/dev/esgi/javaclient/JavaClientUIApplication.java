@@ -1,10 +1,10 @@
 package dev.esgi.javaclient;
 
+import dev.esgi.javaclient.stage.StageReadyEvent;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ConfigurableApplicationContext;
 
 public class JavaClientUIApplication extends Application {
@@ -24,15 +24,5 @@ public class JavaClientUIApplication extends Application {
     public void stop() {
         applicationContext.close();
         Platform.exit();
-    }
-
-    static class StageReadyEvent extends ApplicationEvent {
-        public StageReadyEvent(Stage stage) {
-            super(stage);
-        }
-
-        public Stage getStage() {
-            return ((Stage) getSource());
-        }
     }
 }
