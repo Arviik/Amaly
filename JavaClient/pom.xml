@@ -18,6 +18,7 @@
 
     <properties>
         <java.version>21</java.version>
+        <javafx.version>23-ea+3</javafx.version>
     </properties>
 
     <dependencies>
@@ -28,7 +29,12 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>23-ea+3</version>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
         </dependency>
     </dependencies>
 
