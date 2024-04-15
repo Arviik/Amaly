@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.NumberAxis?>
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="dev.esgi.javaclient.controller.BaseController">
-    <LineChart prefHeight="600" fx:id="chart">
-        <xAxis>
-            <CategoryAxis label="Time"/>
-        </xAxis>
-        <yAxis>
-            <NumberAxis label="Price"/>
-        </yAxis>
-    </LineChart>
-</VBox>
+<?import com.calendarfx.view.CalendarView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0"
+            prefWidth="900.0" xmlns="http://javafx.com/javafx/21">
+    <CalendarView AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                  AnchorPane.topAnchor="0.0"/>
+</AnchorPane>
