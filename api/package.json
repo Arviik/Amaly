@@ -1,0 +1,22 @@
+{
+  "name": "amaly-api",
+  "version": "1.0.0",
+  "description": "API du projet Amaly",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "nodemon -e ts -x ts-node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "prisma": "^5.14.0",
+    "ts-node": "^10.9.2"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "joi": "^17.13.1",
+    "mysql2": "^3.9.7"
+  }
+}
