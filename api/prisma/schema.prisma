@@ -15,12 +15,13 @@ datasource db {
 
 model Users {
   id         Int      @id @default(autoincrement())
-  name       String
+  firstName  String
+  lastName   String
   email      String
   password   String
   role       Role
-  created_at DateTime
-  updated_at DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 enum Role {
