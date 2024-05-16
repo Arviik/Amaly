@@ -1,3 +1,4 @@
+name: amaly_api
 services:
   db:
     image: mysql:latest
