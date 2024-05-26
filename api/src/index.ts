@@ -1,6 +1,7 @@
 import express from 'express';
 import {prisma} from './utils/prisma';
 import {initRoutes} from "./api/routes";
+import cors from 'cors'
 
 const main = async () => {
     const app = express();
@@ -13,6 +14,8 @@ const main = async () => {
         console.error("Cannot contact database.")
         process.exit(1)
     }
+
+    app.use(cors())
 
     app.use(express.json())
 
