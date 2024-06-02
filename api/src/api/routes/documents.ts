@@ -1,13 +1,20 @@
 import express from "express";
 import { prisma } from "../../utils/prisma";
 import { documentsValidation, documentsPatchValidation } from "../validators/document-validator";
-import { authMiddleware } from "../middlewares/auth-middleware";
-import { authzMiddleware } from "../middlewares/authz-middleware";
 
 export const initDocuments = (app: express.Express) => {
     app.get("/documents", async (req, res) => {
         try {
-            const allDocuments = await prisma.documents.findMany();
+            const allDocuments = await prisma.documents.findMany({select: {
+                    id: true,
+                    description: true,
+                    title: true,
+                    path: true,
+                    updatedAt: true
+                }});
+            allDocuments.forEach((document) => {
+
+            })
             res.json(allDocuments);
         } catch (e) {
             res.status(500).send({ error: e });
@@ -20,7 +27,10 @@ export const initDocuments = (app: express.Express) => {
             const document = await prisma.documents.findUnique({
                 where: { id: Number(req.params.id) },
             });
-            res.json(document);
+            if (!document){
+                throw new Error("Document not found");
+            }
+            res.json({document, file : Buffer.from(document.file).toString()});
         } catch (e) {
             res.status(500).send({ error: e });
             return;
@@ -44,10 +54,12 @@ export const initDocuments = (app: express.Express) => {
                 data: {
                     title: documentsRequest.title,
                     description: documentsRequest.description,
+                    path: documentsRequest.path,
                     file: documentsRequest.fileData,
                     organizationId: documentsRequest.organizationId,
                 },
             });
+            console.log(documentsRequest)
             res.json(document);
         } catch (e) {
             res.status(500).send({ error: e });

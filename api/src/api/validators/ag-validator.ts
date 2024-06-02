@@ -27,3 +27,4 @@ export const agsPatchValidation = Joi.object<agsRequest>({
     quorum: Joi.number().integer().optional(),
     organizationId: Joi.number().integer().optional(),
 }).options({abortEarly: true});
+
