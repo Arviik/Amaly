@@ -1,5 +1,7 @@
 package dev.esgi.javaclient.rest.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
@@ -46,7 +48,7 @@ public class RestService<T> {
         ResponseEntity<T> responseEntity = restClient.post()
                 .uri(apiPath)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(newObject)
+                .body(getObjectJsonWithoutId(newObject))
                 .retrieve()
                 .toEntity(classType);
 
@@ -84,5 +86,9 @@ public class RestService<T> {
         }
     }
 
-
+    private ObjectNode getObjectJsonWithoutId(T object) {
+        ObjectNode node = new ObjectMapper().valueToTree(object);
+        node.remove("id");
+        return node;
+    }
 }
