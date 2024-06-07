@@ -137,6 +137,7 @@ model Documents {
   id             Int           @id @default(autoincrement())
   title          String
   description    String
+  path           String        @default("/")
   file           Bytes
   organization   Organizations @relation(fields: [organizationId], references: [id])
   organizationId Int
