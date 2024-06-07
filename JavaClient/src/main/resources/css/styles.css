@@ -1,0 +1,99 @@
+* {
+    color1: white;
+    color2: #d4d4d4;
+    color3: #4160FF;
+    color4: #285992;
+}
+
+.mainPane {
+    -fx-background-color: color1;
+}
+
+.tab-pane *.tab-header-area *.tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.pane {
+    -fx-background-color: color3;
+}
+
+.tab {
+    -fx-background-insets: 0;
+    -fx-background-color: color1;
+    -fx-background-radius: 0;
+    -fx-border-color: color2;
+    -fx-border-radius: 0;
+}
+
+.tab-pane .tab {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-pref-height: 42;
+    -fx-pref-width: 85;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: color4;
+}
+
+.tab-label {
+    -fx-text-fill: color1;
+    -fx-alignment: CENTER;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 65;
+}
+
+.tab:selected .tab-label {
+    -fx-underline: true;
+}
+
+.tab-pane:top *.tab-header-area {
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.tab-pane:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
+    -fx-border-color: transparent;
+}
+
+
+.button {
+    -fx-background-radius: 30;
+    -fx-border-color: color2;
+    -fx-border-radius: 30;
+}
+
+.mfx-button {
+    -fx-background-radius: 30 !important;
+}
+
+.button .mfx-ripple-generator {
+    -fx-background-radius: 30;
+    -mfx-ripple-radius: 30;
+    -mfx-auto-clip: true;
+}
+
+/*
+ *  Text-field
+ */
+
+.text-field {
+    -fx-background-radius: 30;
+    -fx-border-radius: 30;
+    -fx-wrap-text: true;
+}
+
+.text-field .floating-text {
+    -fx-background-color: color1;
+    -fx-text-fill: black;
+}
+
+
+/*
+ *  MFXTableView
+ */
+
+.mfx-table-view {
+    -fx-border-radius: 0 !important;
+}
