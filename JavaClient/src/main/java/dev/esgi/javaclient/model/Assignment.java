@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Resource {
+public class Assignment {
     private int id;
-    private String name;
-    private int resourceTypeId;
+    private int memberId;
+    private int taskId;
 }
