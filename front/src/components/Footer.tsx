@@ -7,18 +7,16 @@ export const Footer = () => {
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container flex flex-col items-center justify-between gap-4 md:h-[322px] md:flex-row md:py-8">
-        <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2">
+        <div className="flex items-center space-x-2">
           <Link href="/">
             <Image
               src="/leaflogo.svg"
-              alt="Amaly Logo"
+              alt="Logo Amaly"
               width={50}
               height={50}
             />
           </Link>
-          <p className="text-center text-lg font-semibold md:text-left">
-            Amaly
-          </p>
+          <h1 className="text-white text-3xl font-bold">Amaly</h1>
         </div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
           <div className="flex flex-col space-y-2 text-center md:text-left">
