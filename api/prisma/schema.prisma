@@ -24,6 +24,7 @@ model Users {
   updated_at    DateTime       @updatedAt
   members       Members?
   refresh_token RefreshToken[]
+  Polls         Polls[]
   Votes         Votes[]
 
   @@map("users")
@@ -46,8 +47,8 @@ model Organizations {
   updated_at DateTime     @updatedAt
   members    Members[]
   activities Activities[]
-  ags        Ags[]
-  donations  Donations[]
+  Ags        Ags[]
+  Donations  Donations[]
   Documents  Documents[]
 
   @@map("organizations")
@@ -95,9 +96,9 @@ model Ags {
   quorum         Int
   organization   Organizations @relation(fields: [organizationId], references: [id])
   organizationId Int
-  votes          Votes[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+  Polls          Polls[]
 
   @@map("ags")
 }
@@ -107,14 +108,36 @@ enum AGType {
   EXTRAORDINARY
 }
 
+model Polls {
+  id        Int       @id @default(autoincrement())
+  text      String    @db.VarChar(255)
+  ag        Ags       @relation(fields: [agId], references: [id])
+  agId      Int
+  createdAt DateTime  @default(now())
+  Users     Users?    @relation(fields: [usersId], references: [id])
+  usersId   Int?
+  Choices   Choices[]
+
+  @@map("polls")
+}
+
+model Choices {
+  id     Int     @id @default(autoincrement())
+  choice String
+  Poll   Polls   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  pollId Int
+  Votes  Votes[]
+
+  @@map("choices")
+}
+
 model Votes {
   id        Int      @id @default(autoincrement())
-  choice    String
-  ag        Ags      @relation(fields: [agId], references: [id])
-  agId      Int
   user      Users    @relation(fields: [userId], references: [id])
   userId    Int
   createdAt DateTime @default(now())
+  choice    Choices  @relation(fields: [choiceId], references: [id])
+  choiceId  Int
 
   @@map("votes")
 }
