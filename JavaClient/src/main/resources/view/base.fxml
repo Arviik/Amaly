@@ -42,7 +42,7 @@
                         <Font name="System Bold" size="16.0" />
                      </font>
                   </Label>
-                  <MFXComboBox fx:id="taskSelectThingToAdd" floatMode="BORDER" floatingText="Type d'ajout" layoutX="35.0" layoutY="342.0" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="28.0" AnchorPane.leftAnchor="35.0" AnchorPane.rightAnchor="35.0" AnchorPane.topAnchor="325.0" />
+                  <MFXComboBox fx:id="taskSelectThingToAdd" floatMode="BORDER" floatingText="Type d'ajout" layoutX="35.0" layoutY="342.0" maxHeight="-Infinity" minHeight="-Infinity" onAction="#onThingToAddChange" prefHeight="28.0" AnchorPane.leftAnchor="35.0" AnchorPane.rightAnchor="35.0" AnchorPane.topAnchor="325.0" />
                   <MFXComboBox fx:id="taskToAddTo" floatMode="BORDER" floatingText="Tâche" layoutX="35.0" layoutY="377.0" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="28.0" AnchorPane.leftAnchor="35.0" AnchorPane.rightAnchor="35.0" AnchorPane.topAnchor="365.0" />
                   <MFXComboBox fx:id="taskThingToAdd" floatMode="BORDER" floatingText="Valeur" layoutX="35.0" layoutY="412.0" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="28.0" AnchorPane.leftAnchor="35.0" AnchorPane.rightAnchor="35.0" AnchorPane.topAnchor="405.0" />
                   <MFXButton layoutX="80.0" layoutY="240.0" onAction="#onTaskSubmit" text="Valider" AnchorPane.leftAnchor="72.0" AnchorPane.rightAnchor="72.0" AnchorPane.topAnchor="240.0" />
@@ -54,7 +54,7 @@
             <AnchorPane prefHeight="200.0" prefWidth="200.0">
                 <AnchorPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="230.0" AnchorPane.topAnchor="0.0">
                <children>
-                  <MFXTableView AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                  <MFXTableView fx:id="resourceTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                </children></AnchorPane>
                 <AnchorPane AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
