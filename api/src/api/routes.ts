@@ -9,9 +9,14 @@ import {initAGS} from "./routes/ags";
 import {initDocuments} from "./routes/documents";
 import {initDonations} from "./routes/donations";
 import {initVotes} from "./routes/votes";
+import {initResourceType} from "./routes/resource-types";
+import {initResource} from "./routes/resources";
+import {initTask} from "./routes/tasks";
+import {initAssignment} from "./routes/assignments";
+import {initTaskResource} from "./routes/task-resources";
 
 export const initRoutes = (app: express.Express) => {
-    app.get("/health", (req, res) => {
+    app.get("/health", (_req, res) => {
         res.status(200).json({ data: "lol" });
     });
 
@@ -24,6 +29,11 @@ export const initRoutes = (app: express.Express) => {
     initDocuments(app);
     initDonations(app);
     initVotes(app);
+    initResourceType(app);
+    initResource(app);
+    initTask(app);
+    initAssignment(app);
+    initTaskResource(app);
 
     app.use(invalidPath);
 };
