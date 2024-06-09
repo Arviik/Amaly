@@ -11,6 +11,11 @@ import {initDonations} from "./routes/donations";
 import {initVotes} from "./routes/votes";
 import {initPolls} from "./routes/polls";
 import {initChoices} from "./routes/choices";
+import {initResourceType} from "./routes/resource-types";
+import {initResource} from "./routes/resources";
+import {initTask} from "./routes/tasks";
+import {initAssignment} from "./routes/assignments";
+import {initTaskResource} from "./routes/task-resources";
 
 export const initRoutes = (app: express.Express) => {
     app.get("/health", (_req, res) => {
@@ -26,6 +31,11 @@ export const initRoutes = (app: express.Express) => {
     initDocuments(app);
     initDonations(app);
     initVotes(app);
+    initResourceType(app);
+    initResource(app);
+    initTask(app);
+    initAssignment(app);
+    initTaskResource(app);
     initPolls(app);
     initChoices(app)
 
