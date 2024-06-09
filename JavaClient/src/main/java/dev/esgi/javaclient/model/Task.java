@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -16,6 +15,4 @@ public class Task {
     private String details;
     private LocalDateTime startsAt;
     private LocalDateTime endsAt;
-    private List<Member> participants;
-    private List<Resource> usedResources;
 }
