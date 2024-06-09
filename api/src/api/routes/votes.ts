@@ -39,9 +39,8 @@ export const initVotes = (app: express.Express) => {
         try {
             const vote = await prisma.votes.create({
                 data: {
-                    choice: votesRequest.choice,
-                    agId: votesRequest.agId,
                     userId: votesRequest.userId,
+                    choiceId: votesRequest.choiceId,
                 },
             });
             res.json(vote);

@@ -1,0 +1,47 @@
+.choice-card{
+    position: relative;
+    border-radius: 5px;
+    border: 1px solid #efefef;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: border-color 0.1s ease-in;
+}
+
+.choice-card > label{
+    margin-left: 10px;
+}
+
+input[type="checkbox"]{
+    scale: 1.5;
+    margin-right: 15px;
+}
+
+.view-result{
+    border: 1px solid #7cd8ff;
+}
+
+.stat-bar{
+    position: absolute;
+    width: 0;
+    transition: width 0ms ease-in-out;
+}
+
+.stat-bar-active{
+    display: block;
+    height: 100%;
+    width: 50%;
+    background-color: rgba(124, 216, 255, 0.35);
+    transition: width 500ms ease-in-out;
+}
+
+.result-card{
+    display: flex;
+    flex-direction: column;
+}
+
+.result-card > .stats{
+    font-size: 0.5em;
+}
