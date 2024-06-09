@@ -52,7 +52,7 @@ public class RestService<T> {
                 .retrieve()
                 .toEntity(classType);
 
-        logger.info("Requested to ${} ended with status code is ${}", apiPath, responseEntity.getStatusCode().value());
+        logger.info("Requested to ${} ended with status code ${}", apiPath, responseEntity.getStatusCode().value());
         return responseEntity.getBody();
     }
 
