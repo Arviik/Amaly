@@ -1,0 +1,41 @@
+#root{
+    display: flex;
+    flex-direction: column;
+}
+
+.fileCard{
+    border: solid 1px #d5d5d5;
+    background-color: transparent;
+    border-radius: 5px;
+    color: #d5d5d5;
+    width: 200px;
+    height: 300px;
+    padding: 10px;
+    margin: 10px;
+    overflow: hidden;
+}
+
+.fileCard > h3{
+    margin: 0;
+}
+
+#fileList{
+    margin: 10px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#dropZone{
+    width: 300px;
+    height: 300px;
+    line-height: 300px;
+    border: solid 1px #d5d5d5;
+    text-align: center;
+    border-radius: 5px;
+    transition: border 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+#dropZone.drop-active{
+    border: solid 1px #40b8ff;
+    color: #40b8ff;
+}
