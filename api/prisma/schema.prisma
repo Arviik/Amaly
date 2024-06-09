@@ -117,8 +117,15 @@ model Polls {
   Users     Users?    @relation(fields: [usersId], references: [id])
   usersId   Int?
   Choices   Choices[]
+  modality  Modality  @default(ONE)
+  closed    Boolean   @default(false)
 
   @@map("polls")
+}
+
+enum Modality {
+  ONE
+  TWO
 }
 
 model Choices {

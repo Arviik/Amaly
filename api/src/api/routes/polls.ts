@@ -52,7 +52,8 @@ export const initPolls = (app: express.Express) => {
                 data: {
                     text: pollsRequest.text,
                     agId: pollsRequest.agId,
-                    usersId: pollsRequest.usersId
+                    usersId: pollsRequest.usersId,
+                    modality: pollsRequest.modality
                 },
             });
             const choices: any[] = [];
