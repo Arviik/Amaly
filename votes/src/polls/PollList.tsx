@@ -7,7 +7,12 @@ export interface Poll{
     id?: string;
     text: string;
     createdAt: Date;
-    choices: Choice[]
+    choices: Choice[];
+    modality: string
+}
+
+export enum Modality{
+    "ONE", "TWO"
 }
 
 export interface Choice{
@@ -30,7 +35,7 @@ export const PollList = () => {
 
     return (
         <div className="poll-list-container">
-            {polls.map((poll, index) => (<PollCard key={index} poll={poll} />))}
+            {polls.map((poll, index) => (<PollCard reloadList={loadPolls} key={index} poll={poll} />))}
         </div>
     )
 }
