@@ -66,8 +66,9 @@ model Members {
   users           Users         @relation(fields: [userId], references: [id])
   userId          Int           @unique
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+  Assignments Assignments[]
 
   @@map("members")
 }
@@ -137,6 +138,7 @@ model Documents {
   id             Int           @id @default(autoincrement())
   title          String
   description    String
+  path           String        @default("/")
   file           Bytes
   organization   Organizations @relation(fields: [organizationId], references: [id])
   organizationId Int
@@ -157,4 +159,54 @@ model RefreshToken {
 
   @@index([user_id], map: "refreshToken_userId_fkey")
   @@map("refresh_token")
+}
+
+model ResourceTypes {
+  id        Int         @id @default(autoincrement())
+  type      String
+  Resources Resources[]
+
+  @@map("resource_types")
+}
+
+model Resources {
+  id             Int             @id @default(autoincrement())
+  name           String
+  resourceTypeId Int
+  resourceType   ResourceTypes   @relation(fields: [resourceTypeId], references: [id])
+  TaskResources  TaskResources[]
+
+  @@map("resources")
+}
+
+model Tasks {
+  id            Int             @id @default(autoincrement())
+  name          String
+  details       String
+  startsAt      DateTime
+  endsAt        DateTime
+  assignments   Assignments[]
+  taskResources TaskResources[]
+
+  @@map("tasks")
+}
+
+model Assignments {
+  id       Int     @id @default(autoincrement())
+  memberId Int
+  taskId   Int
+  member   Members @relation(fields: [memberId], references: [id])
+  task     Tasks   @relation(fields: [taskId], references: [id])
+
+  @@map("assignments")
+}
+
+model TaskResources {
+  id         Int       @id @default(autoincrement())
+  taskId     Int
+  resourceId Int
+  task       Tasks     @relation(fields: [taskId], references: [id])
+  resource   Resources @relation(fields: [resourceId], references: [id])
+
+  @@map("task_resources")
 }

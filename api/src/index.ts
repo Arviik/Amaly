@@ -17,7 +17,8 @@ const main = async () => {
 
     app.use(cors())
 
-    app.use(express.json({limit: "50mb"}))
+
+    app.use(express.json({ limit: '50mb' }))
 
     app.listen(port, () => {
         console.log(`Server running on port ${port}`);
