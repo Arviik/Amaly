@@ -52,27 +52,31 @@ public class RestService<T> {
                 .retrieve()
                 .toEntity(classType);
 
-        logger.info("Requested to ${} ended with status code ${}", apiPath, responseEntity.getStatusCode().value());
+        logger.info("Post request to {} ended with status code {}", apiPath, responseEntity.getStatusCode().value());
         return responseEntity.getBody();
     }
 
     public T patch(T updatedObject) {
-        return restClient.patch()
+        ResponseEntity<T> responseEntity = restClient.patch()
                 .uri(apiPath)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(updatedObject)
                 .retrieve()
-                .toEntity(classType)
-                .getBody();
+                .toEntity(classType);
+
+        logger.info("Patch request to {} ended with status code {}", apiPath, responseEntity.getStatusCode().value());
+        return responseEntity.getBody();
     }
 
     public T delete(int id) {
-        return restClient.delete()
+        ResponseEntity<T> responseEntity = restClient.delete()
                 .uri(apiPath + "/" + id)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .toEntity(classType)
-                .getBody();
+                .toEntity(classType);
+
+        logger.info("Delete request to {} ended with status code {}", apiPath, responseEntity.getStatusCode().value());
+        return responseEntity.getBody();
     }
 
     @SuppressWarnings("unchecked")
