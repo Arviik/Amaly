@@ -11,7 +11,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
 import com.calendarfx.view.TimeField;
 
 import java.net.URL;
@@ -51,13 +50,18 @@ public class BaseController implements Initializable {
     private List<Member> memberList;
     private List<Resource> resourceList;
 
-    public BaseController(RestClient restClient) {
-        this.assignmentRestService = new RestService<>(restClient, Assignment.class, "/assignments");
-        this.memberRestService = new RestService<>(restClient, Member.class, "/members");
-        this.resourceRestService = new RestService<>(restClient, Resource.class, "/resources");
-        this.resourceTypeRestService = new RestService<>(restClient, ResourceType.class, "/resource-types");
-        this.taskRestService = new RestService<>(restClient, Task.class, "/tasks");
-        this.taskResourceRestService = new RestService<>(restClient, TaskResource.class, "/task-resources");
+    public BaseController(RestService<Assignment> assignmentRestService,
+                          RestService<Member> memberRestService,
+                          RestService<Resource> resourceRestService,
+                          RestService<ResourceType> resourceTypeRestService,
+                          RestService<Task> taskRestService,
+                          RestService<TaskResource> taskResourceRestService) {
+        this.assignmentRestService = assignmentRestService;
+        this.memberRestService = memberRestService;
+        this.resourceRestService = resourceRestService;
+        this.resourceTypeRestService = resourceTypeRestService;
+        this.taskRestService = taskRestService;
+        this.taskResourceRestService = taskResourceRestService;
     }
 
     @Override
