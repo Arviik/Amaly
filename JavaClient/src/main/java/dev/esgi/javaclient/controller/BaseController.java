@@ -1,7 +1,7 @@
 package dev.esgi.javaclient.controller;
 
 import dev.esgi.javaclient.model.*;
-import dev.esgi.javaclient.rest.services.RestService;
+import dev.esgi.javaclient.rest.services.RestRepository;
 import io.github.palexdev.materialfx.controls.*;
 import io.github.palexdev.materialfx.controls.cell.MFXTableRowCell;
 import io.github.palexdev.materialfx.filter.StringFilter;
@@ -40,28 +40,13 @@ public class BaseController implements Initializable {
     @FXML private MFXComboBox<Task> taskToAddTo;
     @FXML private MFXTextField typeTypeField;
 
-    private final RestService<Assignment> assignmentRestService;
-    private final RestService<Member> memberRestService;
-    private final RestService<Resource> resourceRestService;
-    private final RestService<ResourceType> resourceTypeRestService;
-    private final RestService<Task> taskRestService;
-    private final RestService<TaskResource> taskResourceRestService;
+    private final RestRepository restRepository;
 
     private List<Member> memberList;
     private List<Resource> resourceList;
 
-    public BaseController(RestService<Assignment> assignmentRestService,
-                          RestService<Member> memberRestService,
-                          RestService<Resource> resourceRestService,
-                          RestService<ResourceType> resourceTypeRestService,
-                          RestService<Task> taskRestService,
-                          RestService<TaskResource> taskResourceRestService) {
-        this.assignmentRestService = assignmentRestService;
-        this.memberRestService = memberRestService;
-        this.resourceRestService = resourceRestService;
-        this.resourceTypeRestService = resourceTypeRestService;
-        this.taskRestService = taskRestService;
-        this.taskResourceRestService = taskResourceRestService;
+    public BaseController(RestRepository restRepository) {
+        this.restRepository = restRepository;
     }
 
     @Override
@@ -74,23 +59,23 @@ public class BaseController implements Initializable {
 
     private void initResource() {
         MFXTableColumn<Resource> nameColumn = new MFXTableColumn<>("Nom", true, Comparator.comparing(Resource::getName));
-        MFXTableColumn<Resource> typeColumn = new MFXTableColumn<>("Type", true, Comparator.comparing(resource -> resourceTypeRestService.getById(resource.getResourceTypeId()).getType()));
+        MFXTableColumn<Resource> typeColumn = new MFXTableColumn<>("Type", true, Comparator.comparing(resource -> restRepository.getById(ResourceType.class, resource.getResourceTypeId()).getType()));
 
         nameColumn.setRowCellFactory(resource -> new MFXTableRowCell<>(Resource::getName));
-        typeColumn.setRowCellFactory(resource -> new MFXTableRowCell<>(resource1 -> resourceTypeRestService.getById(resource1.getResourceTypeId()).getType()));
+        typeColumn.setRowCellFactory(resource -> new MFXTableRowCell<>(resource1 -> restRepository.getById(ResourceType.class, resource1.getResourceTypeId()).getType()));
 
         resourceTable.getTableColumns().add(nameColumn);
         resourceTable.getTableColumns().add(typeColumn);
 
         resourceTable.getFilters().add(new StringFilter<>("Nom", Resource::getName));
-        resourceTable.getFilters().add(new StringFilter<>("Type", resource -> resourceTypeRestService.getById(resource.getResourceTypeId()).getType()));
+        resourceTable.getFilters().add(new StringFilter<>("Type", resource -> restRepository.getById(ResourceType.class, resource.getResourceTypeId()).getType()));
 
-        resourceList = List.of(resourceRestService.get());
+        resourceList = List.of(restRepository.getAll(Resource.class));
         resourceTable.getItems().addAll(resourceList);
     }
 
     private void initResourceType() {
-        resourceTypeField.getItems().addAll(resourceTypeRestService.get());
+        resourceTypeField.getItems().addAll(restRepository.getAll(ResourceType.class));
         resourceTypeField.setConverter(FunctionalStringConverter.to(resourceType -> (resourceType == null ? "" : String.valueOf(resourceType.getType()))));
     }
 
@@ -123,7 +108,7 @@ public class BaseController implements Initializable {
         taskTable.getFilters().add(new StringFilter<>("Membres", this::getTaskMembers));
         taskTable.getFilters().add(new StringFilter<>("Ressources", this::geTaskResources));
 
-        List<Task> taskList = List.of(taskRestService.get());
+        List<Task> taskList = List.of(restRepository.getAll(Task.class));
         taskTable.getItems().addAll(taskList);
 
         taskToAddTo.getItems().addAll(taskList);
@@ -154,7 +139,7 @@ public class BaseController implements Initializable {
 
     @FXML
     void onResourceSubmit() {
-        Resource newResource = resourceRestService.post(new Resource(
+        Resource newResource = restRepository.save(new Resource(
                 0,
                 resourceNameField.getText(),
                 resourceTypeField.getSelectedItem().getId()
@@ -167,7 +152,7 @@ public class BaseController implements Initializable {
 
     @FXML
     void onTaskSubmit() {
-        Task newTask = taskRestService.post(new Task(
+        Task newTask = restRepository.save(new Task(
                 0,
                 taskNameField.getText(),
                 taskDetailsField.getText(),
@@ -187,7 +172,7 @@ public class BaseController implements Initializable {
 
     @FXML
     void onTypeSubmit() {
-        ResourceType newResourceType = resourceTypeRestService.post(new ResourceType(
+        ResourceType newResourceType = restRepository.save(new ResourceType(
                 0,
                 typeTypeField.getText()
         ));
@@ -197,12 +182,12 @@ public class BaseController implements Initializable {
     }
 
     private String getTaskMembers(Task task) {
-        Assignment[] assignments = assignmentRestService.get();
+        Assignment[] assignments = restRepository.getAll(Assignment.class);
         StringBuilder result = new StringBuilder();
 
         for (Assignment assignment : assignments) {
             if (assignment.getTaskId() == task.getId()) {
-                result.append(memberRestService.getById(assignment.getMemberId()).getName());
+                result.append(restRepository.getById(Member.class, assignment.getMemberId()).getName());
                 result.append(", ");
             }
         }
@@ -216,12 +201,12 @@ public class BaseController implements Initializable {
     }
 
     private String geTaskResources(Task task) {
-        TaskResource[] taskResources = taskResourceRestService.get();
+        TaskResource[] taskResources = restRepository.getAll(TaskResource.class);
         StringBuilder result = new StringBuilder();
 
         for (TaskResource taskResource : taskResources) {
             if (taskResource.getTaskId() == task.getId()) {
-                result.append(resourceRestService.getById(taskResource.getResourceId()).getName());
+                result.append(restRepository.getById(Resource.class, taskResource.getResourceId()).getName());
                 result.append(", ");
             }
         }

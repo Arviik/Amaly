@@ -1,6 +1,7 @@
 package dev.esgi.javaclient.rest.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,7 +92,8 @@ public class RestService<T> {
     }
 
     private ObjectNode getObjectJsonWithoutId(T object) {
-        ObjectNode node = new ObjectMapper().valueToTree(object);
+        ObjectMapper mapper = JsonMapper.builder().findAndAddModules().build();
+        ObjectNode node = mapper.valueToTree(object);
         node.remove("id");
         return node;
     }
