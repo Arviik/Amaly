@@ -210,3 +210,13 @@ model TaskResources {
 
   @@map("task_resources")
 }
+
+model JavaVersions {
+  id           Int      @id @default(autoincrement())
+  versionName  String   @unique
+  experimental Boolean
+  file         Bytes
+  uploadDate   DateTime @default(now())
+
+  @@map("java_versions")
+}
