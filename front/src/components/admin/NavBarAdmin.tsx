@@ -27,7 +27,7 @@ const NavBarAdmin: React.FC = () => {
             "translate-x-0": isOpen || !isCollapsed,
             "-translate-x-full": !isOpen && isCollapsed,
             "w-64": !isCollapsed,
-            "w-14": isCollapsed,
+            "w-15": isCollapsed,
           },
           "sm:translate-x-0"
         )}
