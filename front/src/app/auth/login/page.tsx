@@ -1,16 +1,37 @@
-import Image from "next/image";
+import { useState } from "react";
+import { useRouter } from "next/router";
 import Link from "next/link";
-import { Button } from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
-import { Label } from "../../../components/ui//label";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../../components/ui/card";
+import Image from "next/image";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { login } from "@/api/services/auth";
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const credentials = { email, password };
+      await login(credentials);
+      // La redirection est gérée dans la fonction login
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Une erreur s'est produite lors de la connexion");
+      }
+      console.error("Login error:", error);
+    }
+  };
+
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       <div className="flex items-center justify-center bg-background p-8 lg:p-12">
@@ -28,7 +49,8 @@ export default function LoginPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4">
+            <form onSubmit={handleSubmit} className="grid gap-4">
+              {error && <div className="text-red-500">{error}</div>}
               <div>
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -36,6 +58,8 @@ export default function LoginPage() {
                   type="email"
                   placeholder="votre@email.com"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div>
@@ -48,15 +72,21 @@ export default function LoginPage() {
                     Mot de passe oublié ?
                   </Link>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
               <Button type="submit" className="w-full">
                 Se connecter
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" type="button">
                 Se connecter avec Google
               </Button>
-            </div>
+            </form>
             <div className="mt-4 text-center text-sm text-muted-foreground">
               Pas encore de compte ?{" "}
               <Link href="/signup" className="underline">
