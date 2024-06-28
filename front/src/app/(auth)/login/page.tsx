@@ -3,19 +3,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { useDispatch } from "react-redux";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { authService } from "@/api/services/auth";
 import { LoginRequest } from "@/api/type";
-import { isAdmin } from "@/api/config";
+import { tokenUtils } from "@/api/config";
+import { setCredentials } from "@/app/store/slices/authSlice";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,11 +26,23 @@ export default function LoginPage() {
 
     try {
       const credentials: LoginRequest = { email, password };
-      await authService.login(credentials);
-      if (isAdmin()) {
-        router.push("/dashboard");
-      } else {
-        router.push("/");
+      const result = await authService.login(credentials);
+      dispatch(setCredentials(result));
+
+      // Redirection basée sur le rôle
+      const decodedToken = tokenUtils.decodeToken(result.accessToken);
+      switch (decodedToken.userRole) {
+        case "SUPER_ADMIN":
+          router.push("/super-admin/dashboard");
+          break;
+        case "ADMIN":
+          router.push("/dashboard");
+          break;
+        case "USER":
+          router.push("/member/dashboard");
+          break;
+        default:
+          router.push("/");
       }
     } catch (error) {
       if (error instanceof Error) {

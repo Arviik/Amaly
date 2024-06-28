@@ -1,9 +1,12 @@
+import { store } from "@/app/store";
+import { logout as logoutAction } from "@/app/store/slices/authSlice";
 import { api, tokenUtils, refreshToken } from "../config";
 import {
   LoginRequest,
   LoginResponse,
   TokenResponse,
   DecodedToken,
+  CheckSession,
 } from "../type";
 
 export const authService = {
@@ -37,6 +40,7 @@ export const authService = {
       console.error("Logout error:", error);
     } finally {
       tokenUtils.clearTokens();
+      store.dispatch(logoutAction());
     }
   },
 
@@ -78,5 +82,19 @@ export const authService = {
       }
     }
     return true;
+  },
+
+  checkSession: async (): Promise<CheckSession | null> => {
+    try {
+      const response = await api.get("auth/check");
+      if (response.ok) {
+        const data = await response.json<CheckSession>();
+        return { userId: data.userId, userRole: data.userRole };
+      }
+      return null;
+    } catch (error) {
+      console.error("Session check error:", error);
+      return null;
+    }
   },
 };

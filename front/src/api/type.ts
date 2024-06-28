@@ -17,6 +17,11 @@ export interface DecodedToken {
   jti?: string;
 }
 
+export interface CheckSession {
+  userId: number;
+  userRole: string;
+}
+
 export interface LoginResponse extends TokenResponse {}
 
 export interface RefreshTokenRequest {
