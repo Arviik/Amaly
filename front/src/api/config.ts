@@ -1,50 +1,62 @@
 import ky from "ky";
-import Router from "next/router";
 import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
 import { DecodedToken, TokenResponse } from "./type";
 
-const API_URl = process.env.NEXT_PUBLIC_API_URL;
-
 const tokenUtils = {
-  getAccessToken: () => localStorage.getItem("accessToken"),
-  setAccessToken: (token: string) => localStorage.setItem("accessToken", token),
-  getRefreshToken: () => localStorage.getItem("refreshToken"),
-  setRefreshToken: (token: string) =>
-    localStorage.setItem("refreshToken", token),
+  getTokens: (): TokenResponse | null => {
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = Cookies.get("refreshToken");
+    return accessToken && refreshToken ? { accessToken, refreshToken } : null;
+  },
+  setTokens: (tokenObject: TokenResponse) => {
+    localStorage.setItem("accessToken", tokenObject.accessToken);
+    Cookies.set("refreshToken", tokenObject.refreshToken, {
+      expires: 7,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+  },
   clearTokens: () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    Cookies.remove("refreshToken");
   },
   decodeToken: (token: string): DecodedToken => jwtDecode(token),
 };
 
 const api = ky.create({
-  prefixUrl: API_URl,
+  prefixUrl: process.env.NEXT_PUBLIC_API_URL,
+  timeout: 8000,
   hooks: {
     beforeRequest: [
-      async (request) => {
-        const accessToken = tokenUtils.getAccessToken();
-        if (accessToken) {
-          request.headers.set("Authorization", `Bearer ${accessToken}`);
+      (request) => {
+        const tokens = tokenUtils.getTokens();
+        if (tokens?.accessToken) {
+          request.headers.set("Authorization", `Bearer ${tokens.accessToken}`);
         }
       },
     ],
     afterResponse: [
       async (request, options, response) => {
         if (response.status === 401) {
-          const refreshToken = tokenUtils.getRefreshToken();
-          if (refreshToken) {
-            const response = await api.post("auth/refreshToken", {
-              json: { refreshToken },
-            });
-            const data: TokenResponse = await response.json();
-            tokenUtils.setAccessToken(data.accessToken);
-            tokenUtils.setRefreshToken(data.refreshToken);
-            request.headers.set("Authorization", `Bearer ${data.accessToken}`);
-            return api(request);
-          } else {
-            tokenUtils.clearTokens();
-            Router.push("/login");
+          const tokens = tokenUtils.getTokens();
+          if (tokens?.refreshToken) {
+            try {
+              const refreshResponse = await api
+                .post("auth/refreshToken", {
+                  json: { token: tokens.refreshToken },
+                })
+                .json<TokenResponse>();
+              tokenUtils.setTokens(refreshResponse);
+              request.headers.set(
+                "Authorization",
+                `Bearer ${refreshResponse.accessToken}`
+              );
+              return ky(request);
+            } catch (error) {
+              tokenUtils.clearTokens();
+              throw error;
+            }
           }
         }
       },
@@ -52,11 +64,58 @@ const api = ky.create({
   },
 });
 
-const isAdmin = (): boolean => {
-  const token = tokenUtils.getAccessToken();
-  if (!token) return false;
-  const decoded = tokenUtils.decodeToken(token);
-  return ["admin", "super_admin"].includes(decoded.userRole);
+let refreshPromise: Promise<boolean> | null = null;
+
+const refreshToken = async (): Promise<boolean> => {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = new Promise(async (resolve) => {
+    const tokens = tokenUtils.getTokens();
+    if (!tokens?.refreshToken) {
+      resolve(false);
+      return;
+    }
+
+    try {
+      const refreshResponse = await api
+        .post("auth/refreshToken", {
+          json: { token: tokens.refreshToken },
+        })
+        .json<TokenResponse>();
+
+      tokenUtils.setTokens(refreshResponse);
+      resolve(true);
+    } catch (error) {
+      tokenUtils.clearTokens();
+      resolve(false);
+    } finally {
+      refreshPromise = null;
+    }
+  });
+
+  return refreshPromise;
 };
 
-export { api, tokenUtils, isAdmin };
+const getUserRole = (): string | null => {
+  const tokens = tokenUtils.getTokens();
+  if (!tokens?.accessToken) {
+    return null;
+  }
+
+  try {
+    const decodedToken = tokenUtils.decodeToken(
+      tokens.accessToken
+    ) as DecodedToken;
+    return decodedToken.userRole || null;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
+  }
+};
+
+const isAdmin = (): boolean => {
+  const role = getUserRole();
+  return role === "ADMIN" || role === "SUPER_ADMIN";
+};
+
+export { api, tokenUtils, refreshToken, getUserRole, isAdmin };

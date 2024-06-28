@@ -1,12 +1,15 @@
+"use client";
 import { useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { login } from "@/api/services/auth";
+import { authService } from "@/api/services/auth";
+import { LoginRequest } from "@/api/type";
+import { isAdmin } from "@/api/config";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -19,9 +22,13 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const credentials = { email, password };
-      await login(credentials);
-      // La redirection est gérée dans la fonction login
+      const credentials: LoginRequest = { email, password };
+      await authService.login(credentials);
+      if (isAdmin()) {
+        router.push("/dashboard");
+      } else {
+        router.push("/");
+      }
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -80,7 +87,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" onSubmit={handleSubmit}>
                 Se connecter
               </Button>
               <Button variant="outline" className="w-full" type="button">

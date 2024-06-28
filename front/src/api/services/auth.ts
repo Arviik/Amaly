@@ -1,10 +1,9 @@
-import { api, isAdmin, tokenUtils } from "../config";
-import Router from "next/router";
+import { api, tokenUtils, refreshToken } from "../config";
 import {
-  DecodedToken,
   LoginRequest,
   LoginResponse,
   TokenResponse,
+  DecodedToken,
 } from "../type";
 
 export const authService = {
@@ -14,18 +13,8 @@ export const authService = {
       const result: TokenResponse = await response.json();
 
       if (result.accessToken && result.refreshToken) {
-        // Stockage des tokens dans localStorage
-        tokenUtils.setAccessToken(result.accessToken);
-        tokenUtils.setRefreshToken(result.refreshToken);
-
-        // Rediriger l'utilisateur en fonction de son rôle
-        if (isAdmin()) {
-          Router.push("/dashboard"); // Redirection vers le dashboard pour les admins
-        } else {
-          Router.push("/home"); // Redirection vers la page d'accueil pour les autres utilisateurs
-        }
-
-        return response.json<LoginResponse>();
+        tokenUtils.setTokens(result);
+        return result;
       } else {
         throw new Error("Invalid login credentials");
       }
@@ -35,33 +24,59 @@ export const authService = {
     }
   },
 
-  logout: () => {
-    tokenUtils.clearTokens();
-    Router.push("/login");
+  logout: async () => {
+    try {
+      const tokens = tokenUtils.getTokens();
+      if (tokens?.refreshToken) {
+        await api.post("auth/revokeRefreshToken", {
+          json: { token: tokens.refreshToken },
+        });
+      }
+      console.log("Logout successful");
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      tokenUtils.clearTokens();
+    }
   },
 
-  checkAuth: () => {
-    // Vérifier si l'utilisateur est authentifié en vérifiant la présence d'un accessToken valide
-    const token = tokenUtils.getAccessToken();
-    if (token) {
-      try {
-        const decoded: DecodedToken = tokenUtils.decodeToken(token);
-        if (decoded.expiresIn) {
-          // Vérifier si le token a expiré
-          const expiresAt = new Date(decoded.expiresIn).getTime();
-          if (expiresAt < Date.now()) {
-            authService.logout();
-            return false;
-          }
-        }
-        return true;
-      } catch (error) {
-        console.error("Token validation error:", error);
-        authService.logout();
-        return false;
-      }
-    } else {
+  checkAuth: async (): Promise<boolean> => {
+    const tokens = tokenUtils.getTokens();
+    if (!tokens?.accessToken) {
       return false;
     }
+
+    try {
+      const decoded: DecodedToken = tokenUtils.decodeToken(tokens.accessToken);
+      const currentTime = Math.floor(Date.now() / 1000);
+
+      if (decoded.exp && decoded.exp < currentTime) {
+        // Token expiré, essayer de le rafraîchir
+        const refreshed = await refreshToken();
+        if (!refreshed) {
+          await authService.logout();
+          return false;
+        }
+        return true;
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Token validation error:", error);
+      await authService.logout();
+      return false;
+    }
+  },
+
+  checkAndRefreshSession: async (): Promise<boolean> => {
+    const isAuthenticated = await authService.checkAuth();
+    if (!isAuthenticated) {
+      const refreshed = await refreshToken();
+      if (!refreshed) {
+        await authService.logout();
+        return false;
+      }
+    }
+    return true;
   },
 };
