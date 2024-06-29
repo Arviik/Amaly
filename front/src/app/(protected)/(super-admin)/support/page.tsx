@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { authService } from "@/api/services/auth";
-import LogoutButton from "@/components/LogoutButton";
+import LogoutButton from "@/components/public/LogoutButton";
 
 const superAdminDashboard: React.FC = () => {
   return (
@@ -71,7 +71,7 @@ const superAdminDashboard: React.FC = () => {
                   </Card>
                 </div>
                 <div className="mt-6 flex justify-end">
-                  <LogoutButton />
+                  <LogoutButton isCollapsed />
                 </div>
               </CardContent>
             </Card>

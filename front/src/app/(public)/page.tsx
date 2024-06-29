@@ -2,9 +2,9 @@ import { Currency, Handshake, LucideFile, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import FeatureCard from "@/components/public/FeatureCard";
+import { Footer } from "@/components/public/Footer";
+import { Header } from "@/components/public/Header";
 
 const features = [
   {
