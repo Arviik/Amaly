@@ -17,7 +17,7 @@ import { useSuperAdminNav } from "./SuperAdminNavContext";
 
 export const navItems = [
   { icon: Home, label: "Overview", href: "/admin/overview" },
-  { icon: Building, label: "Associations", href: "/admin/associations" },
+  { icon: Building, label: "Organizations", href: "/admin/organization" },
   { icon: Users, label: "Users", href: "/admin/users" },
   { icon: Settings, label: "Settings", href: "/admin/settings" },
 ];

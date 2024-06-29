@@ -35,3 +35,12 @@ export interface ErrorResponse {
 export type LoginResponse2 = TokenResponse | ErrorResponse;
 
 export type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
+
+export interface Organization {
+  id: number;
+  name: string;
+  type: string;
+  address: string;
+  phone: string;
+  email: string;
+}

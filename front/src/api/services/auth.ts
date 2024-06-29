@@ -1,5 +1,8 @@
 import { store } from "@/app/store";
-import { logout as logoutAction } from "@/app/store/slices/authSlice";
+import {
+  logout as logoutAction,
+  setCredentials,
+} from "@/app/store/slices/authSlice";
 import { api, tokenUtils, refreshToken } from "../config";
 import {
   LoginRequest,
@@ -28,20 +31,8 @@ export const authService = {
   },
 
   logout: async () => {
-    try {
-      const tokens = tokenUtils.getTokens();
-      if (tokens?.refreshToken) {
-        await api.post("auth/revokeRefreshToken", {
-          json: { token: tokens.refreshToken },
-        });
-      }
-      console.log("Logout successful");
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
-      tokenUtils.clearTokens();
-      store.dispatch(logoutAction());
-    }
+    tokenUtils.clearTokens();
+    store.dispatch(logoutAction());
   },
 
   checkAuth: async (): Promise<boolean> => {
@@ -75,18 +66,41 @@ export const authService = {
   checkAndRefreshSession: async (): Promise<boolean> => {
     const isAuthenticated = await authService.checkAuth();
     if (!isAuthenticated) {
-      const refreshed = await refreshToken();
-      if (!refreshed) {
-        await authService.logout();
-        return false;
-      }
+      return false;
     }
-    return true;
+
+    // Si l'authentification locale est valide, vérifiez la session côté serveur
+    const sessionData = await authService.checkSession();
+    if (sessionData) {
+      // Mettre à jour les informations de l'utilisateur si nécessaire
+      store.dispatch(
+        setCredentials({
+          user: {
+            id: sessionData.userId.toString(),
+            role: sessionData.userRole,
+          },
+        })
+      );
+      return true;
+    }
+
+    // Si la session n'est pas valide côté serveur, déconnectez l'utilisateur
+    await authService.logout();
+    return false;
   },
 
   checkSession: async (): Promise<CheckSession | null> => {
     try {
-      const response = await api.get("auth/check");
+      const tokens = tokenUtils.getTokens();
+      if (!tokens?.accessToken) {
+        return null;
+      }
+
+      const response = await api.get("auth/check", {
+        headers: {
+          Authorization: `Bearer ${tokens.accessToken}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json<CheckSession>();
         return { userId: data.userId, userRole: data.userRole };

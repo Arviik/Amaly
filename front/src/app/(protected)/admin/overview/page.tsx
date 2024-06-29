@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import {
   Card,
   CardContent,
@@ -8,9 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { authService } from "@/api/services/auth";
-import LogoutButton from "@/components/public/LogoutButton";
+import React from "react";
 
 const superAdminDashboard: React.FC = () => {
   return (
@@ -34,7 +31,7 @@ const superAdminDashboard: React.FC = () => {
                     <CardContent>
                       <p>Gérez toutes les associations enregistrées.</p>
                       <Link
-                        href="/associations"
+                        href="/admin/organizations"
                         className="mt-2 inline-block text-primary hover:underline"
                       >
                         Voir les associations
@@ -48,7 +45,7 @@ const superAdminDashboard: React.FC = () => {
                     <CardContent>
                       <p>Gérez tous les utilisateurs de la plateforme.</p>
                       <Link
-                        href="/users"
+                        href="/admin/users"
                         className="mt-2 inline-block text-primary hover:underline"
                       >
                         Voir les utilisateurs
@@ -62,7 +59,7 @@ const superAdminDashboard: React.FC = () => {
                     <CardContent>
                       <p>Accédez aux rapports et statistiques globaux.</p>
                       <Link
-                        href="/reports"
+                        href="/admin/reports"
                         className="mt-2 inline-block text-primary hover:underline"
                       >
                         Voir les rapports
