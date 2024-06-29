@@ -29,20 +29,25 @@ export default function LoginPage() {
       const result = await authService.login(credentials);
       dispatch(setCredentials(result));
 
-      // Redirection basée sur le rôle
-      const decodedToken = tokenUtils.decodeToken(result.accessToken);
-      switch (decodedToken.userRole) {
-        case "SUPER_ADMIN":
-          router.push("/super-admin/dashboard");
-          break;
-        case "ADMIN":
-          router.push("/dashboard");
-          break;
-        case "USER":
-          router.push("/member/dashboard");
-          break;
-        default:
-          router.push("/");
+      // Vérifiez la session immédiatement après la connexion
+      const sessionData = await authService.checkSession();
+      if (sessionData) {
+        // Redirection basée sur le rôle
+        switch (sessionData.userRole) {
+          case "SUPER_ADMIN":
+            router.push("/support");
+            break;
+          case "ADMIN":
+            router.push("/dashboard");
+            break;
+          case "USER":
+            router.push("/member");
+            break;
+          default:
+            router.push("/");
+        }
+      } else {
+        throw new Error("La session n'a pas pu être établie");
       }
     } catch (error) {
       if (error instanceof Error) {

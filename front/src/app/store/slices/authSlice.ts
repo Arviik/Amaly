@@ -4,7 +4,7 @@ import { tokenUtils } from "@/api/config";
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: null | DecodedToken;
+  user: null | { id: string; role: string };
   accessToken: string | null;
   refreshToken: string | null;
 }
@@ -20,12 +20,17 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<TokenResponse>) => {
-      const { accessToken, refreshToken } = action.payload;
-      state.accessToken = accessToken;
-      state.refreshToken = refreshToken;
-      state.isAuthenticated = true;
-      state.user = tokenUtils.decodeToken(accessToken);
+    setCredentials: (state, action: PayloadAction<Partial<AuthState>>) => {
+      if (action.payload.user) {
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+      }
+      if (action.payload.accessToken) {
+        state.accessToken = action.payload.accessToken;
+      }
+      if (action.payload.refreshToken) {
+        state.refreshToken = action.payload.refreshToken;
+      }
     },
     logout: (state) => {
       state.isAuthenticated = false;
@@ -33,11 +38,8 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.refreshToken = null;
     },
-    updateAuthStatus: (state, action: PayloadAction<boolean>) => {
-      state.isAuthenticated = action.payload;
-    },
   },
 });
 
-export const { setCredentials, logout, updateAuthStatus } = authSlice.actions;
+export const { setCredentials, logout } = authSlice.actions;
 export default authSlice.reducer;

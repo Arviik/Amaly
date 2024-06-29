@@ -15,7 +15,7 @@ export const Header = () => {
       <nav>
         <ul className="flex space-x-4">
           <li>
-            <Link href="/auth/login" legacyBehavior>
+            <Link href="/login" legacyBehavior>
               <Button variant="link">Se connecter</Button>
             </Link>
           </li>

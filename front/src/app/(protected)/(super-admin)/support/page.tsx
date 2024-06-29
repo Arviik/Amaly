@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   Card,
@@ -7,8 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { authService } from "@/api/services/auth";
 
-const SuperAdminDashboard: React.FC = () => {
+const superAdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <main>
@@ -66,6 +69,11 @@ const SuperAdminDashboard: React.FC = () => {
                     </CardContent>
                   </Card>
                 </div>
+                <div className="mt-6 flex justify-end">
+                  <Button variant="destructive" onClick={authService.logout}>
+                    Déconnexion
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -75,4 +83,4 @@ const SuperAdminDashboard: React.FC = () => {
   );
 };
 
-export default SuperAdminDashboard;
+export default superAdminDashboard;
