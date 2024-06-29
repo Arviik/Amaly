@@ -70,9 +70,6 @@ const superAdminDashboard: React.FC = () => {
                     </CardContent>
                   </Card>
                 </div>
-                <div className="mt-6 flex justify-end">
-                  <LogoutButton isCollapsed />
-                </div>
               </CardContent>
             </Card>
           </div>
