@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { authService } from "@/api/services/auth";
+import LogoutButton from "@/components/LogoutButton";
 
 const superAdminDashboard: React.FC = () => {
   return (
@@ -70,9 +71,7 @@ const superAdminDashboard: React.FC = () => {
                   </Card>
                 </div>
                 <div className="mt-6 flex justify-end">
-                  <Button variant="destructive" onClick={authService.logout}>
-                    Déconnexion
-                  </Button>
+                  <LogoutButton />
                 </div>
               </CardContent>
             </Card>
