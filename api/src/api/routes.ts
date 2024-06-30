@@ -15,6 +15,7 @@ import {initTask} from "./routes/tasks";
 import {initAssignment} from "./routes/assignments";
 import {initTaskResource} from "./routes/task-resources";
 import {initJavaVersions} from "./routes/java-versions";
+import {initAI} from "./routes/openai";
 
 export const initRoutes = (app: express.Express) => {
     app.get("/health", (_req, res) => {
@@ -35,7 +36,8 @@ export const initRoutes = (app: express.Express) => {
     initTask(app);
     initAssignment(app);
     initTaskResource(app);
-    initJavaVersions(app)
+    initJavaVersions(app);
+    initAI(app);
 
     app.use(invalidPath);
 };
