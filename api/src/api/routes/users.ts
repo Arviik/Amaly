@@ -45,7 +45,6 @@ export const initUsers = (app: express.Express) => {
     try {
       const user = await prisma.users.create({
         data: {
-          // @ts-ignore
           first_name: userRequest.firstName,
           last_name: userRequest.lastName,
           email: userRequest.email,
