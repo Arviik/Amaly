@@ -21,11 +21,15 @@ export const initAI = (app: express.Express) => {
                 return;
             }
 
-            console.log(validation)
             const conversation = validation.value.messages
             const organization = await prisma.organizations.findUnique({
                 where: {
                     id: validation.value.organizationId
+                }
+            })
+            const ags = await prisma.ags.findMany({
+                where: {
+                    organizationId: validation.value.organizationId
                 }
             })
             if (!organization){
@@ -35,12 +39,12 @@ export const initAI = (app: express.Express) => {
             const thread = await openai.beta.threads.create({
                 messages: conversation
             })
-            console.log(`${organization}`)
             const run = await openai.beta.threads.runs.createAndPoll(thread.id,
                 {
                     assistant_id: assistant_id,
-                    instructions: "essaye de repondre à la requete de l'utilisateur avec les données suivantes : " +
-                        `${JSON.stringify(organization)}`,
+                    instructions: "Essaye de repondre à la requete de l'utilisateur avec les données suivantes : " +
+                        `Données de l'organisation : ${JSON.stringify(organization)}` +
+                        `Données des AGs : ${JSON.stringify(ags)}`,
                 }
             )
             let messages;
@@ -51,7 +55,7 @@ export const initAI = (app: express.Express) => {
             } else {
                 console.log(run.status);
             }
-            res.status(200).json({response: organization, conversation: conversation, thread: thread, messages: messages});
+            res.status(200).json({ag: ags,messages: messages});
         } catch (err) {
             res.status(500).send({error: err});
         }
@@ -80,8 +84,6 @@ export const initAI = (app: express.Express) => {
                 messages = await openai.beta.threads.messages.list(
                     run.thread_id
                 );
-            } else {
-                console.log(run.status);
             }
             res.status(200).json({conversation: conversation, messages: messages});
         } catch (err) {
