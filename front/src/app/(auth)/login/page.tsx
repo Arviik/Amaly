@@ -35,7 +35,7 @@ export default function LoginPage() {
         // Redirection basée sur le rôle
         switch (sessionData.userRole) {
           case "SUPER_ADMIN":
-            router.push("/overview");
+            router.push("/admin/overview");
             break;
           case "ADMIN":
             router.push("/dashboard");

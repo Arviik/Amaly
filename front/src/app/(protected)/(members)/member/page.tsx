@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
+import LogoutButton from "@/components/public/LogoutButton";
 
 const MemberDashboard: React.FC = () => {
   return (
@@ -76,6 +77,7 @@ const MemberDashboard: React.FC = () => {
                   </Card>
                 </div>
               </CardContent>
+              <LogoutButton isCollapsed />
             </Card>
           </div>
         </div>

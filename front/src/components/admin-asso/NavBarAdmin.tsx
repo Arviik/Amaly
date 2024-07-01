@@ -17,7 +17,7 @@ import NavItem from "./NavItem";
 
 export const navItems = [
   { icon: Home, label: "Dashboard", href: "/dashboard" },
-  { icon: Users, label: "Members", href: "/members" },
+  { icon: Users, label: "Members", href: "/ManageMembers" },
   { icon: File, label: "Documents", href: "/documents" },
   { icon: Settings, label: "Settings", href: "/settings" },
 ];
