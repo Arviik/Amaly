@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import Image from "next/image";
 
 export const Header = () => {
@@ -15,7 +15,7 @@ export const Header = () => {
       <nav>
         <ul className="flex space-x-4">
           <li>
-            <Link href="/auth/login" legacyBehavior>
+            <Link href="/login" legacyBehavior>
               <Button variant="link">Se connecter</Button>
             </Link>
           </li>
