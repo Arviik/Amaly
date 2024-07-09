@@ -36,19 +36,23 @@ enum Role {
 }
 
 model Organizations {
-  id         Int          @id @default(autoincrement())
-  name       String
-  type       String
-  address    String
-  phone      String
-  email      String       @unique
-  created_at DateTime     @default(now())
-  updated_at DateTime     @updatedAt
-  members    Members[]
-  activities Activities[]
-  ags        Ags[]
-  donations  Donations[]
-  Documents  Documents[]
+  id              Int          @id @default(autoincrement())
+  name            String
+  description     String?
+  type            String
+  address         String
+  phone           String
+  email           String       @unique
+  contactName     String?
+  contactEmail    String?
+  contactPhone    String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  members         Members[]
+  activities      Activities[]
+  ags             Ags[]
+  donations       Donations[]
+  documents       Documents[]
 
   @@map("organizations")
 }
@@ -56,19 +60,19 @@ model Organizations {
 model Members {
   id              Int           @id @default(autoincrement())
   name            String
-  type            String
+  role            String
+  status          String
   address         String
   phone           String
   email           String
-  membership_date DateTime      @default(now())
-  organizations   Organizations @relation(fields: [organizationId], references: [id])
+  membershipDate  DateTime      @default(now())
+  organization    Organizations @relation(fields: [organizationId], references: [id])
   organizationId  Int           @unique
-  users           Users         @relation(fields: [userId], references: [id])
+  user            Users         @relation(fields: [userId], references: [id])
   userId          Int           @unique
-
-  created_at  DateTime      @default(now())
-  updated_at  DateTime      @updatedAt
-  Assignments Assignments[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  assignments     Assignments[]
 
   @@map("members")
 }

@@ -39,8 +39,29 @@ export type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
 export interface Organization {
   id: number;
   name: string;
+  description?: string;
   type: string;
   address: string;
   phone: string;
   email: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Member {
+  id: number;
+  name: string;
+  role: string;
+  status: string;
+  address: string;
+  phone: string;
+  email: string;
+  membershipDate: Date;
+  organizationId: number;
+  userId: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
