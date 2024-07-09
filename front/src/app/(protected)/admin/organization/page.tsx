@@ -2,19 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   getAllOrganizations,
   deleteOrganization,
 } from "@/api/services/organization";
 import OrganizationFormModal from "@/components/super-admin/OrganizationFormModal";
 import { Organization } from "@/api/type";
+import { ColumnDef } from "@tanstack/react-table";
+import Table from "@/components/public/Table";
 
 const OrganizationsPage: React.FC = () => {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
@@ -63,52 +57,64 @@ const OrganizationsPage: React.FC = () => {
     }
   };
 
+  const columns: ColumnDef<Organization>[] = [
+    {
+      accessorKey: "id",
+      header: "ID",
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+    },
+    {
+      accessorKey: "type",
+      header: "Type",
+    },
+    {
+      accessorKey: "address",
+      header: "Address",
+    },
+    {
+      accessorKey: "phone",
+      header: "Phone",
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const organization = row.original;
+        return (
+          <>
+            <Button
+              variant="outline"
+              className="mr-2"
+              onClick={() => handleEditOrganization(organization)}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => handleDeleteOrganization(organization.id)}
+            >
+              Delete
+            </Button>
+          </>
+        );
+      },
+    },
+  ];
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Organization Management</h1>
       <Button className="mb-4" onClick={handleCreateOrganization}>
         Add New Organization
       </Button>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Address</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {organizations.map((organization) => (
-            <TableRow key={organization.id}>
-              <TableCell>{organization.id}</TableCell>
-              <TableCell>{organization.name}</TableCell>
-              <TableCell>{organization.type}</TableCell>
-              <TableCell>{organization.address}</TableCell>
-              <TableCell>{organization.phone}</TableCell>
-              <TableCell>{organization.email}</TableCell>
-              <TableCell>
-                <Button
-                  variant="outline"
-                  className="mr-2"
-                  onClick={() => handleEditOrganization(organization)}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDeleteOrganization(organization.id)}
-                >
-                  Delete
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <Table data={organizations} columns={columns} />
       <OrganizationFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
