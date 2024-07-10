@@ -19,7 +19,7 @@ model Users {
   lastName      String?
   email         String         @unique
   password      String
-  role          Role
+  isSuperAdmin  Boolean        @default(false)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime?      @updatedAt
   memberships   Members[]
@@ -29,11 +29,6 @@ model Users {
   @@map("users")
 }
 
-enum Role {
-  USER
-  ADMIN
-  SUPER_ADMIN
-}
 
 model Organizations {
   id          Int       @id @default(autoincrement()) 
@@ -56,6 +51,7 @@ model Organizations {
 
 model Members {
   id             Int           @id @default(autoincrement())
+  isAdmin        Boolean       @default(false)
   membershipType String
   status         String
   startDate      DateTime      @default(now())

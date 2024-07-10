@@ -48,6 +48,3 @@ ALTER TABLE `users` DROP COLUMN `created_at`,
     ADD COLUMN `firstName` VARCHAR(191) NULL,
     ADD COLUMN `lastName` VARCHAR(191) NULL,
     ADD COLUMN `updatedAt` DATETIME(3) NULL;
-
--- CreateIndex
-CREATE UNIQUE INDEX `members_userId_organizationId_key` ON `members`(`userId`, `organizationId`);
