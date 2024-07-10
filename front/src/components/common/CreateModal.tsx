@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,30 +15,24 @@ interface Field {
   options?: string[];
 }
 
-interface EditModalProps<T> {
+interface CreateModalProps<T> {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: Partial<T>) => void;
-  initialData?: T;
   fields: Field[];
   title?: string;
   submitLabel?: string;
 }
 
-const EditModal = <T extends object>({
+const CreateModal = <T extends object>({
   isOpen,
   onClose,
   onSubmit,
-  initialData = {} as T,
   fields,
-  title = "Edit",
-  submitLabel = "Update",
-}: EditModalProps<T>) => {
+  title = "Create",
+  submitLabel = "Create",
+}: CreateModalProps<T>) => {
   const [formData, setFormData] = useState<Partial<T>>({});
-
-  useEffect(() => {
-    setFormData(initialData);
-  }, [initialData]);
 
   const handleChange = (field: string, value: any) => {
     setFormData((prevData) => ({ ...prevData, [field]: value }));
@@ -48,6 +42,7 @@ const EditModal = <T extends object>({
     e.preventDefault();
     onSubmit(formData);
     onClose();
+    setFormData({});
   };
 
   return (
@@ -97,4 +92,4 @@ const EditModal = <T extends object>({
   );
 };
 
-export default EditModal;
+export default CreateModal;

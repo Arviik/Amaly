@@ -8,7 +8,7 @@ import {
 import OrganizationFormModal from "@/components/super-admin/OrganizationFormModal";
 import { Organization } from "@/api/type";
 import { ColumnDef } from "@tanstack/react-table";
-import Table from "@/components/public/Table";
+import Table from "@/components/common/Table";
 import Link from "next/link";
 import DeleteAlert from "@/components/common/DeleteAlert";
 
