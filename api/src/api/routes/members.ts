@@ -1,12 +1,9 @@
 import express from "express";
 import { prisma } from "../../utils/prisma";
 import {
-  memberValidation,
   memberPatchValidation,
+  memberValidation,
 } from "../validators/member-validator";
-import bcrypt from "bcrypt";
-import { authMiddleware } from "../middlewares/auth-middleware";
-import { authzMiddleware } from "../middlewares/authz-middleware";
 
 export const initMembers = (app: express.Express) => {
   app.get("/members", async (req, res) => {
