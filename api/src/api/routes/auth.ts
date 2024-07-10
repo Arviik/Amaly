@@ -1,22 +1,22 @@
+import bcrypt from "bcrypt";
 import express from "express";
+import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
-import { findUserByEmail, findUserById } from "../services/users-services";
 import { generateTokens, hashToken } from "../../utils/token";
+import { authMiddleware } from "../middlewares/auth-middleware";
 import {
   addRefreshTokenToWhitelist,
   deleteRefreshToken,
+  findMembersByUserId,
   findRefreshTokenById,
   revokeTokens,
 } from "../services/auth-services";
+import { findUserByEmail, findUserById } from "../services/users-services";
 import {
   loginValidation,
   refreshTokenValidation,
   revokeRefreshTokenValidation,
 } from "../validators/auth-validator";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { authMiddleware } from "../middlewares/auth-middleware";
-import { authzMiddleware } from "../middlewares/authz-middleware";
 
 export const initAuth = (app: express.Express) => {
   app.post(
@@ -43,7 +43,12 @@ export const initAuth = (app: express.Express) => {
         }
 
         const jti = uuidv4();
-        const { accessToken, refreshToken } = generateTokens(existingUser, jti);
+        const userMemberships = await findMembersByUserId(existingUser.id);
+        const { accessToken, refreshToken } = generateTokens(
+          existingUser,
+          jti,
+          userMemberships
+        );
         await addRefreshTokenToWhitelist({
           jti,
           refreshToken,
@@ -91,9 +96,12 @@ export const initAuth = (app: express.Express) => {
 
         await deleteRefreshToken(savedRefreshToken.id);
         const jti = uuidv4();
+        const userMemberships = await findMembersByUserId(user.id);
+        console.log(userMemberships);
         const { accessToken, refreshToken: newRefreshToken } = generateTokens(
           user,
-          jti
+          jti,
+          userMemberships
         );
         await addRefreshTokenToWhitelist({
           jti,
@@ -135,7 +143,6 @@ export const initAuth = (app: express.Express) => {
   app.get(
     "/auth/check",
     authMiddleware,
-    authzMiddleware(["ADMIN", "SUPER_ADMIN", "USER"]),
     async (req: express.Request, res: express.Response) => {
       try {
         const payload = (req as any).payload;
