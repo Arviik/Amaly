@@ -2,7 +2,6 @@ import express from "express";
 import { prisma } from "../../utils/prisma";
 import { agsValidation, agsPatchValidation } from "../validators/ag-validator";
 import { authMiddleware } from "../middlewares/auth-middleware";
-import { authzMiddleware } from "../middlewares/authz-middleware";
 
 export const initAGS = (app: express.Express) => {
   app.get("/ags", async (req, res) => {
