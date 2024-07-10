@@ -12,14 +12,14 @@ export interface TokenResponse {
 
 export interface DecodedToken {
   userId: string;
-  userRole: string;
+  isSuperAdmin: boolean;
   exp?: number;
   jti?: string;
 }
 
 export interface CheckSession {
   userId: number;
-  userRole: string;
+  isSuperAdmin: boolean;
 }
 
 export interface LoginResponse extends TokenResponse {}

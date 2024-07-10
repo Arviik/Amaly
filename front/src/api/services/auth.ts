@@ -77,7 +77,7 @@ export const authService = {
         setCredentials({
           user: {
             id: sessionData.userId.toString(),
-            role: sessionData.userRole,
+            isSuperAdmin: sessionData.isSuperAdmin,
           },
         })
       );
@@ -103,7 +103,7 @@ export const authService = {
       });
       if (response.ok) {
         const data = await response.json<CheckSession>();
-        return { userId: data.userId, userRole: data.userRole };
+        return { userId: data.userId, isSuperAdmin: data.isSuperAdmin };
       }
       return null;
     } catch (error) {

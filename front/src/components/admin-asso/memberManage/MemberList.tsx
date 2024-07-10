@@ -58,6 +58,10 @@ const MembersList: React.FC = () => {
       accessorKey: "updatedAt",
       header: "Date de mise à jour",
     },
+    {
+      accessorKey: "isAdmin",
+      header: "Admin",
+    },
   ];
 
   if (isLoading) return <div>Chargement des membres...</div>;

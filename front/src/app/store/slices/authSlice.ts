@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TokenResponse, DecodedToken } from "@/api/type";
-import { tokenUtils } from "@/api/config";
+import { isSuperAdmin, tokenUtils } from "@/api/config";
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: null | { id: string; role: string };
+  user: null | { id: string; isSuperAdmin: boolean };
   accessToken: string | null;
   refreshToken: string | null;
 }
