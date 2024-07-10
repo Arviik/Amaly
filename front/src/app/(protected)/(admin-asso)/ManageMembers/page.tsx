@@ -3,7 +3,7 @@ import MembersList from "@/components/admin-asso/memberManage/MemberList";
 
 const MembersPage: React.FC = () => {
   return (
-    <div>
+    <div className="m-4">
       <h1>Gestion des membres</h1>
       <MembersList />
     </div>

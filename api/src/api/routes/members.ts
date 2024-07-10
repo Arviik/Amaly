@@ -35,17 +35,6 @@ export const initMembers = (app: express.Express) => {
     }
   });
 
-  app.get("/organizations/:organizationId/members", async (req, res) => {
-    try {
-      const members = await prisma.members.findMany({
-        where: { organizationId: Number(req.params.organizationId) },
-      });
-      res.json(members);
-    } catch (e) {
-      res.status(500).send({ error: e });
-    }
-  });
-
   app.post("/members", async (req, res) => {
     const validation = memberValidation.validate(req.body);
 

@@ -36,6 +36,16 @@ export type LoginResponse2 = TokenResponse | ErrorResponse;
 
 export type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
 
+export interface User {
+  id: number;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  role: UserRole;
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
 export interface Organization {
   id: number;
   name: string;
@@ -44,24 +54,19 @@ export interface Organization {
   address: string;
   phone: string;
   email: string;
-  contactName?: string;
-  contactEmail?: string;
-  contactPhone?: string;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
 }
 
 export interface Member {
   id: number;
-  name: string;
-  role: string;
+  membershipType: string;
   status: string;
-  address: string;
-  phone: string;
-  email: string;
-  membershipDate: Date;
-  organizationId: number;
+  startDate: Date;
+  endDate?: Date;
   userId: number;
+  organizationId: number;
+  employmentType?: string;
   createdAt: Date;
   updatedAt: Date;
 }

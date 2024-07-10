@@ -9,59 +9,63 @@ const MembersList: React.FC = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { organizationId } = useParams();
+  const organizationId = 1;
 
   useEffect(() => {
-    const fetchMembers = async () => {
-      setIsLoading(true);
-      try {
-        const response = await getMembersByOrganizationId(
-          Number(organizationId)
-        );
-        setMembers(response);
-      } catch (err) {
-        setError(
-          "Une erreur est survenue lors de la récupération des membres."
-        );
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchMembers();
   }, [organizationId]);
 
+  const fetchMembers = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getMembersByOrganizationId(organizationId);
+      console.log(response);
+      setMembers(response);
+    } catch (err) {
+      setError("Une erreur est survenue lors de la récupération des membres.");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const columns: ColumnDef<Member>[] = [
     {
-      accessorKey: "name",
-      header: "Name",
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-    },
-    {
-      accessorKey: "role",
-      header: "Rôle",
+      accessorKey: "membershipType",
+      header: "Type d'adhésion",
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: "Statut",
+    },
+    {
+      accessorKey: "startDate",
+      header: "Date de début",
+    },
+    {
+      accessorKey: "endDate",
+      header: "Date de fin",
+    },
+    {
+      accessorKey: "employmentType",
+      header: "Type d'emploi",
     },
     {
       accessorKey: "createdAt",
-      header: "Created At",
+      header: "Date de création",
     },
-    // Ajoutez d'autres colonnes selon vos besoins
+    {
+      accessorKey: "updatedAt",
+      header: "Date de mise à jour",
+    },
   ];
 
-  if (isLoading) return <div>loading of members...</div>;
+  if (isLoading) return <div>Chargement des membres...</div>;
   if (error) return <div>{error}</div>;
 
   return (
     <div>
-      <h1>Liste of Members</h1>
+      <h1>Liste des Membres</h1>
       <Table data={members} columns={columns} />
     </div>
   );
