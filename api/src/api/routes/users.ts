@@ -5,32 +5,41 @@ import {
   userValidation,
 } from "../validators/user-validator";
 import bcrypt from "bcrypt";
-import {authMiddleware} from "../middlewares/auth-middleware";
-import {authzMiddleware} from "../middlewares/authz-middleware";
+import { authMiddleware } from "../middlewares/auth-middleware";
+import { authzMiddleware } from "../middlewares/authz-middleware";
 
 export const initUsers = (app: express.Express) => {
-
-  app.get("/users", authMiddleware, authzMiddleware("SUPER_ADMIN"), async (req, res) => {
-    try {
-      const allUsers = await prisma.users.findMany();
-      res.json(allUsers);
-    } catch (e) {
-      res.status(500).send({ error: e });
-      return;
+  app.get(
+    "/users",
+    authMiddleware,
+    authzMiddleware("SUPER_ADMIN"),
+    async (req, res) => {
+      try {
+        const allUsers = await prisma.users.findMany();
+        res.json(allUsers);
+      } catch (e) {
+        res.status(500).send({ error: e });
+        return;
+      }
     }
-  });
+  );
 
-  app.get("/users/:id", authMiddleware, authzMiddleware("SUPER_ADMIN"), async (req, res) => {
-    try {
-      const user = await prisma.users.findUnique({
-        where: { id: Number(req.params.id) }
-      });
-      res.json(user);
-    } catch (e) {
-      res.status(500).send({ error: e });
-      return;
+  app.get(
+    "/users/:id",
+    authMiddleware,
+    authzMiddleware("SUPER_ADMIN"),
+    async (req, res) => {
+      try {
+        const user = await prisma.users.findUnique({
+          where: { id: Number(req.params.id) },
+        });
+        res.json(user);
+      } catch (e) {
+        res.status(500).send({ error: e });
+        return;
+      }
     }
-  });
+  );
 
   app.post("/users", async (req, res) => {
     const validation = userValidation.validate(req.body);
@@ -46,8 +55,8 @@ export const initUsers = (app: express.Express) => {
       const user = await prisma.users.create({
         data: {
           // @ts-ignore
-          first_name: userRequest.firstName,
-          last_name: userRequest.lastName,
+          firstName: userRequest.firstName,
+          lastName: userRequest.lastName,
           email: userRequest.email,
           password: userRequest.password,
           role: userRequest.role,
