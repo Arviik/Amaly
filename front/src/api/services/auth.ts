@@ -1,12 +1,11 @@
 import { store } from "@/app/store";
 import { clearCredentials, setCredentials } from "@/app/store/slices/authSlice";
-import { api, tokenUtils, refreshToken } from "../config";
+import { api, refreshToken, tokenUtils } from "../config";
 import {
   LoginRequest,
   LoginResponse,
   TokenResponse,
   DecodedToken,
-  CheckSession,
 } from "../type";
 
 export const authService = {
@@ -26,7 +25,7 @@ export const authService = {
               id: decoded.userId,
               isSuperAdmin: decoded.isSuperAdmin,
             },
-            organizations: decoded.organizations,
+            memberships: decoded.memberships,
           })
         );
         return result;
@@ -44,82 +43,24 @@ export const authService = {
     store.dispatch(clearCredentials());
   },
 
-  checkAuth: async (): Promise<boolean> => {
-    const tokens = tokenUtils.getTokens();
-    if (!tokens?.accessToken) {
-      return false;
+  refreshToken: refreshToken,
+
+  getRedirectPath: (sessionData: DecodedToken): string => {
+    if (sessionData.isSuperAdmin) {
+      return "/admin/overview";
     }
 
-    try {
-      const decoded: DecodedToken = tokenUtils.decodeToken(tokens.accessToken);
-      const currentTime = Math.floor(Date.now() / 1000);
+    const membershipsCount = sessionData.memberships.length;
 
-      if (decoded.exp && decoded.exp < currentTime) {
-        // Token expiré, essayer de le rafraîchir
-        const refreshed = await refreshToken();
-        if (!refreshed) {
-          await authService.logout();
-          return false;
-        }
-        return true;
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Token validation error:", error);
-      await authService.logout();
-      return false;
-    }
-  },
-
-  checkAndRefreshSession: async (): Promise<boolean> => {
-    const isAuthenticated = await authService.checkAuth();
-    if (!isAuthenticated) {
-      return false;
+    if (membershipsCount === 0) {
+      return "/"; // À remplacer par "/marketplace" une fois implémenté
     }
 
-    const sessionData = await authService.checkSession();
-    if (sessionData) {
-      store.dispatch(
-        setCredentials({
-          user: {
-            id: sessionData.userId,
-            isSuperAdmin: sessionData.isSuperAdmin,
-          },
-          organizations: sessionData.organizations,
-        })
-      );
-      return true;
+    if (membershipsCount === 1) {
+      const membership = sessionData.memberships[0];
+      return membership.isAdmin ? "/dashboard" : "/member";
     }
 
-    await authService.logout();
-    return false;
-  },
-
-  checkSession: async (): Promise<CheckSession | null> => {
-    try {
-      const tokens = tokenUtils.getTokens();
-      if (!tokens?.accessToken) {
-        return null;
-      }
-
-      const response = await api.get("auth/check", {
-        headers: {
-          Authorization: `Bearer ${tokens.accessToken}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json<CheckSession>();
-        return {
-          userId: data.userId,
-          isSuperAdmin: data.isSuperAdmin,
-          organizations: data.organizations, // Ajout des organizations
-        };
-      }
-      return null;
-    } catch (error) {
-      console.error("Session check error:", error);
-      return null;
-    }
+    return "/profiles";
   },
 };

@@ -1,5 +1,3 @@
-// src/api/type.ts
-
 export interface LoginRequest {
   email: string;
   password: string;
@@ -8,18 +6,6 @@ export interface LoginRequest {
 export interface TokenResponse {
   accessToken: string;
   refreshToken: string;
-}
-
-export interface DecodedToken {
-  userId: string;
-  isSuperAdmin: boolean;
-  exp?: number;
-  jti?: string;
-}
-
-export interface CheckSession {
-  userId: number;
-  isSuperAdmin: boolean;
 }
 
 export interface LoginResponse extends TokenResponse {}
@@ -34,14 +20,12 @@ export interface ErrorResponse {
 
 export type LoginResponse2 = TokenResponse | ErrorResponse;
 
-export type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
-
 export interface User {
   id: number;
   firstName?: string;
   lastName?: string;
   email: string;
-  role: UserRole;
+  isSuperAdmin: boolean;
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -66,7 +50,23 @@ export interface Member {
   endDate?: Date;
   userId: number;
   organizationId: number;
+  isAdmin: boolean;
   employmentType?: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface UserMembership {
+  id: number;
+  organizationId: number;
+  organizationName: string;
+  isAdmin: boolean;
+}
+
+export interface DecodedToken {
+  userId: number;
+  isSuperAdmin: boolean;
+  memberships: UserMembership[];
+  iat?: number;
+  exp?: number;
 }
