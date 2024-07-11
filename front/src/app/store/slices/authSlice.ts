@@ -1,45 +1,61 @@
+import { User, Organization, UserMembership } from "@/api/type";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TokenResponse, DecodedToken } from "@/api/type";
-import { isSuperAdmin, tokenUtils } from "@/api/config";
+import { RootState } from "..";
+
+interface AuthUser {
+  id: number;
+  isSuperAdmin: boolean;
+}
 
 interface AuthState {
+  user: AuthUser | null;
+  memberships: UserMembership[];
   isAuthenticated: boolean;
-  user: null | { id: string; isSuperAdmin: boolean };
-  accessToken: string | null;
-  refreshToken: string | null;
+  selectedOrganizationId: number | null;
 }
 
 const initialState: AuthState = {
-  isAuthenticated: false,
   user: null,
-  accessToken: null,
-  refreshToken: null,
+  memberships: [],
+  isAuthenticated: false,
+  selectedOrganizationId: null,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<Partial<AuthState>>) => {
-      if (action.payload.user) {
-        state.isAuthenticated = true;
-        state.user = action.payload.user;
-      }
-      if (action.payload.accessToken) {
-        state.accessToken = action.payload.accessToken;
-      }
-      if (action.payload.refreshToken) {
-        state.refreshToken = action.payload.refreshToken;
-      }
+    setCredentials: (
+      state,
+      action: PayloadAction<{ user: AuthUser; memberships: UserMembership[] }>
+    ) => {
+      state.user = action.payload.user;
+      state.memberships = action.payload.memberships;
+      state.isAuthenticated = true;
     },
-    logout: (state) => {
-      state.isAuthenticated = false;
+    setSelectedOrganization: (state, action: PayloadAction<number>) => {
+      state.selectedOrganizationId = action.payload;
+    },
+    clearCredentials: (state) => {
       state.user = null;
-      state.accessToken = null;
-      state.refreshToken = null;
+      state.memberships = [];
+      state.isAuthenticated = false;
+      state.selectedOrganizationId = null;
     },
   },
 });
 
-export const { setCredentials, logout } = authSlice.actions;
+export const { setCredentials, setSelectedOrganization, clearCredentials } =
+  authSlice.actions;
+
 export default authSlice.reducer;
+
+// Sélecteurs
+export const selectCurrentUser = (state: RootState) => state.auth.user;
+export const selectIsAuthenticated = (state: RootState) =>
+  state.auth.isAuthenticated;
+export const selectIsSuperAdmin = (state: RootState) =>
+  state.auth.user?.isSuperAdmin ?? false;
+export const selectMemberships = (state: RootState) => state.auth.memberships;
+export const selectSelectedOrganizationId = (state: RootState) =>
+  state.auth.selectedOrganizationId;
