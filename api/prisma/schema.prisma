@@ -62,7 +62,7 @@ model Members {
   email           String
   membership_date DateTime      @default(now())
   organizations   Organizations @relation(fields: [organizationId], references: [id])
-  organizationId  Int           @unique
+  organizationId  Int
   users           Users         @relation(fields: [userId], references: [id])
   userId          Int           @unique
 
