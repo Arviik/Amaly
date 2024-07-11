@@ -60,7 +60,6 @@ export const initUsers = (app: express.Express) => {
   });
 
   app.patch("/users/:id", async (req, res) => {
-    console.log(req.body);
     const validation = userPatchValidation.validate(req.body);
 
     if (validation.error) {

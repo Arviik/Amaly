@@ -95,7 +95,6 @@ export const initAuth = (app: express.Express) => {
         await deleteRefreshToken(savedRefreshToken.id);
         const jti = uuidv4();
         const userMemberships = user.memberships;
-        console.log(userMemberships);
         const { accessToken, refreshToken: newRefreshToken } = generateTokens(
           user,
           jti,
