@@ -6,16 +6,18 @@ export const generateAccessToken = (
   user: SafeUser,
   userMemberships: UserMembership[]
 ) => {
-  const organizations = userMemberships.map((membership) => ({
-    id: membership.organizationId,
-    name: membership.organizationName,
+  const memberships = userMemberships.map((membership) => ({
+    id: membership.id,
+    organizationId: membership.organizationId,
+    organizationName: membership.organizationName,
     isAdmin: membership.isAdmin,
   }));
 
   return jwt.sign(
     {
       userId: user.id,
-      organizations,
+      isSuperAdmin: user.isSuperAdmin,
+      memberships,
     },
     process.env.JWT_ACCESS_SECRET!,
     {
