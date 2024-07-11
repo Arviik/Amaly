@@ -20,7 +20,7 @@ interface EditModalProps<T> {
   onClose: () => void;
   onSubmit: (data: Partial<T>) => void;
   initialData?: T;
-  fields: Field[];
+  fields?: Field[];
   title?: string;
   submitLabel?: string;
 }
@@ -30,7 +30,7 @@ const EditModal = <T extends object>({
   onClose,
   onSubmit,
   initialData = {} as T,
-  fields,
+  fields = [], // Fournir une valeur par défaut vide
   title = "Edit",
   submitLabel = "Update",
 }: EditModalProps<T>) => {
