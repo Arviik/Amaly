@@ -1,6 +1,17 @@
 import { prisma } from "../../utils/prisma";
 import { hashToken } from "../../utils/token";
 
+interface Members {
+  id: number;
+  memberShipType: string;
+  status: string;
+  organization: {
+    id: number;
+    name: string;
+  };
+  isAdmin: boolean;
+}
+
 export const addRefreshTokenToWhitelist = ({
   jti,
   refreshToken,

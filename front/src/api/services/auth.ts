@@ -1,8 +1,5 @@
 import { store } from "@/app/store";
-import {
-  logout as logoutAction,
-  setCredentials,
-} from "@/app/store/slices/authSlice";
+import { clearCredentials, setCredentials } from "@/app/store/slices/authSlice";
 import { api, tokenUtils, refreshToken } from "../config";
 import {
   LoginRequest,
@@ -20,6 +17,18 @@ export const authService = {
 
       if (result.accessToken && result.refreshToken) {
         tokenUtils.setTokens(result);
+        const decoded: DecodedToken = tokenUtils.decodeToken(
+          result.accessToken
+        );
+        store.dispatch(
+          setCredentials({
+            user: {
+              id: decoded.userId,
+              isSuperAdmin: decoded.isSuperAdmin,
+            },
+            organizations: decoded.organizations,
+          })
+        );
         return result;
       } else {
         throw new Error("Invalid login credentials");
@@ -32,7 +41,7 @@ export const authService = {
 
   logout: async () => {
     tokenUtils.clearTokens();
-    store.dispatch(logoutAction());
+    store.dispatch(clearCredentials());
   },
 
   checkAuth: async (): Promise<boolean> => {
@@ -69,22 +78,20 @@ export const authService = {
       return false;
     }
 
-    // Si l'authentification locale est valide, vérifiez la session côté serveur
     const sessionData = await authService.checkSession();
     if (sessionData) {
-      // Mettre à jour les informations de l'utilisateur si nécessaire
       store.dispatch(
         setCredentials({
           user: {
-            id: sessionData.userId.toString(),
+            id: sessionData.userId,
             isSuperAdmin: sessionData.isSuperAdmin,
           },
+          organizations: sessionData.organizations,
         })
       );
       return true;
     }
 
-    // Si la session n'est pas valide côté serveur, déconnectez l'utilisateur
     await authService.logout();
     return false;
   },
@@ -103,7 +110,11 @@ export const authService = {
       });
       if (response.ok) {
         const data = await response.json<CheckSession>();
-        return { userId: data.userId, isSuperAdmin: data.isSuperAdmin };
+        return {
+          userId: data.userId,
+          isSuperAdmin: data.isSuperAdmin,
+          organizations: data.organizations, // Ajout des organizations
+        };
       }
       return null;
     } catch (error) {

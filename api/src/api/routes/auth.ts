@@ -11,7 +11,12 @@ import {
   findRefreshTokenById,
   revokeTokens,
 } from "../services/auth-services";
-import { findUserByEmail, findUserById } from "../services/users-services";
+import {
+  findUserByEmail,
+  findUserById,
+  getSafeUserById,
+  verifyUserPassword,
+} from "../services/users-services";
 import {
   loginValidation,
   refreshTokenValidation,
@@ -29,37 +34,30 @@ export const initAuth = (app: express.Express) => {
         }
 
         const loginRequest = validation.value;
-        const existingUser = await findUserByEmail(loginRequest.email);
-        if (!existingUser) {
-          return res.status(403).send({ error: "Invalid login credentials" });
-        }
-
-        const validPassword = await bcrypt.compare(
-          loginRequest.password,
-          existingUser.password
+        const user = await verifyUserPassword(
+          loginRequest.email,
+          loginRequest.password
         );
-        if (!validPassword) {
+
+        if (!user) {
           return res.status(403).send({ error: "Invalid login credentials" });
         }
 
         const jti = uuidv4();
-        const userMemberships = await findMembersByUserId(existingUser.id);
         const { accessToken, refreshToken } = generateTokens(
-          existingUser,
+          user,
           jti,
-          userMemberships
+          user.memberships
         );
         await addRefreshTokenToWhitelist({
           jti,
           refreshToken,
-          userId: existingUser.id,
+          userId: user.id,
         });
 
-        return res.json({
-          accessToken,
-          refreshToken,
-        });
+        return res.json({ accessToken, refreshToken });
       } catch (error) {
+        console.error(error);
         return res.status(500).send({ error: error });
       }
     }
@@ -89,14 +87,14 @@ export const initAuth = (app: express.Express) => {
           return res.status(401).send({ error: "Refresh token invalid" });
         }
 
-        const user = await findUserById(payload.userId);
+        const user = await getSafeUserById(payload.userId);
         if (!user) {
           return res.status(401).send({ error: "Refresh token invalid" });
         }
 
         await deleteRefreshToken(savedRefreshToken.id);
         const jti = uuidv4();
-        const userMemberships = await findMembersByUserId(user.id);
+        const userMemberships = user.memberships;
         console.log(userMemberships);
         const { accessToken, refreshToken: newRefreshToken } = generateTokens(
           user,

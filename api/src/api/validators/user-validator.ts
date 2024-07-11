@@ -1,3 +1,4 @@
+import { Members } from "@prisma/client";
 import Joi from "joi";
 
 export interface userRequest {
@@ -6,6 +7,7 @@ export interface userRequest {
   email: string;
   password: string;
   isSuperAdmin?: boolean;
+  members?: Members[];
 }
 
 export const userValidation = Joi.object<userRequest>({

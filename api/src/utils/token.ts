@@ -1,11 +1,14 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { Users } from "@prisma/client";
+import { SafeUser, UserMembership } from "../utils/userTypes";
 
-export const generateAccessToken = (user: Users, userMemberships: any[]) => {
+export const generateAccessToken = (
+  user: SafeUser,
+  userMemberships: UserMembership[]
+) => {
   const organizations = userMemberships.map((membership) => ({
-    id: membership.organization.id,
-    name: membership.organization.name,
+    id: membership.organizationId,
+    name: membership.organizationName,
     isAdmin: membership.isAdmin,
   }));
 
@@ -21,7 +24,7 @@ export const generateAccessToken = (user: Users, userMemberships: any[]) => {
   );
 };
 
-export const generateRefreshToken = (user: Users, jti: string) => {
+export const generateRefreshToken = (user: SafeUser, jti: string) => {
   return jwt.sign(
     {
       userId: user.id,
@@ -35,9 +38,9 @@ export const generateRefreshToken = (user: Users, jti: string) => {
 };
 
 export const generateTokens = (
-  user: Users,
+  user: SafeUser,
   jti: string,
-  userMemberships: any[]
+  userMemberships: UserMembership[]
 ) => {
   const accessToken = generateAccessToken(user, userMemberships);
   const refreshToken = generateRefreshToken(user, jti);
