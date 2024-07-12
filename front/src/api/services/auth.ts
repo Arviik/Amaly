@@ -45,19 +45,31 @@ export const authService = {
 
   refreshToken: refreshToken,
 
-  getRedirectPath: (sessionData: DecodedToken): string => {
-    if (sessionData.isSuperAdmin) {
+  getInitialRoute: (
+    decoded: DecodedToken,
+    selectedOrganizationId: number | null
+  ): string => {
+    if (decoded.isSuperAdmin) {
       return "/admin/overview";
     }
 
-    const membershipsCount = sessionData.memberships.length;
+    const membershipsCount = decoded.memberships.length;
 
     if (membershipsCount === 0) {
       return "/"; // À remplacer par "/marketplace" une fois implémenté
     }
 
+    if (selectedOrganizationId) {
+      const selectedMembership = decoded.memberships.find(
+        (m) => m.organizationId === selectedOrganizationId
+      );
+      if (selectedMembership) {
+        return selectedMembership.isAdmin ? "/dashboard" : "/member";
+      }
+    }
+
     if (membershipsCount === 1) {
-      const membership = sessionData.memberships[0];
+      const membership = decoded.memberships[0];
       return membership.isAdmin ? "/dashboard" : "/member";
     }
 
