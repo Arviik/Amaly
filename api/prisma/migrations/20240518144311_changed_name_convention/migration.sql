@@ -21,8 +21,6 @@ ALTER TABLE `activities` DROP COLUMN `organizationsId`,
 ALTER TABLE `members` DROP COLUMN `organizationsId`,
     ADD COLUMN `organizationId` INTEGER NOT NULL;
 
--- CreateIndex
-CREATE UNIQUE INDEX `members_organizationId_key` ON `members`(`organizationId`);
 
 -- AddForeignKey
 ALTER TABLE `members` ADD CONSTRAINT `members_organizationId_fkey` FOREIGN KEY (`organizationId`) REFERENCES `organizations`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

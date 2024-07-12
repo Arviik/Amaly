@@ -96,7 +96,9 @@ const refreshToken = async (): Promise<boolean> => {
   return refreshPromise;
 };
 
-const getUserRole = (): string | null => {
+// ...
+
+const getUserRole = (): boolean | null => {
   const tokens = tokenUtils.getTokens();
   if (!tokens?.accessToken) {
     return null;
@@ -106,16 +108,16 @@ const getUserRole = (): string | null => {
     const decodedToken = tokenUtils.decodeToken(
       tokens.accessToken
     ) as DecodedToken;
-    return decodedToken.userRole || null;
+    return decodedToken.isSuperAdmin || null;
   } catch (error) {
     console.error("Error decoding token:", error);
     return null;
   }
 };
 
-const isAdmin = (): boolean => {
-  const role = getUserRole();
-  return role === "ADMIN" || role === "SUPER_ADMIN";
+const isSuperAdmin = (): boolean => {
+  const isSuper = getUserRole();
+  return isSuper === true;
 };
 
-export { api, tokenUtils, refreshToken, getUserRole, isAdmin };
+export { api, tokenUtils, refreshToken, getUserRole, isSuperAdmin };
