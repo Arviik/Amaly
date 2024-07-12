@@ -1,4 +1,3 @@
-import { Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -12,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 
 const DashboardAdmin: React.FC = () => {
+  console.log("DashboardAdmin");
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Main Content Section */}
@@ -34,7 +35,7 @@ const DashboardAdmin: React.FC = () => {
                     <CardContent>
                       <p>Manage your association members.</p>
                       <Link
-                        href="/members"
+                        href="/ManageMembers"
                         className="mt-2 inline-block text-primary hover:underline"
                       >
                         View Members

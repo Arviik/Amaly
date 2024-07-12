@@ -1,28 +1,32 @@
 "use client";
-import { isSuperAdmin, tokenUtils } from "@/api/config";
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { tokenUtils } from "@/api/config";
 import { authService } from "@/api/services/auth";
+import { setCredentials, clearCredentials } from "@/app/store/slices/authSlice";
 import { DecodedToken } from "@/api/type";
 import { RootState } from "@/app/store";
-import { clearCredentials, setCredentials } from "@/app/store/slices/authSlice";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import LoadingSpinner from "./LoadingSpinner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredAdmin?: boolean;
+  requiredSuperAdmin?: boolean;
 }
 
 export function ProtectedRoute({
   children,
   requiredAdmin = false,
+  requiredSuperAdmin = false,
 }: ProtectedRouteProps) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useDispatch();
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { user, memberships, selectedOrganizationId } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -34,9 +38,7 @@ export function ProtectedRoute({
           return;
         }
 
-        const decoded: DecodedToken = tokenUtils.decodeToken(
-          tokens.accessToken
-        );
+        let decoded: DecodedToken = tokenUtils.decodeToken(tokens.accessToken);
         const currentTime = Math.floor(Date.now() / 1000);
 
         if (decoded.exp && decoded.exp < currentTime) {
@@ -46,6 +48,7 @@ export function ProtectedRoute({
             router.push("/login");
             return;
           }
+          decoded = tokenUtils.decodeToken(tokenUtils.getTokens()!.accessToken);
         }
 
         dispatch(
@@ -58,14 +61,23 @@ export function ProtectedRoute({
           })
         );
 
-        if (requiredAdmin && !isSuperAdmin()) {
+        if (requiredSuperAdmin && !decoded.isSuperAdmin) {
           router.push("/unauthorized");
           return;
         }
 
-        const redirectPath = authService.getRedirectPath(decoded);
-        if (pathname !== redirectPath) {
-          router.push(redirectPath);
+        if (requiredAdmin && !decoded.memberships.some((m) => m.isAdmin)) {
+          router.push("/unauthorized");
+          return;
+        }
+
+        // Vérifier si l'utilisateur doit être redirigé vers la page de sélection d'organisation
+        if (
+          !selectedOrganizationId &&
+          decoded.memberships.length > 1 &&
+          pathname !== "/profiles"
+        ) {
+          router.push("/profiles");
           return;
         }
 
@@ -78,7 +90,14 @@ export function ProtectedRoute({
     };
 
     checkAuth();
-  }, [dispatch, router, requiredAdmin, pathname]);
+  }, [
+    dispatch,
+    router,
+    requiredAdmin,
+    requiredSuperAdmin,
+    pathname,
+    selectedOrganizationId,
+  ]);
 
   if (isLoading) {
     return <LoadingSpinner />;

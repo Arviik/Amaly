@@ -29,7 +29,7 @@ export default function LoginPage() {
       const result = await authService.login(credentials);
 
       const decoded: DecodedToken = tokenUtils.decodeToken(result.accessToken);
-      const redirectPath = authService.getRedirectPath(decoded);
+      const redirectPath = authService.getInitialRoute(decoded, null);
       router.push(redirectPath);
     } catch (error) {
       if (error instanceof Error) {
