@@ -5,12 +5,11 @@ import {
   userValidation,
 } from "../validators/user-validator";
 import bcrypt from "bcrypt";
-import {authMiddleware} from "../middlewares/auth-middleware";
-import {authzMiddleware} from "../middlewares/authz-middleware";
+import { authMiddleware } from "../middlewares/auth-middleware";
+import authzMiddleware from "../middlewares/authz-middleware";
 
 export const initUsers = (app: express.Express) => {
-
-  app.get("/users", authMiddleware, authzMiddleware("SUPER_ADMIN"), async (req, res) => {
+  app.get("/users", authMiddleware, authzMiddleware(), async (req, res) => {
     try {
       const allUsers = await prisma.users.findMany();
       res.json(allUsers);
@@ -20,10 +19,10 @@ export const initUsers = (app: express.Express) => {
     }
   });
 
-  app.get("/users/:id", authMiddleware, authzMiddleware("SUPER_ADMIN"), async (req, res) => {
+  app.get("/users/:id", authMiddleware, authzMiddleware(), async (req, res) => {
     try {
       const user = await prisma.users.findUnique({
-        where: { id: Number(req.params.id) }
+        where: { id: Number(req.params.id) },
       });
       res.json(user);
     } catch (e) {
@@ -49,7 +48,7 @@ export const initUsers = (app: express.Express) => {
           last_name: userRequest.lastName,
           email: userRequest.email,
           password: userRequest.password,
-          role: userRequest.role,
+          isSuperAdmin: userRequest.isSuperAdmin,
         },
       });
       res.json(user);
@@ -60,7 +59,6 @@ export const initUsers = (app: express.Express) => {
   });
 
   app.patch("/users/:id", async (req, res) => {
-    console.log(req.body);
     const validation = userPatchValidation.validate(req.body);
 
     if (validation.error) {

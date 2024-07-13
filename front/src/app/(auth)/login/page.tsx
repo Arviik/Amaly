@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { authService } from "@/api/services/auth";
-import { LoginRequest } from "@/api/type";
+import { DecodedToken, LoginRequest } from "@/api/type";
 import { tokenUtils } from "@/api/config";
 import { setCredentials } from "@/app/store/slices/authSlice";
 
@@ -27,28 +27,10 @@ export default function LoginPage() {
     try {
       const credentials: LoginRequest = { email, password };
       const result = await authService.login(credentials);
-      dispatch(setCredentials(result));
 
-      // Vérifiez la session immédiatement après la connexion
-      const sessionData = await authService.checkSession();
-      if (sessionData) {
-        // Redirection basée sur le rôle
-        switch (sessionData.userRole) {
-          case "SUPER_ADMIN":
-            router.push("/admin/overview");
-            break;
-          case "ADMIN":
-            router.push("/dashboard");
-            break;
-          case "USER":
-            router.push("/member");
-            break;
-          default:
-            router.push("/");
-        }
-      } else {
-        throw new Error("La session n'a pas pu être établie");
-      }
+      const decoded: DecodedToken = tokenUtils.decodeToken(result.accessToken);
+      const redirectPath = authService.getInitialRoute(decoded, null);
+      router.push(redirectPath);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);

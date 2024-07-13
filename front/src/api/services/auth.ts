@@ -1,15 +1,11 @@
 import { store } from "@/app/store";
-import {
-  logout as logoutAction,
-  setCredentials,
-} from "@/app/store/slices/authSlice";
-import { api, tokenUtils, refreshToken } from "../config";
+import { clearCredentials, setCredentials } from "@/app/store/slices/authSlice";
+import { api, refreshToken, tokenUtils } from "../config";
 import {
   LoginRequest,
   LoginResponse,
   TokenResponse,
   DecodedToken,
-  CheckSession,
 } from "../type";
 
 export const authService = {
@@ -20,6 +16,18 @@ export const authService = {
 
       if (result.accessToken && result.refreshToken) {
         tokenUtils.setTokens(result);
+        const decoded: DecodedToken = tokenUtils.decodeToken(
+          result.accessToken
+        );
+        store.dispatch(
+          setCredentials({
+            user: {
+              id: decoded.userId,
+              isSuperAdmin: decoded.isSuperAdmin,
+            },
+            memberships: decoded.memberships,
+          })
+        );
         return result;
       } else {
         throw new Error("Invalid login credentials");
@@ -32,83 +40,39 @@ export const authService = {
 
   logout: async () => {
     tokenUtils.clearTokens();
-    store.dispatch(logoutAction());
+    store.dispatch(clearCredentials());
   },
 
-  checkAuth: async (): Promise<boolean> => {
-    const tokens = tokenUtils.getTokens();
-    if (!tokens?.accessToken) {
-      return false;
+  refreshToken: refreshToken,
+
+  getInitialRoute: (
+    decoded: DecodedToken,
+    selectedOrganizationId: number | null
+  ): string => {
+    if (decoded.isSuperAdmin) {
+      return "/admin/overview";
     }
 
-    try {
-      const decoded: DecodedToken = tokenUtils.decodeToken(tokens.accessToken);
-      const currentTime = Math.floor(Date.now() / 1000);
+    const membershipsCount = decoded.memberships.length;
 
-      if (decoded.exp && decoded.exp < currentTime) {
-        // Token expiré, essayer de le rafraîchir
-        const refreshed = await refreshToken();
-        if (!refreshed) {
-          await authService.logout();
-          return false;
-        }
-        return true;
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Token validation error:", error);
-      await authService.logout();
-      return false;
-    }
-  },
-
-  checkAndRefreshSession: async (): Promise<boolean> => {
-    const isAuthenticated = await authService.checkAuth();
-    if (!isAuthenticated) {
-      return false;
+    if (membershipsCount === 0) {
+      return "/"; // À remplacer par "/marketplace" une fois implémenté
     }
 
-    // Si l'authentification locale est valide, vérifiez la session côté serveur
-    const sessionData = await authService.checkSession();
-    if (sessionData) {
-      // Mettre à jour les informations de l'utilisateur si nécessaire
-      store.dispatch(
-        setCredentials({
-          user: {
-            id: sessionData.userId.toString(),
-            role: sessionData.userRole,
-          },
-        })
+    if (selectedOrganizationId) {
+      const selectedMembership = decoded.memberships.find(
+        (m) => m.organizationId === selectedOrganizationId
       );
-      return true;
+      if (selectedMembership) {
+        return selectedMembership.isAdmin ? "/dashboard" : "/member";
+      }
     }
 
-    // Si la session n'est pas valide côté serveur, déconnectez l'utilisateur
-    await authService.logout();
-    return false;
-  },
-
-  checkSession: async (): Promise<CheckSession | null> => {
-    try {
-      const tokens = tokenUtils.getTokens();
-      if (!tokens?.accessToken) {
-        return null;
-      }
-
-      const response = await api.get("auth/check", {
-        headers: {
-          Authorization: `Bearer ${tokens.accessToken}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json<CheckSession>();
-        return { userId: data.userId, userRole: data.userRole };
-      }
-      return null;
-    } catch (error) {
-      console.error("Session check error:", error);
-      return null;
+    if (membershipsCount === 1) {
+      const membership = decoded.memberships[0];
+      return membership.isAdmin ? "/dashboard" : "/member";
     }
+
+    return "/profiles";
   },
 };

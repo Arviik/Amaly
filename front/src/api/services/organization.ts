@@ -11,7 +11,9 @@ export const getAllOrganizations = async (): Promise<Organization[]> => {
   }
 };
 
-export const getOrganization = async (id: number): Promise<Organization> => {
+export const getOrganizationById = async (
+  id: number
+): Promise<Organization> => {
   try {
     const response = await api.get(`organizations/${id}`);
     return response.json();

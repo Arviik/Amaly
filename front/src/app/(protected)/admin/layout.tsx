@@ -10,7 +10,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ProtectedRoute allowedRoles={["SUPER_ADMIN"]}>
+    <ProtectedRoute requiredSuperAdmin>
       <SuperAdminNavProvider>
         <div className="flex min-h-screen bg-gray-100">
           <NavBarSuperAdmin />

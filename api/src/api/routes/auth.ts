@@ -1,22 +1,27 @@
+import bcrypt from "bcrypt";
 import express from "express";
+import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
-import { findUserByEmail, findUserById } from "../services/users-services";
 import { generateTokens, hashToken } from "../../utils/token";
+import { authMiddleware } from "../middlewares/auth-middleware";
 import {
   addRefreshTokenToWhitelist,
   deleteRefreshToken,
+  findMembersByUserId,
   findRefreshTokenById,
   revokeTokens,
 } from "../services/auth-services";
+import {
+  findUserByEmail,
+  findUserById,
+  getSafeUserById,
+  verifyUserPassword,
+} from "../services/users-services";
 import {
   loginValidation,
   refreshTokenValidation,
   revokeRefreshTokenValidation,
 } from "../validators/auth-validator";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { authMiddleware } from "../middlewares/auth-middleware";
-import { authzMiddleware } from "../middlewares/authz-middleware";
 
 export const initAuth = (app: express.Express) => {
   app.post(
@@ -29,32 +34,30 @@ export const initAuth = (app: express.Express) => {
         }
 
         const loginRequest = validation.value;
-        const existingUser = await findUserByEmail(loginRequest.email);
-        if (!existingUser) {
-          return res.status(403).send({ error: "Invalid login credentials" });
-        }
-
-        const validPassword = await bcrypt.compare(
-          loginRequest.password,
-          existingUser.password
+        const user = await verifyUserPassword(
+          loginRequest.email,
+          loginRequest.password
         );
-        if (!validPassword) {
+
+        if (!user) {
           return res.status(403).send({ error: "Invalid login credentials" });
         }
 
         const jti = uuidv4();
-        const { accessToken, refreshToken } = generateTokens(existingUser, jti);
+        const { accessToken, refreshToken } = generateTokens(
+          user,
+          jti,
+          user.memberships
+        );
         await addRefreshTokenToWhitelist({
           jti,
           refreshToken,
-          userId: existingUser.id,
+          userId: user.id,
         });
 
-        return res.json({
-          accessToken,
-          refreshToken,
-        });
+        return res.json({ accessToken, refreshToken });
       } catch (error) {
+        console.error(error);
         return res.status(500).send({ error: error });
       }
     }
@@ -84,16 +87,18 @@ export const initAuth = (app: express.Express) => {
           return res.status(401).send({ error: "Refresh token invalid" });
         }
 
-        const user = await findUserById(payload.userId);
+        const user = await getSafeUserById(payload.userId);
         if (!user) {
           return res.status(401).send({ error: "Refresh token invalid" });
         }
 
         await deleteRefreshToken(savedRefreshToken.id);
         const jti = uuidv4();
+        const userMemberships = user.memberships;
         const { accessToken, refreshToken: newRefreshToken } = generateTokens(
           user,
-          jti
+          jti,
+          userMemberships
         );
         await addRefreshTokenToWhitelist({
           jti,
@@ -135,7 +140,6 @@ export const initAuth = (app: express.Express) => {
   app.get(
     "/auth/check",
     authMiddleware,
-    authzMiddleware(["ADMIN", "SUPER_ADMIN", "USER"]),
     async (req: express.Request, res: express.Response) => {
       try {
         const payload = (req as any).payload;

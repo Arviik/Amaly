@@ -1,12 +1,5 @@
 import { api } from "../config";
-
-export interface User {
-  id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  role: string;
-}
+import { User } from "../type";
 
 export const getAllUsers = async (): Promise<User[]> => {
   try {
@@ -18,7 +11,7 @@ export const getAllUsers = async (): Promise<User[]> => {
   }
 };
 
-export const deleteUser = async (userId: string): Promise<void> => {
+export const deleteUser = async (userId: number): Promise<void> => {
   try {
     await api.delete(`users/${userId}`);
   } catch (error) {
@@ -27,7 +20,9 @@ export const deleteUser = async (userId: string): Promise<void> => {
   }
 };
 
-export const createUser = async (userData: Omit<User, "id">): Promise<User> => {
+export const createUser = async (
+  userData: Omit<User, "id" | "createdAt" | "updatedAt">
+): Promise<User> => {
   try {
     const response = await api.post("users", { json: userData });
     return response.json();
@@ -38,8 +33,8 @@ export const createUser = async (userData: Omit<User, "id">): Promise<User> => {
 };
 
 export const updateUser = async (
-  userId: string,
-  userData: Partial<User>
+  userId: number,
+  userData: Partial<Omit<User, "id" | "createdAt" | "updatedAt">>
 ): Promise<User> => {
   try {
     const response = await api.put(`users/${userId}`, { json: userData });
