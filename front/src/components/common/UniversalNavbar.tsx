@@ -1,34 +1,39 @@
-import clsx from "clsx";
-import {
-  ArrowLeftToLine,
-  ArrowRightToLine,
-  Home,
-  Users,
-  Building,
-  Settings,
-  Menu,
-} from "lucide-react";
+import React from "react";
+import { ArrowLeftToLine, ArrowRightToLine, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import clsx from "clsx";
+import { LucideIcon } from "lucide-react";
 import LogoutButton from "../public/LogoutButton";
-import NavItem from "../admin-asso/NavItem";
-import { useSuperAdminNav } from "./SuperAdminNavContext";
+import NavItem from "./NavItem";
 
-export const navItems = [
-  { icon: Home, label: "Overview", href: "/admin/overview" },
-  { icon: Building, label: "Organizations", href: "/admin/organizations" },
-  { icon: Users, label: "Users", href: "/admin/users" },
-  { icon: Settings, label: "Settings", href: "/admin/settings" },
-];
+export interface NavItemType {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+}
 
-const NavBarSuperAdmin: React.FC = () => {
-  const { isOpen, toggleNavbar } = useSuperAdminNav();
+interface UniversalNavbarProps {
+  isOpen: boolean;
+  toggleNavbar: () => void;
+  navItems: NavItemType[];
+  userType: "superAdmin" | "admin" | "member";
+  logo: string;
+  title: string;
+}
 
+const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
+  isOpen,
+  toggleNavbar,
+  navItems,
+  userType,
+  logo,
+  title,
+}) => {
   return (
     <div
-      className={clsx("fixed top-0 h-full bg-white transition-width", {
-        "w-64": isOpen,
+      className={clsx("fixed top-0 h-full bg-white ", {
+        "w-60": isOpen,
         "w-16": !isOpen,
       })}
     >
@@ -40,18 +45,16 @@ const NavBarSuperAdmin: React.FC = () => {
       </button>
       <aside>
         <div className="flex items-center justify-between p-4 border-b">
-          <Link className="flex items-center space-x-2" href="/admin/overview">
+          <Link
+            className="flex items-center space-x-2"
+            href={`/${
+              userType === "superAdmin" ? "admin/overview" : "dashboard"
+            }`}
+          >
             {isOpen && (
-              <Image
-                src="/leaflogo.svg"
-                alt="Amaly Logo"
-                width={40}
-                height={40}
-              />
+              <Image src={logo} alt="Amaly Logo" width={40} height={40} />
             )}
-            {isOpen && (
-              <span className="text-xl font-semibold">Amaly Admin</span>
-            )}
+            {isOpen && <span className="text-xl font-semibold">{title}</span>}
           </Link>
           <button onClick={toggleNavbar} className="hidden lg:block">
             {isOpen ? (
@@ -75,11 +78,11 @@ const NavBarSuperAdmin: React.FC = () => {
           </ul>
         </nav>
       </aside>
-      <div className="flex justify-items-end ">
+      <div className="flex justify-items-end">
         <LogoutButton isCollapsed={!isOpen} />
       </div>
     </div>
   );
 };
 
-export default NavBarSuperAdmin;
+export default UniversalNavbar;
