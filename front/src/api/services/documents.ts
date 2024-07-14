@@ -1,4 +1,5 @@
 import ky from 'ky'
+import {api} from "../config"
 
 const toBase64 = (file: any) => new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -9,8 +10,7 @@ const toBase64 = (file: any) => new Promise((resolve, reject) => {
 
 export const uploadDocument = async (title: string, path: string, fileData: any, organizationId: number) => {
     let file = await toBase64(fileData)
-    console.log(file)
-    return await ky.post('http://localhost:3000/documents', {
+    return await ky.post('/documents', {
         json: {
             title: title,
             description: "description",
@@ -21,26 +21,27 @@ export const uploadDocument = async (title: string, path: string, fileData: any,
     }).json()
 }
 
-export const getAllDocuments = async () => {
-    return await ky.get('http://localhost:3000/documents').json()
+export const getAllDocumentsFromOrganization = async (id: number) => {
+    return await api.get(`documents/organization/${id}`).json()
 }
 
+
 export const getDocument = async (id: number) => {
-    return await ky.get(`http://localhost:3000/documents/${id}`).json()
+    return await api.get(`documents/${id}`).json()
 }
 
 export const renameDocument = async (id: number, newName: string) => {
-    return await ky.patch(`http://localhost:3000/documents/${id}`, {json: {
+    return await api.patch(`documents/${id}`, {json: {
             title: newName
         }}).json()
 }
 
 export const repathDocument = async (id: number, newPath: string) => {
-    return await ky.patch(`http://localhost:3000/documents/${id}`, {json: {
+    return await api.patch(`documents/${id}`, {json: {
             path: newPath
         }}).json()
 }
 
 export const deleteDocument = async (id: number) => {
-    return await ky.delete(`http://localhost:3000/documents/${id}`).json()
+    return await api.delete(`documents/${id}`).json()
 }

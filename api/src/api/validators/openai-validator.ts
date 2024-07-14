@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 interface newConversationRequest{
-    messages: message[],
+    message: string,
     organizationId: number
 }
 
@@ -19,17 +19,16 @@ const messageJoi = Joi.object().keys({
 })
 
 export const newConversationValidator = Joi.object<newConversationRequest>({
-    messages: Joi.array().items(messageJoi).required(),
+    message: Joi.string().required(),
     organizationId: Joi.number().required(),
 }).options({abortEarly: true})
 
 interface continueConversationRequest{
-    messages: message,
-    threadId: string,
-    assistantId: string
+    message: string,
+    threadId: string
 }
 
 export const continueConversationValidator = Joi.object<continueConversationRequest>({
-    messages: Joi.object().required(),
+    message: Joi.string().required(),
     threadId: Joi.string().required()
 }).options({abortEarly: true})

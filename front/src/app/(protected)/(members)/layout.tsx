@@ -2,15 +2,15 @@
 
 import MemberLayout from "@/components/members/MemberLayout";
 import { ProtectedRoute } from "@/components/public/ProtectedRoute";
-
+import Chatbot from "@/components/public/chatbot/Chatbot";
 export default function MemberPageLayout({
                                             children,
                                         }: {
     children: React.ReactNode;
 }) {
     return (
-        <ProtectedRoute allowedRoles={["USER"]}>
-            <MemberLayout>{children}</MemberLayout>
+        <ProtectedRoute>
+            <MemberLayout>{children}<Chatbot></Chatbot></MemberLayout>
         </ProtectedRoute>
     );
 }
