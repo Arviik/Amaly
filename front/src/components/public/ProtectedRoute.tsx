@@ -55,6 +55,9 @@ export function ProtectedRoute({
           setCredentials({
             user: {
               id: decoded.userId,
+              firstName: decoded.firstName || "",
+              lastName: decoded.lastName || "",
+              email: decoded.email,
               isSuperAdmin: decoded.isSuperAdmin,
             },
             memberships: decoded.memberships,

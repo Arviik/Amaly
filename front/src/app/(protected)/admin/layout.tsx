@@ -1,6 +1,6 @@
 "use client";
-
-import AdaptiveLayout from "@/components/public/AdaptiveLayout";
+import AdaptiveLayout from "@/components/layout/AdaptiveLayout";
+import HeaderConnected from "@/components/layout/header/HeaderConnected";
 import { ProtectedRoute } from "@/components/public/ProtectedRoute";
 import { Home, Users, Building, Settings } from "lucide-react";
 
@@ -18,14 +18,17 @@ export default function AdminLayout({
 }) {
   return (
     <ProtectedRoute requiredSuperAdmin>
-      <AdaptiveLayout
-        navItems={superAdminNavItems}
-        userType="superAdmin"
-        logo="/leaflogo.svg"
-        title="Amaly Super-Admin"
-      >
-        {children}
-      </AdaptiveLayout>
+      <HeaderConnected />
+      <div>
+        <AdaptiveLayout
+          navItems={superAdminNavItems}
+          userType="superAdmin"
+          logo="/leaflogo.svg"
+          title="Amaly Super-Admin"
+        >
+          {children}
+        </AdaptiveLayout>
+      </div>
     </ProtectedRoute>
   );
 }

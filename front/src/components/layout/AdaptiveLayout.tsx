@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
 import { useSelector } from "react-redux";
-import UniversalNavbar from "../common/UniversalNavbar";
-import MobileNavbar from "../common/MobileNavbar";
-import { NavItemProps } from "../common/NavItem";
+import UniversalNavbar from "./Navbar/UniversalNavbar";
+import MobileNavbar from "./Navbar/MobileNavbar";
 import { RootState } from "@/app/store";
+import { NavItemProps } from "./Navbar/NavItem";
 
 interface AdaptiveLayoutProps {
   children: React.ReactNode;

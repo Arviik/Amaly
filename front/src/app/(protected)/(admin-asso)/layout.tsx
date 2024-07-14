@@ -1,6 +1,7 @@
 // app/(protected)/admin/layout.tsx
 "use client";
-import AdaptiveLayout from "@/components/public/AdaptiveLayout";
+import AdaptiveLayout from "@/components/layout/AdaptiveLayout";
+import HeaderConnected from "@/components/layout/header/HeaderConnected";
 import { ProtectedRoute } from "@/components/public/ProtectedRoute";
 import { Home, Users, Settings, File } from "lucide-react";
 
@@ -18,14 +19,17 @@ export default function AdminPageLayout({
 }) {
   return (
     <ProtectedRoute requiredAdmin>
-      <AdaptiveLayout
-        navItems={navItems}
-        userType="admin"
-        logo="/leaflogo.svg"
-        title="Amaly Admin"
-      >
-        {children}
-      </AdaptiveLayout>
+      <HeaderConnected />
+      <div>
+        <AdaptiveLayout
+          navItems={navItems}
+          userType="admin"
+          logo="/leaflogo.svg"
+          title="Amaly Admin"
+        >
+          {children}
+        </AdaptiveLayout>
+      </div>
     </ProtectedRoute>
   );
 }

@@ -1,20 +1,20 @@
 "use client";
-import React from "react";
-import Link from "next/link";
 import clsx from "clsx";
+import Link from "next/link";
+import React from "react";
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
   TooltipProvider,
-} from "../ui/tooltip";
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
 import { usePathname } from "next/navigation";
 
 export interface NavItemProps {
   icon: React.ElementType;
   label: string;
   href: string;
-  isCollapsed: boolean;
+  isCollapsed?: boolean;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
