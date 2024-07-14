@@ -1,5 +1,5 @@
 // app/(protected)/admin/layout.tsx
-
+"use client";
 import AdaptiveLayout from "@/components/public/AdaptiveLayout";
 import { ProtectedRoute } from "@/components/public/ProtectedRoute";
 import { Home, Users, Settings, File } from "lucide-react";

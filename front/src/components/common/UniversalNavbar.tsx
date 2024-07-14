@@ -1,87 +1,59 @@
-import React from "react";
-import { ArrowLeftToLine, ArrowRightToLine, Menu } from "lucide-react";
+"use client";
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Image from "next/image";
-import Link from "next/link";
-import clsx from "clsx";
-import { LucideIcon } from "lucide-react";
-import LogoutButton from "../public/LogoutButton";
-import NavItem from "./NavItem";
-
-export interface NavItemType {
-  icon: LucideIcon;
-  label: string;
-  href: string;
-}
+import NavItem, { NavItemProps } from "./NavItem";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { RootState } from "@/app/store";
+import { toggleNavbar } from "@/app/store/slices/navbarSlice";
 
 interface UniversalNavbarProps {
-  isOpen: boolean;
-  toggleNavbar: () => void;
-  navItems: NavItemType[];
+  navItems: NavItemProps[];
   userType: "superAdmin" | "admin" | "member";
   logo: string;
   title: string;
 }
 
 const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
-  isOpen,
-  toggleNavbar,
   navItems,
   userType,
   logo,
   title,
 }) => {
+  const dispatch = useDispatch();
+  const isMinimized = useSelector(
+    (state: RootState) => state.navbar.isMinimized
+  );
+
   return (
-    <div
-      className={clsx("fixed top-0 h-full bg-white ", {
-        "w-60": isOpen,
-        "w-16": !isOpen,
-      })}
+    <nav
+      className={`hidden md:block fixed top-0 left-0 h-screen bg-white transition-all duration-300 ${
+        isMinimized ? "w-16" : "w-50"
+      }`}
     >
-      <button
-        onClick={toggleNavbar}
-        className="fixed top-4 left-4 z-50 lg:hidden"
-      >
-        <Menu className="h-6 w-6" />
-      </button>
-      <aside>
-        <div className="flex items-center justify-between p-4 border-b">
-          <Link
-            className="flex items-center space-x-2"
-            href={`/${
-              userType === "superAdmin" ? "admin/overview" : "dashboard"
-            }`}
-          >
-            {isOpen && (
-              <Image src={logo} alt="Amaly Logo" width={40} height={40} />
-            )}
-            {isOpen && <span className="text-xl font-semibold">{title}</span>}
-          </Link>
-          <button onClick={toggleNavbar} className="hidden lg:block">
-            {isOpen ? (
-              <ArrowLeftToLine className="h-5 w-5" />
-            ) : (
-              <ArrowRightToLine className="h-5 w-5" />
-            )}
-          </button>
-        </div>
-        <nav className="flex-1 overflow-y-auto">
-          <ul className="p-4">
-            {navItems.map((item) => (
-              <NavItem
-                key={item.href}
-                icon={item.icon}
-                label={item.label}
-                href={item.href}
-                isCollapsed={!isOpen}
-              />
-            ))}
-          </ul>
-        </nav>
-      </aside>
-      <div className="flex justify-items-end">
-        <LogoutButton isCollapsed={!isOpen} />
+      <div className="flex items-center justify-between p-4 border-b">
+        {!isMinimized && (
+          <>
+            <Image src={logo} alt={title} width={32} height={8} />
+            <span className="text-xl font-semibold">{title}</span>
+          </>
+        )}
+        <button onClick={() => dispatch(toggleNavbar())}>
+          {isMinimized ? <ChevronRight /> : <ChevronLeft />}
+        </button>
       </div>
-    </div>
+      <ul className="mt-4">
+        {navItems.map((item) => (
+          <NavItem
+            key={item.href}
+            icon={item.icon}
+            label={item.label}
+            href={item.href}
+            isCollapsed={isMinimized}
+          />
+        ))}
+      </ul>
+    </nav>
   );
 };
 

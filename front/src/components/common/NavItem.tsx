@@ -10,11 +10,12 @@ import {
 } from "../ui/tooltip";
 import { usePathname } from "next/navigation";
 
-interface NavItemProps {
+export interface NavItemProps {
   icon: React.ElementType;
   label: string;
   href: string;
   isCollapsed: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function NavItem({
@@ -22,6 +23,7 @@ function NavItem({
   label,
   href,
   isCollapsed,
+  setOpen,
 }: NavItemProps): JSX.Element {
   const currentPath = usePathname();
   return (
@@ -41,6 +43,9 @@ function NavItem({
                   "text-primary": currentPath === href,
                 }
               )}
+              onClick={() => {
+                if (setOpen) setOpen(false);
+              }}
             >
               <Icon className={clsx("h-8 w-6", { "mr-2": !isCollapsed })} />{" "}
               {!isCollapsed && <span>{label}</span>}

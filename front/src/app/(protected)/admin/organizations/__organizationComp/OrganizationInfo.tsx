@@ -18,9 +18,9 @@ export function OrganizationInfo({ organization }: OrganizationInfoProps) {
         <p>Adresse: {organization.address}</p>
         <p>Email: {organization.email}</p>
         <p>Téléphone: {organization.phone}</p>
-        <p>Contact principal: {organization.contactName}</p>
+        {/* <p>Contact principal: {organization.contactName}</p>
         <p>Email du contact: {organization.contactEmail}</p>
-        <p>Téléphone du contact: {organization.contactPhone}</p>
+        <p>Téléphone du contact: {organization.contactPhone}</p> */}
       </CardContent>
     </Card>
   );
