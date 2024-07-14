@@ -19,7 +19,7 @@ export const initUsers = (app: express.Express) => {
     }
   });
 
-  app.get("/users/:id", authMiddleware, authzMiddleware(), async (req, res) => {
+  app.get("/users/:id", authMiddleware, async (req, res) => {
     try {
       const user = await prisma.users.findUnique({
         where: { id: Number(req.params.id) },

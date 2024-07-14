@@ -65,6 +65,9 @@ export interface UserMembership {
 
 export interface DecodedToken {
   userId: number;
+  firstName?: string;
+  lastName?: string;
+  email: string;
   isSuperAdmin: boolean;
   memberships: UserMembership[];
   iat?: number;
