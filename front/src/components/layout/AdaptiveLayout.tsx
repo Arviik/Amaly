@@ -33,16 +33,17 @@ const AdaptiveLayout: React.FC<AdaptiveLayoutProps> = ({
         logo={logo}
         title={title}
       />
-      <MobileNavbar navItems={navItems} title={title} />
-      <main
-        className={`flex-1 transition-all duration-300 ease-in-out ${
-          isMinimized ? "md:ml-16" : "md:ml-64"
-        }`}
-      >
-        <div className="container mx-auto px-4 py-8">{children}</div>
-      </main>
+      <div className="flex flex-col flex-1">
+        <MobileNavbar navItems={navItems} title={title} />
+        <main
+          className={`flex-1 transition-all duration-300 ease-in-out pt-14 md:pt-0 ${
+            isMinimized ? "md:ml-16" : "md:ml-60"
+          }`}
+        >
+          <div className="container mx-auto px-auto py-20">{children}</div>
+        </main>
+      </div>
     </div>
   );
 };
-
 export default AdaptiveLayout;

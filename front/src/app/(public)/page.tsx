@@ -33,6 +33,7 @@ const features = [
 ];
 
 export default function RootPage() {
+  console.log("RootPage");
   return (
     <main>
       <div className="container mx-auto py-12 px-4">

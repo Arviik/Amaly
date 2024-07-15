@@ -19,16 +19,18 @@ export default function AdminPageLayout({
 }) {
   return (
     <ProtectedRoute requiredAdmin>
-      <HeaderConnected />
-      <div>
-        <AdaptiveLayout
-          navItems={navItems}
-          userType="admin"
-          logo="/leaflogo.svg"
-          title="Amaly Admin"
-        >
-          {children}
-        </AdaptiveLayout>
+      <div className="flex flex-col min-h-screen">
+        <HeaderConnected />
+        <div>
+          <AdaptiveLayout
+            navItems={navItems}
+            userType="admin"
+            logo="/leaflogo.svg"
+            title="Amaly Admin"
+          >
+            {children}
+          </AdaptiveLayout>
+        </div>
       </div>
     </ProtectedRoute>
   );

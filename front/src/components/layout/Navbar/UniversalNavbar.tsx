@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Image from "next/image";
 import NavItem, { NavItemProps } from "./NavItem";
@@ -28,17 +28,20 @@ const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
   return (
     <nav
       className={`hidden md:block fixed top-0 left-0 h-screen bg-white transition-all duration-300 ${
-        isMinimized ? "w-16" : "w-50"
+        isMinimized ? "w-16" : "w-60"
       }`}
     >
-      <div className="flex items-center justify-between p-4 border-b">
-        {!isMinimized && (
+      <div className="flex items-center justify-between p-4 border-b h-14">
+        {!isMinimized && userType === "superAdmin" && (
           <>
             <Image src={logo} alt={title} width={32} height={8} />
             <span className="text-xl font-semibold">{title}</span>
           </>
         )}
-        <button onClick={() => dispatch(toggleNavbar())}>
+        <button
+          onClick={() => dispatch(toggleNavbar())}
+          className={`${isMinimized ? "mx-auto" : "ml-auto"} mt-1`}
+        >
           {isMinimized ? <ChevronRight /> : <ChevronLeft />}
         </button>
       </div>

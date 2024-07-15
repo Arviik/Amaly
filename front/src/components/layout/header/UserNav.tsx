@@ -15,14 +15,19 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/app/store";
 import { clearCredentials } from "@/app/store/slices/authSlice";
 import { useRouter } from "next/navigation";
+import { authService } from "@/api/services/auth";
 
 export function UserNav() {
   const user = useSelector((state: RootState) => state.auth.user);
   const router = useRouter();
   const dispatch = useDispatch();
-  const handleLogout = () => {
-    dispatch(clearCredentials());
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      router.push("/login");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+    }
   };
 
   if (user) {

@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import NavItem, { NavItemProps } from "./NavItem";
-
 import { useRouter } from "next/navigation";
 
 interface MobileNavbarProps {
@@ -23,7 +22,7 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({ navItems, title }) => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <button className="fixed top-4 left-4 z-50 md:hidden p-2">
+        <button className="fixed top-3 right-4 z-50 md:hidden p-2">
           <Menu />
         </button>
       </SheetTrigger>
