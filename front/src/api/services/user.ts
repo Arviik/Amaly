@@ -1,5 +1,5 @@
 import { api } from "../config";
-import { User } from "../type";
+import { User, UserPatch } from "../type";
 
 export const getAllUsers = async (): Promise<User[]> => {
   try {
@@ -35,11 +35,10 @@ export const createUser = async (
 
 export const updateUser = async (
   userId: number,
-  userData: User
+  userData: Partial<UserPatch>
 ): Promise<User> => {
   try {
-    userData.updatedAt = new Date();
-    const response = await api.put(`users/${userId}`, { json: userData });
+    const response = await api.patch(`users/${userId}`, { json: userData });
     return response.json();
   } catch (error) {
     console.error("Error updating user:", error);

@@ -1,15 +1,15 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { DataTable } from "../common/DataTable";
-import { User } from "@/api/type";
 import {
-  getAllUsers,
   createUser,
-  updateUser,
   deleteUser,
+  getAllUsers,
+  updateUser,
 } from "@/api/services/user";
+import { User, UserPatch } from "@/api/type";
+import { useCallback, useEffect, useState } from "react";
 import { Field } from "../common/CreateModal";
+import { DataTable } from "../common/DataTable";
+import { toast } from "../ui/use-toast";
 
 const columns: { key: keyof User; header: string }[] = [
   { key: "id" as keyof User, header: "ID" },
@@ -30,25 +30,76 @@ const fields: Field[] = [
 export function UserTable() {
   const [users, setUsers] = useState<User[]>([]);
 
-  useEffect(() => {
-    getAllUsers().then(setUsers);
+  const fetchUsers = useCallback(async () => {
+    try {
+      const data = await getAllUsers();
+      setUsers(data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch users",
+      });
+    }
   }, []);
 
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
   const handleCreate = async (userData: Partial<User>) => {
-    const newUser = await createUser(
-      userData as Omit<User, "id" | "updatedAt">
-    );
-    setUsers([...users, newUser]);
+    try {
+      await createUser(userData as Omit<User, "id" | "updatedAt">);
+      toast({
+        title: "Success",
+        description: "User created successfully",
+      });
+      fetchUsers();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create user",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleUpdate = async (id: number, userData: Partial<User>) => {
-    const updatedUser = await updateUser(id, userData as User);
-    setUsers(users.map((user) => (user.id === id ? updatedUser : user)));
+    try {
+      console.log("Updating user with data:", userData);
+      const { firstName, lastName, email } = userData;
+      const updateData: UserPatch = { firstName, lastName, email };
+      await updateUser(id, updateData);
+      toast({
+        title: "Success",
+        description: "User updated successfully",
+      });
+      fetchUsers();
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to update user",
+        variant: "destructive",
+      });
+      alert("Error updating user");
+    }
   };
 
   const handleDelete = async (id: number) => {
-    await deleteUser(id);
-    setUsers(users.filter((user) => user.id !== id));
+    try {
+      await deleteUser(id);
+      toast({
+        title: "Success",
+        description: "User deleted successfully",
+      });
+      fetchUsers();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete user",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleResetPassword = (id: number) => {
