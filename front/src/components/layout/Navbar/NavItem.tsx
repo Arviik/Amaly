@@ -1,20 +1,21 @@
 "use client";
-import React from "react";
-import Link from "next/link";
 import clsx from "clsx";
+import Link from "next/link";
+import React from "react";
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
   TooltipProvider,
-} from "../ui/tooltip";
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
 import { usePathname } from "next/navigation";
 
-interface NavItemProps {
+export interface NavItemProps {
   icon: React.ElementType;
   label: string;
   href: string;
-  isCollapsed: boolean;
+  isCollapsed?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function NavItem({
@@ -22,6 +23,7 @@ function NavItem({
   label,
   href,
   isCollapsed,
+  setOpen,
 }: NavItemProps): JSX.Element {
   const currentPath = usePathname();
   return (
@@ -41,6 +43,9 @@ function NavItem({
                   "text-primary": currentPath === href,
                 }
               )}
+              onClick={() => {
+                if (setOpen) setOpen(false);
+              }}
             >
               <Icon className={clsx("h-8 w-6", { "mr-2": !isCollapsed })} />{" "}
               {!isCollapsed && <span>{label}</span>}

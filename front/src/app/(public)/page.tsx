@@ -33,9 +33,9 @@ const features = [
 ];
 
 export default function RootPage() {
+  console.log("RootPage");
   return (
     <main>
-      <Header />
       <div className="container mx-auto py-12 px-4">
         <section className="text-center py-12">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight">
