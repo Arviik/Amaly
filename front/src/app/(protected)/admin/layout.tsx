@@ -2,6 +2,7 @@
 import AdaptiveLayout from "@/components/layout/AdaptiveLayout";
 import HeaderConnected from "@/components/layout/header/HeaderConnected";
 import { ProtectedRoute } from "@/components/public/ProtectedRoute";
+import { Toaster } from "@/components/ui/toaster";
 import { Home, Users, Building, Settings } from "lucide-react";
 
 const superAdminNavItems = [
@@ -20,7 +21,7 @@ export default function AdminLayout({
     <ProtectedRoute requiredSuperAdmin>
       <div className="flex flex-col min-h-screen">
         <HeaderConnected />
-        <div className="flex-1 mt-14">
+        <div className="flex-1 mt-8">
           <AdaptiveLayout
             navItems={superAdminNavItems}
             userType="superAdmin"
@@ -29,6 +30,7 @@ export default function AdminLayout({
           >
             {children}
           </AdaptiveLayout>
+          <Toaster />
         </div>
       </div>
     </ProtectedRoute>
