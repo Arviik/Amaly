@@ -7,7 +7,7 @@ import {
 } from "@/api/services/user";
 import { User, UserPatch } from "@/api/type";
 import { useCallback, useEffect, useState } from "react";
-import { Field } from "../common/CreateModal";
+import { Field } from "../common/CrudModals";
 import { DataTable } from "../common/DataTable";
 import { toast } from "../ui/use-toast";
 

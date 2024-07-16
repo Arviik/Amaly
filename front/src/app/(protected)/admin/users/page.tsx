@@ -1,5 +1,4 @@
 import React from "react";
-
 import { UserTable } from "@/components/super-admin/UserTable";
 
 const UsersPage: React.FC = () => {

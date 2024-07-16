@@ -122,6 +122,19 @@ function RenderField<T>({
           disabled={isCreateMode}
         />
       );
+    case "date":
+      return (
+        <Input
+          type="date"
+          id={field.name}
+          name={field.name}
+          //make the format of date input as dd/mm/yyyy
+          value={formData[field.name as keyof T]?.toString() || ""}
+          onChange={(e) => handleChange(field.name, e.target.value)}
+          required
+          autoComplete="off"
+        />
+      );
     default:
       return <p>Field type not implemented</p>;
   }
