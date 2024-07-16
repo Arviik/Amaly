@@ -52,11 +52,13 @@ function RenderField<T>({
   formData,
   handleChange,
   isCreateMode,
+  isEditMode,
 }: {
   field: Field;
   formData: Partial<T>;
   handleChange: (name: string, value: any) => void;
   isCreateMode: boolean;
+  isEditMode: boolean;
 }) {
   switch (field.type) {
     case "select":
@@ -84,6 +86,7 @@ function RenderField<T>({
             id={field.name}
             checked={formData[field.name as keyof T] as boolean}
             onCheckedChange={(checked) => handleChange(field.name, checked)}
+            disabled={isEditMode}
           />
           <label
             htmlFor={field.name}
@@ -174,6 +177,7 @@ export function CreateModal<T>({
                 formData={formData}
                 handleChange={handleChange}
                 isCreateMode={true}
+                isEditMode={false}
               />
             </div>
           ))}
@@ -235,6 +239,7 @@ export function EditModal<T>({
                   formData={formData}
                   handleChange={handleChange}
                   isCreateMode={false}
+                  isEditMode={true}
                 />
               </div>
             );
