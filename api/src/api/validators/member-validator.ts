@@ -1,29 +1,28 @@
 import Joi from "joi";
 
-export interface memberRequest {
-  membershipType: string;
-  status: string;
+export interface MemberRequest {
+  role: string;
+  isAdmin: boolean;
   startDate: Date;
   endDate?: Date;
-  employmentType?: string;
-  organizationId: number;
   userId: number;
+  organizationId: number;
+  employmentType?: string;
 }
 
-export const memberValidation = Joi.object<memberRequest>({
-  membershipType: Joi.string().required(),
-  status: Joi.string().required(),
-  startDate: Joi.date().default(new Date()),
-  endDate: Joi.date(),
-  employmentType: Joi.string().default("NULL"),
-  organizationId: Joi.number().required(),
-  userId: Joi.number().required(),
+export const memberValidation = Joi.object<MemberRequest>({
+  role: Joi.string().default("member"),
+  isAdmin: Joi.boolean().default(false),
+  startDate: Joi.date().default(Date.now),
+  endDate: Joi.date().greater(Joi.ref("startDate")),
+  userId: Joi.number().integer().required(),
+  organizationId: Joi.number().integer().required(),
+  employmentType: Joi.string().optional(),
 }).options({ abortEarly: true });
 
-export const memberPatchValidation = Joi.object<Partial<memberRequest>>({
-  membershipType: Joi.string(),
-  status: Joi.string(),
-  startDate: Joi.date(),
-  endDate: Joi.date(),
+export const memberPatchValidation = Joi.object<Partial<MemberRequest>>({
+  role: Joi.string(),
+  isAdmin: Joi.boolean(),
+  endDate: Joi.date().greater(Joi.ref("startDate")),
   employmentType: Joi.string(),
 }).options({ abortEarly: true });
