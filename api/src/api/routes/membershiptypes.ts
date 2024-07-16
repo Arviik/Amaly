@@ -4,6 +4,7 @@ import {
   membershipTypePatchValidation,
   membershipTypeValidation,
 } from "../validators/membershipType-validator";
+import { authMiddleware } from "../middlewares/auth-middleware";
 
 export const initmembershipTypes = (app: express.Express) => {
   app.get("/membershiptypes", async (req, res) => {
@@ -28,6 +29,22 @@ export const initmembershipTypes = (app: express.Express) => {
     }
   });
 
+  app.get(
+    "/membershiptypes/organization/:organizationId",
+    authMiddleware,
+    async (req, res) => {
+      try {
+        const membershipTypes = await prisma.membershipTypes.findMany({
+          where: { organizationId: Number(req.params.organizationId) },
+        });
+        res.json(membershipTypes);
+      } catch (e) {
+        res.status(500).send({ error: e });
+        return;
+      }
+    }
+  );
+
   app.post("/membershiptypes", async (req, res) => {
     const validation = membershipTypeValidation.validate(req.body);
 
@@ -47,7 +64,7 @@ export const initmembershipTypes = (app: express.Express) => {
           organizationId: membershipTypeRequest.organizationId,
         },
       });
-      res.json(membershipType);
+      res.status(201).json(membershipType);
     } catch (e) {
       res.status(500).send({ error: e });
       return;
@@ -70,7 +87,7 @@ export const initmembershipTypes = (app: express.Express) => {
         },
         data: membershipTypeRequest,
       });
-      res.json(membershipType);
+      res.status(200).json(membershipType);
     } catch (e) {
       res.status(500).json({ error: e });
       return;
@@ -82,7 +99,7 @@ export const initmembershipTypes = (app: express.Express) => {
       const deletedMembershipType = await prisma.membershipTypes.delete({
         where: { id: Number(req.params.id) },
       });
-      res.status(200).json(deletedMembershipType);
+      res.status(204).json(deletedMembershipType);
     } catch (e) {
       res.status(500).send({ error: e });
     }

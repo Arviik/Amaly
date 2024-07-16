@@ -4,6 +4,7 @@ import {
   subscriptionPatchValidation,
   subscriptionValidation,
 } from "../validators/subscription-validator";
+import { authMiddleware } from "../middlewares/auth-middleware";
 
 export const initSubscriptions = (app: express.Express) => {
   app.get("/subscriptions", async (req, res) => {
@@ -27,8 +28,8 @@ export const initSubscriptions = (app: express.Express) => {
       return;
     }
   });
-
-  app.post("/subscriptions", async (req, res) => {
+  //Ajoutez une logique pour mettre à jour le statut de l'adhésion correspondante lorsqu'une souscription est marquée comme payée.
+  app.post("/subscriptions", authMiddleware, async (req, res) => {
     const validation = subscriptionValidation.validate(req.body);
 
     if (validation.error) {
@@ -48,13 +49,36 @@ export const initSubscriptions = (app: express.Express) => {
           membershipId: subscriptionRequest.membershipId,
         },
       });
-      res.json(subscription);
+      const membership = await prisma.memberships.findUnique({
+        where: { id: subscriptionRequest.membershipId },
+      });
+
+      if (!membership) {
+        res.status(404).send({ error: "Membership not found" });
+        return;
+      }
+
+      const membershipType = await prisma.membershipTypes.findUnique({
+        where: { id: membership.membershipTypeId },
+      });
+
+      if (!membershipType) {
+        res.status(404).send({ error: "Membership type not found" });
+        return;
+      }
+
+      await prisma.memberships.update({
+        where: { id: subscriptionRequest.membershipId },
+        data: {
+          status: membershipType.name,
+        },
+      });
+      res.status(201).json(subscription);
     } catch (e) {
       res.status(500).send({ error: e });
       return;
     }
   });
-
   app.patch("/subscriptions/:id", async (req, res) => {
     const validation = subscriptionPatchValidation.validate(req.body);
 
