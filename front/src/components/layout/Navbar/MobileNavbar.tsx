@@ -22,7 +22,7 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({ navItems, title }) => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <button className="fixed top-3 right-4 z-50 md:hidden p-2">
+        <button className="fixed top-3 z-50 md:hidden p-2">
           <Menu />
         </button>
       </SheetTrigger>
