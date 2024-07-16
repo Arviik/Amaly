@@ -4,9 +4,10 @@ import {
   memberPatchValidation,
   memberValidation,
 } from "../validators/member-validator";
+import { authMiddleware } from "../middlewares/auth-middleware";
 
 export const initMembers = (app: express.Express) => {
-  app.get("/members", async (req, res) => {
+  app.get("/members", authMiddleware, async (req, res) => {
     try {
       const allMembers = await prisma.members.findMany();
       res.json(allMembers);
@@ -16,7 +17,7 @@ export const initMembers = (app: express.Express) => {
     }
   });
 
-  app.get("/members/:id", async (req, res) => {
+  app.get("/members/:id", authMiddleware, async (req, res) => {
     try {
       const member = await prisma.members.findUnique({
         where: { id: Number(req.params.id) },
@@ -32,7 +33,22 @@ export const initMembers = (app: express.Express) => {
     }
   });
 
-  app.post("/members", async (req, res) => {
+  app.get(
+    "/organizations/:organizationId/members",
+    authMiddleware,
+    async (req, res) => {
+      try {
+        const members = await prisma.members.findMany({
+          where: { organizationId: Number(req.params.organizationId) },
+        });
+        res.json(members);
+      } catch (e) {
+        res.status(500).json({ error: e });
+      }
+    }
+  );
+
+  app.post("/members", authMiddleware, async (req, res) => {
     const validation = memberValidation.validate(req.body);
 
     if (validation.error) {
@@ -44,21 +60,19 @@ export const initMembers = (app: express.Express) => {
     try {
       const member = await prisma.members.create({
         data: {
-          startDate: memberRequest.startDate,
-          endDate: memberRequest.endDate,
           employmentType: memberRequest.employmentType,
           organizationId: memberRequest.organizationId,
           userId: memberRequest.userId,
         },
       });
-      res.json(member);
+      res.status(201).json(member);
     } catch (e) {
       res.status(500).send({ error: e });
       return;
     }
   });
 
-  app.patch("/members/:id", async (req, res) => {
+  app.patch("/members/:id", authMiddleware, async (req, res) => {
     const validation = memberPatchValidation.validate(req.body);
 
     if (validation.error) {
@@ -81,7 +95,7 @@ export const initMembers = (app: express.Express) => {
     }
   });
 
-  app.delete("/members/:id", async (req, res) => {
+  app.delete("/members/:id", authMiddleware, async (req, res) => {
     try {
       const deletedMember = await prisma.members.delete({
         where: { id: Number(req.params.id) },
