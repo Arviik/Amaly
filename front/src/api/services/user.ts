@@ -21,9 +21,10 @@ export const deleteUser = async (userId: number): Promise<void> => {
 };
 
 export const createUser = async (
-  userData: Omit<User, "id" | "createdAt" | "updatedAt">
+  userData: Omit<User, "id" | "updatedAt">
 ): Promise<User> => {
   try {
+    console.log(userData);
     const response = await api.post("users", { json: userData });
     return response.json();
   } catch (error) {
@@ -34,9 +35,10 @@ export const createUser = async (
 
 export const updateUser = async (
   userId: number,
-  userData: Partial<Omit<User, "id" | "createdAt" | "updatedAt">>
+  userData: User
 ): Promise<User> => {
   try {
+    userData.updatedAt = new Date();
     const response = await api.put(`users/${userId}`, { json: userData });
     return response.json();
   } catch (error) {
