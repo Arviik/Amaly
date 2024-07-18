@@ -26,6 +26,7 @@ model Users {
   refreshTokens RefreshToken[]
   votes         Votes[]
   organizations Organizations[] @relation("OrganizationOwner")
+  resetPasswordTokens ResetPasswordTokens[]
   @@map("users")
 }
 
@@ -48,6 +49,7 @@ model Organizations {
   ags         AGs[]
   donations   Donations[]
   documents   Documents[]
+  invitations Invitations[]
 
   @@map("organizations")
 }
@@ -110,6 +112,32 @@ enum PaymentStatus {
   PENDING
   PAID
   FAILED
+}
+
+model Invitations {
+  id             Int      @id @default(autoincrement())
+  email          String
+  organizationId Int
+  token          String
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  organization   Organizations @relation(fields: [organizationId], references: [id])
+
+  @@map("invitations")
+}
+
+model ResetPasswordTokens {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      Users     @relation(fields: [userId], references: [id])
+
+  @@map("reset_password_tokens")
 }
 
 

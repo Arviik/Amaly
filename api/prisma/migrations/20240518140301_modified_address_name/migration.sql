@@ -18,8 +18,7 @@ ALTER TABLE `members` DROP COLUMN `adress`,
 ALTER TABLE `organizations` DROP COLUMN `adress`,
     ADD COLUMN `address` VARCHAR(191) NOT NULL;
 
--- CreateIndex
-CREATE UNIQUE INDEX `members_userId_key` ON `members`(`userId`);
+
 
 -- AddForeignKey
 ALTER TABLE `members` ADD CONSTRAINT `members_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
