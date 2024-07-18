@@ -11,6 +11,16 @@ export const getAllUsers = async (): Promise<User[]> => {
   }
 };
 
+export const getUserById = async (userId: number): Promise<User> => {
+  try {
+    const response = await api.get(`users/${userId}`);
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    throw error;
+  }
+};
+
 export const deleteUser = async (userId: number): Promise<void> => {
   try {
     await api.delete(`users/${userId}`);

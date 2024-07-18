@@ -26,6 +26,7 @@ interface DataTableProps<T> {
   onUpdate: (id: number, data: Partial<T>) => void;
   onDelete: (id: number) => void;
   onResetPassword?: (id: number) => void;
+  getColumnValue?: (data: T, column: { key: keyof T; header: string }) => any;
   fields: Field[];
 }
 
@@ -37,6 +38,7 @@ export function DataTable<T extends { id: number }>({
   onDelete,
   onResetPassword,
   fields,
+  getColumnValue = (data, column) => data[column.key],
 }: DataTableProps<T>) {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -142,7 +144,7 @@ export function DataTable<T extends { id: number }>({
             <TableRow key={item.id}>
               {columns.map((column) => (
                 <TableCell key={column.key as string}>
-                  {String(item[column.key])}
+                  {String(getColumnValue(item, column))}
                 </TableCell>
               ))}
               <TableCell>

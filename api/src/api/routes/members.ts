@@ -1,15 +1,22 @@
 import express from "express";
+import { MemberStatus } from "@prisma/client";
 import { prisma } from "../../utils/prisma";
 import {
   memberPatchValidation,
+  MemberRequest,
   memberValidation,
 } from "../validators/member-validator";
 import { authMiddleware } from "../middlewares/auth-middleware";
+import { createInvitation } from "../services/email-service";
 
 export const initMembers = (app: express.Express) => {
   app.get("/members", authMiddleware, async (req, res) => {
     try {
-      const allMembers = await prisma.members.findMany();
+      const allMembers = await prisma.members.findMany({
+        include: { user: true },
+      });
+      console.log("je suis ici");
+
       res.json(allMembers);
     } catch (e) {
       res.status(500).send({ error: e });
@@ -21,9 +28,20 @@ export const initMembers = (app: express.Express) => {
     try {
       const member = await prisma.members.findUnique({
         where: { id: Number(req.params.id) },
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+        },
       });
+
       if (member) {
-        res.json(member);
+        res.status(200).json(member);
       } else {
         res.status(404).send({ error: "Member not found" });
       }
@@ -32,21 +50,6 @@ export const initMembers = (app: express.Express) => {
       return;
     }
   });
-
-  app.get(
-    "/organizations/:organizationId/members",
-    authMiddleware,
-    async (req, res) => {
-      try {
-        const members = await prisma.members.findMany({
-          where: { organizationId: Number(req.params.organizationId) },
-        });
-        res.json(members);
-      } catch (e) {
-        res.status(500).json({ error: e });
-      }
-    }
-  );
 
   app.post("/members", authMiddleware, async (req, res) => {
     const validation = memberValidation.validate(req.body);
@@ -60,7 +63,7 @@ export const initMembers = (app: express.Express) => {
     try {
       const member = await prisma.members.create({
         data: {
-          employmentType: memberRequest.employmentType,
+          role: memberRequest.role,
           organizationId: memberRequest.organizationId,
           userId: memberRequest.userId,
         },
@@ -86,9 +89,20 @@ export const initMembers = (app: express.Express) => {
         where: {
           id: Number(req.params.id),
         },
-        data: memberRequest,
+        data: {
+          role: memberRequest.role,
+          isAdmin: memberRequest.isAdmin,
+          status: memberRequest.status as MemberStatus,
+          user: {
+            update: {
+              firstName: memberRequest.user?.firstName,
+              lastName: memberRequest.user?.lastName,
+              email: memberRequest.user?.email,
+            },
+          },
+        },
       });
-      res.json(member);
+      res.status(200).json(member);
     } catch (e) {
       res.status(500).json({ error: e });
       return;
@@ -105,4 +119,20 @@ export const initMembers = (app: express.Express) => {
       res.status(500).send({ error: e });
     }
   });
+
+  app.post(
+    "/organizations/:organizationId/invite-member",
+    authMiddleware,
+    async (req, res) => {
+      try {
+        await createInvitation(
+          Number(req.params.organizationId),
+          req.body.email
+        );
+        res.status(201).json({ message: "Invitation sent" });
+      } catch (e) {
+        res.status(500).json({ error: e });
+      }
+    }
+  );
 };

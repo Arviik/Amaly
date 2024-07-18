@@ -2,11 +2,12 @@ import Joi from "joi";
 
 export interface organizationRequest {
   name: string;
-  description?: string;
+  description: string;
   type: string;
   address: string;
   phone: string;
   email: string;
+  ownerId: number;
 }
 
 export const organizationValidation = Joi.object<organizationRequest>({
@@ -16,6 +17,7 @@ export const organizationValidation = Joi.object<organizationRequest>({
   address: Joi.string().required(),
   phone: Joi.string().required(),
   email: Joi.string().email().required(),
+  ownerId: Joi.number().required(),
 }).options({ abortEarly: true });
 
 export const organizationPatchValidation = Joi.object<

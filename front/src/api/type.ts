@@ -56,19 +56,36 @@ export interface OrganizationPatch {
   phone?: string;
   email?: string;
 }
-
 export interface Member {
   id: number;
-  membershipType: string;
-  status: string;
-  startDate: Date;
-  endDate?: Date;
+  role: string;
+  isAdmin: boolean;
   userId: number;
   organizationId: number;
-  isAdmin: boolean;
-  employmentType?: string;
+  status: MemberStatus;
   createdAt: Date;
   updatedAt: Date;
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
+export enum MemberStatus {
+  VOLUNTEER = "VOLUNTEER",
+  SUBSCRIBER = "SUBSCRIBER",
+  INTERN = "INTERN",
+  EMPLOYEE = "EMPLOYEE",
+}
+
+export interface MembershipType {
+  id: number;
+  name: string;
+  description?: string;
+  duration: number;
+  fee: number;
+  organizationId: number;
 }
 
 export interface UserMembership {

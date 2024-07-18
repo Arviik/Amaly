@@ -67,7 +67,7 @@ export default function SignupPage() {
             </div>
             <div className="mt-4 text-center text-sm text-muted-foreground">
               Déjà un compte ?{" "}
-              <Link href="/auth/login" className="underline">
+              <Link href="/login" className="underline">
                 Se connecter
               </Link>
             </div>

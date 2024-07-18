@@ -27,7 +27,7 @@ const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
 
   return (
     <nav
-      className={`hidden md:block fixed top-0 left-0 h-screen bg-white transition-all duration-300 ${
+      className={`hidden md:block fixed top-0 left-0 h-screen bg-background transition-all duration-300 ${
         isMinimized ? "w-16" : "w-60"
       }`}
     >

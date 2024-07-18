@@ -35,16 +35,31 @@ export const initOrganizations = (app: express.Express) => {
     }
   });
 
-  app.get("/organizations/:organizationId/members", async (req, res) => {
-    try {
-      const members = await prisma.members.findMany({
-        where: { organizationId: Number(req.params.organizationId) },
-      });
-      res.json(members);
-    } catch (e) {
-      res.status(500).send({ error: e });
+  app.get(
+    "/organizations/:organizationId/members",
+    authMiddleware,
+    async (req, res) => {
+      try {
+        console.log("Route /organizations/:organizationId/members called");
+        const members = await prisma.members.findMany({
+          where: { organizationId: Number(req.params.organizationId) },
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        });
+        res.json(members);
+      } catch (e) {
+        res.status(500).send({ error: e });
+      }
     }
-  });
+  );
 
   app.post(
     "/organizations",
@@ -67,6 +82,7 @@ export const initOrganizations = (app: express.Express) => {
             address: organizationRequest.address,
             email: organizationRequest.email,
             phone: organizationRequest.phone,
+            ownerId: organizationRequest.ownerId,
           },
         });
         res.json(organization);

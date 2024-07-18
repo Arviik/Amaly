@@ -16,7 +16,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { setSelectedOrganization } from "@/app/store/slices/authSlice";
+import { setSelectedOrganization } from "@/app/store/slices/organizationSlice";
 import { UserMembership } from "@/api/type";
 import { Check } from "lucide-react"; // Assurez-vous d'avoir importé l'icône Check
 
@@ -25,7 +25,7 @@ export function ComboBox() {
   const router = useRouter();
   const memberships = useSelector((state: RootState) => state.auth.memberships);
   const selectedOrganizationId = useSelector(
-    (state: RootState) => state.auth.selectedOrganizationId
+    (state: RootState) => state.organization.selectedOrganizationId
   );
   const [open, setOpen] = useState(false);
   const [selectedMembership, setSelectedMembership] =

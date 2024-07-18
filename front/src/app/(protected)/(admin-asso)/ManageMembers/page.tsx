@@ -1,4 +1,4 @@
-import { MemberTable } from "@/components/admin-asso/memberManage/MemberTable";
+import MemberTable from "@/components/admin-asso/memberManage/MemberTable";
 
 const MembersPage: React.FC = () => {
   return (

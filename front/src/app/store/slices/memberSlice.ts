@@ -32,14 +32,6 @@ export const fetchMemberById = createAsyncThunk(
   }
 );
 
-export const addMember = createAsyncThunk(
-  "members/addMember",
-  async (member: Member) => {
-    const response = await memberApi.createMember(member);
-    return response;
-  }
-);
-
 export const updateMember = createAsyncThunk(
   "members/updateMember",
   async (member: Member) => {

@@ -7,6 +7,7 @@ import {
 import bcrypt from "bcrypt";
 import { authMiddleware } from "../middlewares/auth-middleware";
 import authzMiddleware from "../middlewares/authz-middleware";
+import { createResetPasswordToken } from "../services/email-service";
 
 export const initUsers = (app: express.Express) => {
   app.get("/users", authMiddleware, authzMiddleware(), async (req, res) => {
@@ -89,6 +90,29 @@ export const initUsers = (app: express.Express) => {
       });
       res.status(200).json(deletedUser);
     } catch (e) {
+      res.status(500).send({ error: e });
+    }
+  });
+
+  app.post("/reset-password", async (req, res) => {
+    try {
+      console.log(req.body);
+      console.log("Reset password");
+
+      const { email } = req.body.email;
+      const user = await prisma.users.findUnique({
+        where: { email },
+      });
+      if (!user) {
+        res.status(404).send({ error: "User not found" });
+        return;
+      }
+
+      await createResetPasswordToken(email);
+
+      res.status(200).send({ message: "Password reset email sent" });
+    } catch (e) {
+      console.error("Error sending reset password email:", e);
       res.status(500).send({ error: e });
     }
   });

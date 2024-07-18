@@ -105,7 +105,7 @@ export default function LoginPage() {
           </CardContent>
         </Card>
       </div>
-      <div className="hidden bg-muted lg:block">
+      <div className="  lg:block">
         <Image
           src="/picture.PNG"
           alt="Image"
