@@ -44,8 +44,6 @@ export const initMembers = (app: express.Express) => {
     try {
       const member = await prisma.members.create({
         data: {
-          membershipType: memberRequest.membershipType,
-          status: memberRequest.status,
           startDate: memberRequest.startDate,
           endDate: memberRequest.endDate,
           employmentType: memberRequest.employmentType,

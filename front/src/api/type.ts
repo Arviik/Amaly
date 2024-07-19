@@ -30,6 +30,12 @@ export interface User {
   updatedAt?: Date;
 }
 
+export interface UserPatch {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 export interface Organization {
   id: number;
   name: string;
@@ -40,6 +46,15 @@ export interface Organization {
   email: string;
   createdAt: Date;
   updatedAt?: Date;
+}
+
+export interface OrganizationPatch {
+  name?: string;
+  description?: string;
+  type?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
 }
 
 export interface Member {
@@ -77,6 +92,9 @@ export interface UserMembership {
 
 export interface DecodedToken {
   userId: number;
+  firstName?: string;
+  lastName?: string;
+  email: string;
   isSuperAdmin: boolean;
   memberships: UserMembership[];
   iat?: number;

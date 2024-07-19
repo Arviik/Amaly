@@ -9,8 +9,7 @@ import {
 } from "@/api/services/organization";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import EditModal from "@/components/common/EditModal";
-import DeleteAlert from "@/components/common/DeleteAlert";
+
 import { Input } from "@/components/ui/input";
 import { Organization } from "@/api/type";
 
@@ -129,7 +128,6 @@ const OrganizationDetailsPage = ({ params }: OrganizationDetailsPageProps) => {
             <Button onClick={handleEdit} className="mr-2">
               Edit
             </Button>
-            <DeleteAlert onDelete={handleDelete} entityName="organization" />
           </CardContent>
         </Card>
         <Card>
@@ -146,13 +144,13 @@ const OrganizationDetailsPage = ({ params }: OrganizationDetailsPageProps) => {
         </Card>
       </div>
 
-      <EditModal
+      {/* <EditModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         onSubmit={handleOrganizationUpdate}
         initialData={organization}
-        renderForm={renderOrganizationForm}
-      />
+        // renderForm={renderOrganizationForm}
+      /> */}
     </div>
   );
 };

@@ -11,8 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 
 const DashboardAdmin: React.FC = () => {
-  console.log("DashboardAdmin");
-
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Main Content Section */}

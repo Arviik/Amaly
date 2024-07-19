@@ -1,5 +1,5 @@
 import { api } from "../config";
-import { Organization } from "../type";
+import { Organization, OrganizationPatch } from "../type";
 
 export const getAllOrganizations = async (): Promise<Organization[]> => {
   try {
@@ -39,11 +39,11 @@ export const createOrganization = async (
 
 export const updateOrganization = async (
   id: number,
-  OrganizationData: Partial<Organization>
+  organizationData: Partial<OrganizationPatch>
 ): Promise<Organization> => {
   try {
     const response = await api.patch(`organizations/${id}`, {
-      json: OrganizationData,
+      json: organizationData,
     });
     return response.json();
   } catch (error) {

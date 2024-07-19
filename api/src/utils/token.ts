@@ -16,6 +16,9 @@ export const generateAccessToken = (
   return jwt.sign(
     {
       userId: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
       isSuperAdmin: user.isSuperAdmin,
       memberships,
     },

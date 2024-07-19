@@ -1,5 +1,6 @@
 "use client";
 
+import HeaderConnected from "@/components/layout/header/HeaderConnected";
 import { ProtectedRoute } from "@/components/public/ProtectedRoute";
 
 export default function MembersLayout({
@@ -7,5 +8,10 @@ export default function MembersLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <ProtectedRoute>{children}</ProtectedRoute>;
+  return (
+    <ProtectedRoute>
+      <HeaderConnected />
+      <div>{children}</div>
+    </ProtectedRoute>
+  );
 }

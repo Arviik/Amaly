@@ -1,8 +1,16 @@
 "use client";
-
+import AdaptiveLayout from "@/components/layout/AdaptiveLayout";
+import HeaderConnected from "@/components/layout/header/HeaderConnected";
 import { ProtectedRoute } from "@/components/public/ProtectedRoute";
-import NavBarSuperAdmin from "@/components/super-admin/NavBarSuperAdmin";
-import { SuperAdminNavProvider } from "@/components/super-admin/SuperAdminNavContext";
+import { Toaster } from "@/components/ui/toaster";
+import { Home, Users, Building, Settings } from "lucide-react";
+
+const superAdminNavItems = [
+  { icon: Home, label: "Overview", href: "/admin/overview" },
+  { icon: Building, label: "Organizations", href: "/admin/organizations" },
+  { icon: Users, label: "Users", href: "/admin/users" },
+  { icon: Settings, label: "Settings", href: "/admin/settings" },
+];
 
 export default function AdminLayout({
   children,
@@ -11,14 +19,20 @@ export default function AdminLayout({
 }) {
   return (
     <ProtectedRoute requiredSuperAdmin>
-      <SuperAdminNavProvider>
-        <div className="flex min-h-screen bg-gray-100">
-          <NavBarSuperAdmin />
-          <main className="flex-1 transition-all duration-300 ease-in-out lg:ml-64">
-            <div className="container mx-auto px-4 py-8">{children}</div>
-          </main>
+      <div className="flex flex-col min-h-screen">
+        <HeaderConnected />
+        <div className="flex-1 mt-8">
+          <AdaptiveLayout
+            navItems={superAdminNavItems}
+            userType="superAdmin"
+            logo="/leaflogo.svg"
+            title="Amaly Admin"
+          >
+            {children}
+          </AdaptiveLayout>
+          <Toaster />
         </div>
-      </SuperAdminNavProvider>
+      </div>
     </ProtectedRoute>
   );
 }

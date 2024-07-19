@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { Header } from "@/components/public/Header";
 
 export const metadata = {
   title: "Amaly",
@@ -11,10 +11,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={cn("min-h-screen bg-background font-sans antialiased")}>
-        {children}
-      </body>
-    </html>
+    <>
+      <Header />
+      <div>{children}</div>
+    </>
   );
 }
