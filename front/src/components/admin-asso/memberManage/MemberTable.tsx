@@ -238,6 +238,7 @@ function MemberManagement() {
 
   const handleDelete = async (id: number) => {
     try {
+      alert("Are you sure you want to delete this member?");
       await deleteMember(id);
       fetchMembers();
       toast({
