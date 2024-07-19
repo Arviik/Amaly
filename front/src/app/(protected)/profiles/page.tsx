@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  selectMemberships,
+  selectMemberships, setCurrentMember,
   setSelectedOrganization,
 } from "@/app/store/slices/authSlice";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -17,8 +17,9 @@ export default function SelectOrganization() {
     dispatch(setSelectedOrganization(orgId));
     const selectedMembership = memberships.find(
       (m) => m.organizationId === orgId
-    );
+    )
     if (selectedMembership) {
+      dispatch(setCurrentMember(selectedMembership));
       router.push(selectedMembership.isAdmin ? "/dashboard" : "/member");
     }
   };

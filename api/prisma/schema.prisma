@@ -32,17 +32,18 @@ model Users {
 
 
 model Organizations {
-  id          Int         @id @default(autoincrement()) 
+  id          Int         @id @default(autoincrement())
   name        String
   description String?
   type        String
   address     String
   phone       String
+  email       String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime?    @updatedAt
   email       String      @unique
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime?   @updatedAt
   owner       Users     @relation(name: "OrganizationOwner", fields: [ownerId], references: [id])
-  ownerId     Int            
+  ownerId     Int
   members     Members[]
   membershipTypes MembershipTypes[]
   activities  Activities[]
@@ -59,14 +60,23 @@ model Members {
   role           String        @default("volunteer")
   isAdmin        Boolean       @default(false)
   user           Users         @relation(fields: [userId], references: [id])
+  startDate      DateTime      @default(now())
+  endDate        DateTime?
+  user           Users          @relation(fields: [userId], references: [id])
   userId         Int
   organization      Organizations  @relation(fields: [organizationId], references: [id])
   organizationId    Int
   status            MemberStatus   @default(VOLUNTEER)
   subscriptions     Subscriptions[]
   assignments    Assignments[]
+  organization   Organizations  @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  membership     Memberships?
+  employmentType String?       @default("NULL")
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+  assignments    Assignments[]
+  AGAttendance   AGAttendance[]
 
   @@unique([userId, organizationId])
   @@map("members")
@@ -74,16 +84,26 @@ model Members {
 
 
 model MembershipTypes {
-  id            Int            @id @default(autoincrement()) 
+  id            Int            @id @default(autoincrement())
   name          String
   description   String
   amount         Decimal
   validityDays  Int
-  organization  Organizations   @relation(fields: [organizationId], references: [id])  
+  organization  Organizations   @relation(fields: [organizationId], references: [id])
   organizationId Int
   subscriptions  Subscriptions[]
 
   @@map("membershiptypes")
+model Memberships {
+  id              Int               @id @default(autoincrement())
+  status          String            @default("volunteer")
+  startDate       DateTime          @default(now())
+  endDate         DateTime?
+  member          Members           @relation(fields: [memberId], references: [id])
+  memberId        Int               @unique
+  membershipType  MembershipTypes   @relation(fields: [membershipTypeId], references: [id])
+  membershipTypeId Int
+  subscriptions   Subscriptions[]
 }
 
 model Subscriptions {
@@ -96,7 +116,7 @@ model Subscriptions {
   endDate          DateTime
   paymentStatus    PaymentStatus
 
-  @@unique([memberId, membershipTypeId]) 
+  @@unique([memberId, membershipTypeId])
   @@map("subscriptions")
 }
 
@@ -142,30 +162,31 @@ model ResetPasswordTokens {
 
 
 model Activities {
-  id             Int          @id @default(autoincrement())
+  id             Int           @id @default(autoincrement())
   title          String
   description    String
   date           DateTime
   organization   Organizations @relation(fields: [organizationId], references: [id])
   organizationId Int
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@map("activities")
 }
 
 model AGs {
-  id             Int          @id @default(autoincrement())
+  id             Int            @id @default(autoincrement())
   title          String
   description    String
   date           DateTime
   type           AGType
   quorum         Int
-  organization   Organizations @relation(fields: [organizationId], references: [id])
+  organization   Organizations  @relation(fields: [organizationId], references: [id])
   organizationId Int
   votes          Votes[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  AGAttendance   AGAttendance[]
 
   @@map("ags")
 }
@@ -175,12 +196,22 @@ enum AGType {
   EXTRAORDINARY
 }
 
+model AGAttendance {
+  memberId Int
+  members  Members @relation(fields: [memberId], references: [id])
+  agId     Int
+  AGs      AGs     @relation(fields: [agId], references: [id])
+
+  @@id([agId, memberId])
+  @@map("ag_attendance")
+}
+
 model Votes {
   id        Int      @id @default(autoincrement())
   choice    String
-  ag        AGs       @relation(fields: [agId], references: [id])
+  ag        AGs      @relation(fields: [agId], references: [id])
   agId      Int
-  user      Users     @relation(fields: [userId], references: [id])
+  user      Users    @relation(fields: [userId], references: [id])
   userId    Int
   createdAt DateTime @default(now())
 
@@ -188,29 +219,29 @@ model Votes {
 }
 
 model Donations {
-  id             Int          @id @default(autoincrement())
+  id             Int           @id @default(autoincrement())
   amount         Float
-  date           DateTime     @default(now())
+  date           DateTime      @default(now())
   donorName      String
   donorEmail     String
   organization   Organizations @relation(fields: [organizationId], references: [id])
   organizationId Int
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@map("donations")
 }
 
 model Documents {
-  id             Int          @id @default(autoincrement())
+  id             Int           @id @default(autoincrement())
   title          String
   description    String
-  path           String       @default("/")
+  path           String        @default("/")
   file           Bytes
   organization   Organizations @relation(fields: [organizationId], references: [id])
   organizationId Int
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@map("documents")
 }

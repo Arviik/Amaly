@@ -11,12 +11,23 @@ export const getAllUsers = async (): Promise<User[]> => {
   }
 };
 
-export const getUserById = async (userId: number): Promise<User> => {
+export const getUser = async (id: number): Promise<User> => {
   try {
-    const response = await api.get(`users/${userId}`);
+    const response = await api.get(`users/${id}`);
     return response.json();
   } catch (error) {
-    console.error("Error fetching user:", error);
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
+export const getMe = async (): Promise<User> => {
+  try {
+    const tokens = tokenUtils.getTokens
+    const response = await api.get(`users/me`,{ headers: {"authorization": `Bearer ${tokens()?.accessToken}`}});
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching users:", error);
     throw error;
   }
 };

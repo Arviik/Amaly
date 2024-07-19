@@ -15,6 +15,7 @@ interface AuthState {
   memberships: UserMembership[];
   isAuthenticated: boolean;
   selectedOrganizationId: number | null;
+  selectedMember: UserMembership | null;
 }
 
 const initialState: AuthState = {
@@ -22,6 +23,7 @@ const initialState: AuthState = {
   memberships: [],
   isAuthenticated: false,
   selectedOrganizationId: null,
+  selectedMember: null
 };
 
 const authSlice = createSlice({
@@ -39,6 +41,9 @@ const authSlice = createSlice({
     setSelectedOrganization: (state, action: PayloadAction<number>) => {
       state.selectedOrganizationId = action.payload;
     },
+    setCurrentMember: (state, action: PayloadAction<UserMembership>) => {
+      state.selectedMember = action.payload;
+    },
     clearCredentials: (state) => {
       state.user = null;
       state.memberships = [];
@@ -48,7 +53,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, setSelectedOrganization, clearCredentials } =
+export const { setCredentials, setSelectedOrganization, setCurrentMember, clearCredentials } =
   authSlice.actions;
 
 export default authSlice.reducer;
@@ -62,3 +67,5 @@ export const selectIsSuperAdmin = (state: RootState) =>
 export const selectMemberships = (state: RootState) => state.auth.memberships;
 export const selectSelectedOrganizationId = (state: RootState) =>
   state.auth.selectedOrganizationId;
+export const selectCurrentMember = (state: RootState) =>
+    state.auth.selectedMember;

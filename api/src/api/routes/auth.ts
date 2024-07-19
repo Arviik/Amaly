@@ -55,6 +55,8 @@ export const initAuth = (app: express.Express) => {
           userId: user.id,
         });
 
+        req.headers.authorization = `Bearer ${accessToken}`;
+        console.log(req.headers)
         return res.json({ accessToken, refreshToken });
       } catch (error) {
         console.error(error);

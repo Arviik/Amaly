@@ -6,7 +6,6 @@ export interface agsRequest {
   description: string;
   date: Date;
   type: AGType;
-  quorum: number;
   organizationId: number;
 }
 
@@ -15,7 +14,6 @@ export const agsValidation = Joi.object<agsRequest>({
   description: Joi.string().required(),
   date: Joi.date().required(),
   type: Joi.string().required().valid("ORDINARY", "EXTRAORDINARY"),
-  quorum: Joi.number().integer().required(),
   organizationId: Joi.number().integer().required(),
 }).options({ abortEarly: true });
 
@@ -24,6 +22,13 @@ export const agsPatchValidation = Joi.object<agsRequest>({
   description: Joi.string().optional(),
   date: Joi.date().optional(),
   type: Joi.string().optional().valid("ORDINARY", "EXTRAORDINARY"),
-  quorum: Joi.number().integer().optional(),
   organizationId: Joi.number().integer().optional(),
 }).options({ abortEarly: true });
+
+export interface attendanceValidator{
+  agId: number
+}
+
+export const attendanceValidator = Joi.object<attendanceValidator>({
+  agId: Joi.number().integer().required(),
+})
