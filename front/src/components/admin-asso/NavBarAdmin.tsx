@@ -7,6 +7,7 @@ import {
   Menu,
   Settings,
   Users,
+  Presentation, UserRoundCog
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,6 +21,8 @@ export const navItems = [
   { icon: Users, label: "Members", href: "/ManageMembers" },
   { icon: File, label: "Documents", href: "/documents" },
   { icon: Settings, label: "Settings", href: "/settings" },
+  { icon: Presentation, label: "Assemblé Générale", href: "/ag" },
+  { icon: UserRoundCog, label: "Profile", href: "/user-profile" },
 ];
 
 const NavBarAdmin: React.FC = () => {

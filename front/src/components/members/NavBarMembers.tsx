@@ -4,8 +4,8 @@ import {
   ArrowRightToLine,
   File,
   Home,
-  Menu,
-  Settings,
+  Menu, Presentation,
+  Settings, UserRoundCog,
   Users,
 } from "lucide-react";
 import Image from "next/image";
@@ -20,6 +20,8 @@ export const navItems = [
   { icon: Users, label: "Members", href: "/ManageMembers" },
   { icon: File, label: "Documents", href: "/member/documents" },
   { icon: Settings, label: "Settings", href: "/settings" },
+  { icon: Presentation, label: "Assemblé Générale", href: "/member/ag" },
+  { icon: UserRoundCog, label: "Profile", href: "/user-profile" },
 ];
 
 const NavBarAdmin: React.FC = () => {
