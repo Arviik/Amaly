@@ -1,9 +1,30 @@
-import { api } from "../config";
+import {api, tokenUtils} from "../config";
 import { User, UserPatch } from "../type";
 
 export const getAllUsers = async (): Promise<User[]> => {
   try {
     const response = await api.get("users");
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
+export const getUser = async (id: number): Promise<User> => {
+  try {
+    const response = await api.get(`users/${id}`);
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
+export const getMe = async (): Promise<User> => {
+  try {
+    const tokens = tokenUtils.getTokens
+    const response = await api.get(`users/me`,{ headers: {"authorization": `Bearer ${tokens()?.accessToken}`}});
     return response.json();
   } catch (error) {
     console.error("Error fetching users:", error);

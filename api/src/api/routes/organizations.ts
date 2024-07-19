@@ -1,7 +1,7 @@
 import express from "express";
 import { prisma } from "../../utils/prisma";
 import { authMiddleware } from "../middlewares/auth-middleware";
-import authzMiddleware from "../middlewares/authz-middleware";
+import {authzMiddleware} from "../middlewares/authz-middleware";
 import {
   organizationPatchValidation,
   organizationValidation,
@@ -11,7 +11,7 @@ export const initOrganizations = (app: express.Express) => {
   app.get(
     "/organizations",
     authMiddleware,
-    authzMiddleware(),
+    authzMiddleware,
     async (req, res) => {
       try {
         const allOrganizations = await prisma.organizations.findMany();
@@ -49,7 +49,7 @@ export const initOrganizations = (app: express.Express) => {
   app.post(
     "/organizations",
     authMiddleware,
-    authzMiddleware(),
+    authzMiddleware,
     async (req, res) => {
       const validation = organizationValidation.validate(req.body);
 
@@ -80,7 +80,7 @@ export const initOrganizations = (app: express.Express) => {
   app.patch(
     "/organizations/:id",
     authMiddleware,
-    authzMiddleware(),
+    authzMiddleware,
     async (req, res) => {
       const validation = organizationPatchValidation.validate(req.body);
 
@@ -108,7 +108,7 @@ export const initOrganizations = (app: express.Express) => {
   app.delete(
     "/organizations/:id",
     authMiddleware,
-    authzMiddleware(),
+    authzMiddleware,
     async (req, res) => {
       try {
         const deletedOrganization = await prisma.organizations.delete({

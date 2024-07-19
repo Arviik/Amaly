@@ -71,6 +71,18 @@ export interface Member {
   updatedAt: Date;
 }
 
+export interface AGs{
+  createdAt: string,
+  date: string,
+  description: string,
+  id: number,
+  organizationId: number,
+  quorum: number,
+  title: string,
+  type: string,
+  updatedAt: string
+}
+
 export interface UserMembership {
   id: number;
   organizationId: number;

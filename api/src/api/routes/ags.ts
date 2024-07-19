@@ -1,6 +1,6 @@
 import express from "express";
 import { prisma } from "../../utils/prisma";
-import { agsValidation, agsPatchValidation } from "../validators/ag-validator";
+import {agsValidation, agsPatchValidation, attendanceValidator} from "../validators/ag-validator";
 import { authMiddleware } from "../middlewares/auth-middleware";
 
 export const initAGS = (app: express.Express) => {
@@ -26,6 +26,42 @@ export const initAGS = (app: express.Express) => {
     }
   });
 
+  app.get("/ags/organization/:id", async (req, res) => {
+    try {
+      const ags = await prisma.aGs.findMany({
+        where: { organizationId: Number(req.params.id) },
+      });
+      res.json(ags);
+    } catch (e) {
+      res.status(500).send({ error: e });
+      return;
+    }
+  });
+
+  app.post("/attendance/:id", authMiddleware, async (req: any, res) => {
+    try {
+      const validation = attendanceValidator.validate(req.body)
+
+      if (validation.error) {
+        res.status(400).send({ error: validation.error });
+        return;
+      }
+
+      const agId = validation.value.agId;
+      const member = req.payload.memberships.find((member: any) => member.organizationId === Number(req.params.id));
+      const insertedAttendance = await prisma.aGAttendance.create({
+        data: {
+          agId: agId,
+          memberId: member.id
+        }
+      });
+      res.status(200).json({data: insertedAttendance});
+    } catch (e) {
+      res.status(500).send({ error: e });
+      return;
+    }
+  })
+
   app.post("/ags", async (req, res) => {
     const validation = agsValidation.validate(req.body);
 
@@ -34,7 +70,12 @@ export const initAGS = (app: express.Express) => {
       return;
     }
 
+
+
     const agsRequest = validation.value;
+    const memberCount = await prisma.members.count({
+      where: { organizationId: agsRequest.organizationId },
+    })
     try {
       const ags = await prisma.aGs.create({
         data: {
@@ -42,7 +83,7 @@ export const initAGS = (app: express.Express) => {
           description: agsRequest.description,
           date: new Date(agsRequest.date),
           type: agsRequest.type,
-          quorum: agsRequest.quorum,
+          quorum: Math.trunc(memberCount/2),
           organizationId: agsRequest.organizationId,
         },
       });

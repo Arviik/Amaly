@@ -4,28 +4,29 @@ import {
   ArrowRightToLine,
   File,
   Home,
-  Menu, Presentation,
-  Settings, UserRoundCog,
+  Menu,
+  Settings,
   Users,
+  Presentation, UserRoundCog
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import LogoutButton from "../public/LogoutButton";
-import { useMemberNav } from "./MemberNavContext";
-import NavItem from "../admin-asso/NavItem";
+import { useAdminNav } from "./AdminNavContext";
+import NavItem from "./NavItem";
 
 export const navItems = [
   { icon: Home, label: "Dashboard", href: "/dashboard" },
   { icon: Users, label: "Members", href: "/ManageMembers" },
-  { icon: File, label: "Documents", href: "/member/documents" },
+  { icon: File, label: "Documents", href: "/documents" },
   { icon: Settings, label: "Settings", href: "/settings" },
-  { icon: Presentation, label: "Assemblé Générale", href: "/member/ag" },
+  { icon: Presentation, label: "Assemblé Générale", href: "/ag" },
   { icon: UserRoundCog, label: "Profile", href: "/user-profile" },
 ];
 
 const NavBarAdmin: React.FC = () => {
-  const { isOpen, toggleNavbar } = useMemberNav();
+  const { isOpen, toggleNavbar } = useAdminNav();
 
   return (
     <div
