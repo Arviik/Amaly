@@ -65,6 +65,15 @@ export const initOrganizations = (app: express.Express) => {
               },
             },
           },
+          membershipTypes: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              amount: true,
+              duration: true,
+            },
+          },
         },
       });
       res.json(organization);
