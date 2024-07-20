@@ -18,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import path from "path";
 
 interface DataTableProps<T> {
   data: T[];
@@ -49,6 +51,13 @@ export function DataTable<T extends { id: number }>({
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const router = useRouter();
+  const pathName = usePathname();
+
+  const goToDetails = (id: number) => {
+    router.push(`${pathName}/${id}`);
+  };
 
   const handleCreate = (newData: Partial<T>) => {
     onCreate(newData);
@@ -179,6 +188,13 @@ export function DataTable<T extends { id: number }>({
                         Reset Password
                       </DropdownMenuItem>
                     )}
+                    <DropdownMenuItem
+                      onClick={() => {
+                        goToDetails(item.id);
+                      }}
+                    >
+                      Details
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
