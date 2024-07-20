@@ -87,4 +87,47 @@ export const initMembershipTypes = (app: express.Express) => {
       res.status(500).send({ error: e });
     }
   });
+
+  app.post(
+    "/organization/:organizationId/membershiptypes",
+    async (req, res) => {
+      const validation = membershipTypesCreateValidator.validate(req.body);
+
+      if (validation.error) {
+        res.status(400).send({ error: validation.error });
+        return;
+      }
+
+      const membershipTypesRequest = validation.value;
+      try {
+        const membershipType = await prisma.membershipTypes.create({
+          data: {
+            name: membershipTypesRequest.name,
+            description: membershipTypesRequest.description,
+            amount: membershipTypesRequest.amount,
+            duration: membershipTypesRequest.duration,
+            organizationId: membershipTypesRequest.organizationId,
+          },
+        });
+        res.json(membershipType);
+      } catch (e) {
+        res.status(500).send({ error: e });
+        return;
+      }
+    }
+  );
+
+  app.get("/organization/:organizationId/membershiptypes", async (req, res) => {
+    try {
+      const allMembershipTypes = await prisma.membershipTypes.findMany({
+        where: {
+          organizationId: Number(req.params.organizationId),
+        },
+      });
+      res.json(allMembershipTypes);
+    } catch (e) {
+      res.status(500).send({ error: e });
+      return;
+    }
+  });
 };
