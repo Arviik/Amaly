@@ -48,6 +48,22 @@ export interface Organization {
   createdAt: Date;
   updatedAt?: Date;
   ownerId: number;
+  owner: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  documents: Document[];
+  ags: AGs[];
+  members: Member[];
+}
+
+export interface Document {
+  id: number;
+  title: string;
+  description: string;
+  path: string;
+  createdAt: Date;
 }
 
 export interface OrganizationPatch {
@@ -69,6 +85,7 @@ export interface Member {
   createdAt: Date;
   updatedAt: Date;
   user: {
+    id: number;
     firstName: string;
     lastName: string;
     email: string;
@@ -105,9 +122,13 @@ export interface AGs {
 
 export interface UserMembership {
   id: number;
-  organizationId: number;
-  organizationName: string;
+  role: string;
   isAdmin: boolean;
+  organization: {
+    id: number;
+    name: string;
+    type: string;
+  };
 }
 
 export interface DecodedToken {
