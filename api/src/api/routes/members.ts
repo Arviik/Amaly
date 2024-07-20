@@ -134,4 +134,33 @@ export const initMembers = (app: express.Express) => {
       }
     }
   );
+
+  app.post("/members/:id/join", authMiddleware, async (req, res) => {
+    try {
+      await prisma.members.update({
+        where: {
+          id: Number(req.params.id),
+        },
+        data: {
+          status: MemberStatus.VOLUNTEER,
+        },
+      });
+      res.status(200).json({ message: "Member joined" });
+    } catch (e) {
+      res.status(500).json({ error: e });
+    }
+  });
+
+  app.post("/members/:id/leave", authMiddleware, async (req, res) => {
+    try {
+      await prisma.members.delete({
+        where: {
+          id: Number(req.params.id),
+        },
+      });
+      res.status(200).json({ message: "Member left" });
+    } catch (e) {
+      res.status(500).json({ error: e });
+    }
+  });
 };
