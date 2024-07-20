@@ -7,13 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-interface Document {
-  id: number;
-  name: string;
-  type: string;
-  url: string;
-}
+import { Document } from "@/api/type";
+import Link from "next/link";
 
 interface DocumentsListProps {
   documents: Document[];
@@ -30,19 +25,17 @@ export function DocumentsList({ documents }: DocumentsListProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Nom</TableHead>
-              <TableHead>Type</TableHead>
+              <TableHead>description</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {documents.map((doc) => (
               <TableRow key={doc.id}>
-                <TableCell>{doc.name}</TableCell>
-                <TableCell>{doc.type}</TableCell>
+                <TableCell>{doc.title}</TableCell>
+                <TableCell>{doc.description}</TableCell>
                 <TableCell>
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                    Télécharger
-                  </a>
+                  <Link href={doc.path}>Télécharger</Link>
                 </TableCell>
               </TableRow>
             ))}

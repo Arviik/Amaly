@@ -12,9 +12,10 @@ import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
 import { Organization } from "@/api/type";
+import { OrganizationDetails } from "@/components/super-admin/Org/OrgDetail";
 
 interface OrganizationDetailsPageProps {
-  params: { id: string };
+  params: { id: number };
 }
 
 const OrganizationDetailsPage = ({ params }: OrganizationDetailsPageProps) => {
@@ -50,107 +51,13 @@ const OrganizationDetailsPage = ({ params }: OrganizationDetailsPageProps) => {
     }
   };
 
-  const renderOrganizationForm = (
-    data: Partial<Organization>,
-    handleChange: (field: keyof Organization, value: any) => void
-  ) => (
-    <>
-      <div className="space-y-2">
-        <label htmlFor="name">Name</label>
-        <Input
-          id="name"
-          value={data.name || ""}
-          onChange={(e) => handleChange("name", e.target.value)}
-        />
-      </div>
-      <div className="space-y-2">
-        <label htmlFor="type">Type</label>
-        <Input
-          id="type"
-          value={data.type || ""}
-          onChange={(e) => handleChange("type", e.target.value)}
-        />
-      </div>
-      <div className="space-y-2">
-        <label htmlFor="address">Address</label>
-        <Input
-          id="address"
-          value={data.address || ""}
-          onChange={(e) => handleChange("address", e.target.value)}
-        />
-      </div>
-      <div className="space-y-2">
-        <label htmlFor="phone">Phone</label>
-        <Input
-          id="phone"
-          value={data.phone || ""}
-          onChange={(e) => handleChange("phone", e.target.value)}
-        />
-      </div>
-      <div className="space-y-2">
-        <label htmlFor="email">Email</label>
-        <Input
-          id="email"
-          value={data.email || ""}
-          onChange={(e) => handleChange("email", e.target.value)}
-        />
-      </div>
-    </>
-  );
-
   if (!organization) {
     return <div>Loading...</div>;
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">{organization.name}</h1>
-      <Button onClick={() => router.back()} className="m-2 ">
-        Back
-      </Button>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Type: {organization.type}</p>
-            <p>Address: {organization.address}</p>
-            <p>Phone: {organization.phone}</p>
-            <p>Email: {organization.email}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={handleEdit} className="mr-2">
-              Edit
-            </Button>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Members</CardTitle>
-          </CardHeader>
-          <CardContent />
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Activities</CardTitle>
-          </CardHeader>
-          <CardContent />
-        </Card>
-      </div>
-
-      {/* <EditModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSubmit={handleOrganizationUpdate}
-        initialData={organization}
-        // renderForm={renderOrganizationForm}
-      /> */}
+      <OrganizationDetails id={params.id} />
     </div>
   );
 };

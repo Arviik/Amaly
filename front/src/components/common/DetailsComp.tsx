@@ -1,4 +1,4 @@
-// DetailsComp.tsx
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface DetailsCompProps {
   entityName: string;
@@ -32,6 +33,7 @@ export function DetailsComp({
   sidebar,
   actions,
 }: DetailsCompProps) {
+  const router = useRouter();
   return (
     <div className="space-y-6">
       <Card>
@@ -82,6 +84,9 @@ export function DetailsComp({
           <CardTitle>Informations complémentaires</CardTitle>
         </CardHeader>
         <CardContent>{sidebar}</CardContent>
+        <Button onClick={() => router.back()} className="m-2 ">
+          Back
+        </Button>
       </Card>
     </div>
   );
