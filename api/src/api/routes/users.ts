@@ -44,6 +44,27 @@ export const initUsers = (app: express.Express) => {
     try {
       const user = await prisma.users.findUnique({
         where: { id: Number(req.params.id) },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          isSuperAdmin: true,
+          createdAt: true,
+          memberships: {
+            select: {
+              role: true,
+              isAdmin: true,
+              organization: {
+                select: {
+                  id: true,
+                  name: true,
+                  type: true,
+                },
+              },
+            },
+          },
+        },
       });
       res.json(user);
     } catch (e) {

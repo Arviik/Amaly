@@ -27,6 +27,45 @@ export const initOrganizations = (app: express.Express) => {
     try {
       const organization = await prisma.organizations.findUnique({
         where: { id: Number(req.params.id) },
+        include: {
+          owner: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+          documents: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              path: true,
+              createdAt: true,
+            },
+          },
+          ags: {
+            select: {
+              title: true,
+              type: true,
+              date: true,
+            },
+          },
+          members: {
+            select: {
+              role: true,
+              isAdmin: true,
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
       });
       res.json(organization);
     } catch (e) {
