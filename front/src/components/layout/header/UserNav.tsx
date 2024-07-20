@@ -16,6 +16,7 @@ import { RootState } from "@/app/store";
 import { clearCredentials } from "@/app/store/slices/authSlice";
 import { useRouter } from "next/navigation";
 import { authService } from "@/api/services/auth";
+import { User } from "lucide-react";
 
 export function UserNav() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -35,8 +36,8 @@ export function UserNav() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={""} alt={user.firstName || ""} />
+            <Avatar className="flex justify-center items-center h-8 w-8">
+              <User />
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
