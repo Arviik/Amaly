@@ -64,6 +64,8 @@ export const createResetPasswordToken = async (email: string) => {
   await sendEmail(
     email,
     "Réinitialisation de votre mot de passe",
-    `Pour réinitialiser votre mot de passe, cliquez sur le lien suivant : ${process.env.FRONTEND_URL}/reset-password/${token}`
+    `Pour réinitialiser votre mot de passe, 
+    cliquez sur le lien suivant : 
+    ${process.env.FRONTEND_URL}/reset-password/?token=${token}`
   );
 };
