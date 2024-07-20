@@ -30,91 +30,102 @@ model Users {
 }
 
 model Organizations {
-  id          Int          @id @default(autoincrement())
-  name        String
-  description String?
-  type        String
-  address     String
-  phone       String
-  email       String       @unique
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime?    @updatedAt
-  members     Members[]
+  id              Int               @id @default(autoincrement())
+  name            String
+  description     String?
+  type            String
+  address         String
+  phone           String
+  email           String            @unique
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime?         @updatedAt
+  members         Members[]
   membershipTypes MembershipTypes[]
-  activities  Activities[]
-  ags         AGs[]
-  donations   Donations[]
-  documents   Documents[]
+  activities      Activities[]
+  ags             AGs[]
+  donations       Donations[]
+  documents       Documents[]
 
   @@map("organizations")
 }
 
 model Members {
-  id             Int           @id @default(autoincrement())
-  role           String        @default("member")
-  isAdmin        Boolean       @default(false)
-  startDate      DateTime      @default(now())
-  endDate        DateTime?
-  user           Users          @relation(fields: [userId], references: [id])
-  userId         Int
-  organization   Organizations  @relation(fields: [organizationId], references: [id])
-  organizationId Int
-  membership     Memberships?
-  employmentType String?       @default("NULL")
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  assignments    Assignments[]
-  AGAttendance   AGAttendance[]
+  id                   Int                    @id @default(autoincrement())
+  role                 String                 @default("member")
+  isAdmin              Boolean                @default(false)
+  startDate            DateTime               @default(now())
+  endDate              DateTime?
+  user                 Users                  @relation(fields: [userId], references: [id])
+  userId               Int
+  organization         Organizations          @relation(fields: [organizationId], references: [id])
+  organizationId       Int
+  membership           Memberships?
+  employmentType       String?                @default("NULL")
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  assignments          Assignments[]
+  AGAttendance         AGAttendance[]
+  ActivitiesAttendance ActivitiesAttendance[]
 
   @@map("members")
 }
 
 model Memberships {
-  id              Int               @id @default(autoincrement())
-  status          String            @default("volunteer")
-  startDate       DateTime          @default(now())
-  endDate         DateTime?
-  member          Members           @relation(fields: [memberId], references: [id])
-  memberId        Int               @unique
-  membershipType  MembershipTypes   @relation(fields: [membershipTypeId], references: [id])
+  id               Int             @id @default(autoincrement())
+  status           String          @default("volunteer")
+  startDate        DateTime        @default(now())
+  endDate          DateTime?
+  member           Members         @relation(fields: [memberId], references: [id])
+  memberId         Int             @unique
+  membershipType   MembershipTypes @relation(fields: [membershipTypeId], references: [id])
   membershipTypeId Int
-  subscriptions   Subscriptions[]
+  subscriptions    Subscriptions[]
 }
 
 model Subscriptions {
-  id              Int           @id @default(autoincrement())
-  amount          Float
-  paymentDate     DateTime?
-  startDate       DateTime
-  endDate         DateTime
-  isPaid          Boolean       @default(false)
-  membership      Memberships    @relation(fields: [membershipId], references: [id])
-  membershipId    Int
+  id           Int         @id @default(autoincrement())
+  amount       Float
+  paymentDate  DateTime?
+  startDate    DateTime
+  endDate      DateTime
+  isPaid       Boolean     @default(false)
+  membership   Memberships @relation(fields: [membershipId], references: [id])
+  membershipId Int
 }
 
 model MembershipTypes {
-  id              Int           @id @default(autoincrement())
-  name            String
-  description     String?
-  duration        Int           // durée en jours
-  fee             Float         // montant de la cotisation
-  organization    Organizations @relation(fields: [organizationId], references: [id])
-  organizationId  Int
-  memberships     Memberships[]
-}
-
-
-model Activities {
   id             Int           @id @default(autoincrement())
-  title          String
-  description    String
-  date           DateTime
+  name           String
+  description    String?
+  duration       Int // durée en jours
+  fee            Float // montant de la cotisation
   organization   Organizations @relation(fields: [organizationId], references: [id])
   organizationId Int
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  memberships    Memberships[]
+}
+
+model Activities {
+  id                   Int                    @id @default(autoincrement())
+  title                String
+  description          String
+  date                 DateTime
+  organization         Organizations          @relation(fields: [organizationId], references: [id])
+  organizationId       Int
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  ActivitiesAttendance ActivitiesAttendance[]
 
   @@map("activities")
+}
+
+model ActivitiesAttendance {
+  memberId   Int
+  members    Members    @relation(fields: [memberId], references: [id])
+  activityId Int
+  Activities Activities @relation(fields: [activityId], references: [id])
+
+  @@id([activityId, memberId])
+  @@map("activities_attendance")
 }
 
 model AGs {
