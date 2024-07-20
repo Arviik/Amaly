@@ -1,7 +1,7 @@
 import express from "express";
 import { prisma } from "../../utils/prisma";
 import { authMiddleware } from "../middlewares/auth-middleware";
-import {authzMiddleware} from "../middlewares/authz-middleware";
+import { authzMiddleware } from "../middlewares/authz-middleware";
 import {
   organizationPatchValidation,
   organizationValidation,
@@ -135,5 +135,11 @@ export const initOrganizations = (app: express.Express) => {
         res.status(500).send({ error: e });
       }
     }
+  );
+
+  app.post(
+    "/organization/:organizationId/join",
+    authMiddleware,
+    async (req, res) => {}
   );
 };

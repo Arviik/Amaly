@@ -10,18 +10,18 @@ import { createResetPasswordToken } from "../services/email-service";
 import { authzMiddleware } from "../middlewares/authz-middleware";
 
 export const initUsers = (app: express.Express) => {
-  app.get("/users/me",authMiddleware, async (req: any, res) => {
+  app.get("/users/me", authMiddleware, async (req: any, res) => {
     try {
-      console.log(req.payload)
+      console.log(req.payload);
       const user = await prisma.users.findUnique({
         where: { id: Number(req.payload.userId) },
         select: {
           id: true,
-          "firstName": true,
-          "lastName": true,
-          "email": true,
-          "isSuperAdmin": true,
-        }
+          firstName: true,
+          lastName: true,
+          email: true,
+          isSuperAdmin: true,
+        },
       });
       res.status(200).json(user);
     } catch (e) {
@@ -51,8 +51,6 @@ export const initUsers = (app: express.Express) => {
       return;
     }
   });
-
-
 
   app.post("/users", async (req, res) => {
     const validation = userValidation.validate(req.body);
@@ -115,14 +113,14 @@ export const initUsers = (app: express.Express) => {
     }
   });
 
-  app.post("/reset-password", async (req, res) => {
+  app.post("/forgot-password", async (req, res) => {
     try {
       console.log(req.body);
       console.log("Reset password");
 
-      const { email } = req.body.email;
+      const email = req.body.email;
       const user = await prisma.users.findUnique({
-        where: { email },
+        where: { email: email },
       });
       if (!user) {
         res.status(404).send({ error: "User not found" });
@@ -134,6 +132,39 @@ export const initUsers = (app: express.Express) => {
       res.status(200).send({ message: "Password reset email sent" });
     } catch (e) {
       console.error("Error sending reset password email:", e);
+      res.status(500).send({ error: e });
+    }
+  });
+
+  app.post("/reset-password", async (req, res) => {
+    try {
+      const { token, password } = req.body;
+      const resetPasswordToken = await prisma.resetPasswordTokens.findUnique({
+        where: { token },
+      });
+      if (!resetPasswordToken) {
+        res.status(404).send({ error: "Token not found" });
+        return;
+      }
+      if (resetPasswordToken.expiresAt < new Date()) {
+        res.status(403).send({ error: "Token expired" });
+        return;
+      }
+      const user = await prisma.users.findUnique({
+        where: { id: resetPasswordToken.userId },
+      });
+      if (!user) {
+        res.status(404).send({ error: "User not found" });
+        return;
+      }
+      const newPassword = await bcrypt.hash(password, 12);
+      await prisma.users.update({
+        where: { id: user.id },
+        data: { password: newPassword },
+      });
+      res.status(200).send({ message: "Password updated" });
+    } catch (e) {
+      console.error("Error updating password:", e);
       res.status(500).send({ error: e });
     }
   });
