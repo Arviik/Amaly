@@ -29,4 +29,5 @@ export const organizationPatchValidation = Joi.object<
   address: Joi.string(),
   phone: Joi.string(),
   email: Joi.string().email(),
+  ownerId: Joi.number(),
 }).options({ abortEarly: true });

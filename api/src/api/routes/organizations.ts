@@ -35,12 +35,12 @@ export const initOrganizations = (app: express.Express) => {
     }
   });
 
+  //get all members of an organization
   app.get(
     "/organizations/:organizationId/members",
     authMiddleware,
     async (req, res) => {
       try {
-        console.log("Route /organizations/:organizationId/members called");
         const members = await prisma.members.findMany({
           where: { organizationId: Number(req.params.organizationId) },
           include: {
@@ -101,7 +101,10 @@ export const initOrganizations = (app: express.Express) => {
       const validation = organizationPatchValidation.validate(req.body);
 
       if (validation.error) {
-        res.status(400).json({ error: validation.error });
+        console.log("error validation", validation.error);
+
+        res.status(400).send({ error: validation.error });
+
         return;
       }
 
@@ -115,6 +118,7 @@ export const initOrganizations = (app: express.Express) => {
         });
         res.json(organization);
       } catch (e) {
+        console.log("error e", e);
         res.status(500).json({ error: e });
         return;
       }

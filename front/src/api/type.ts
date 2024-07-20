@@ -28,6 +28,7 @@ export interface User {
   isSuperAdmin: boolean;
   createdAt: Date;
   updatedAt?: Date;
+  memberships: UserMembership[];
 }
 
 export interface UserPatch {
@@ -46,6 +47,7 @@ export interface Organization {
   email: string;
   createdAt: Date;
   updatedAt?: Date;
+  ownerId: number;
 }
 
 export interface OrganizationPatch {
@@ -55,6 +57,7 @@ export interface OrganizationPatch {
   address?: string;
   phone?: string;
   email?: string;
+  ownerId?: number;
 }
 export interface Member {
   id: number;
@@ -88,16 +91,16 @@ export interface MembershipType {
   organizationId: number;
 }
 
-export interface AGs{
-  createdAt: string,
-  date: string,
-  description: string,
-  id: number,
-  organizationId: number,
-  quorum: number,
-  title: string,
-  type: string,
-  updatedAt: string
+export interface AGs {
+  createdAt: string;
+  date: string;
+  description: string;
+  id: number;
+  organizationId: number;
+  quorum: number;
+  title: string;
+  type: string;
+  updatedAt: string;
 }
 
 export interface UserMembership {

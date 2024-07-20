@@ -15,7 +15,6 @@ export const initMembers = (app: express.Express) => {
       const allMembers = await prisma.members.findMany({
         include: { user: true },
       });
-      console.log("je suis ici");
 
       res.json(allMembers);
     } catch (e) {

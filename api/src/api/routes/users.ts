@@ -136,6 +136,28 @@ export const initUsers = (app: express.Express) => {
     }
   });
 
+  app.post("users/:id/reset-password", authzMiddleware, async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const user = await prisma.users.findUnique({
+        where: { id: Number(id) },
+      });
+
+      if (!user) {
+        res.status(404).send({ error: "User not found" });
+        return;
+      }
+
+      await createResetPasswordToken(user.email);
+
+      res.status(200).send({ message: "Password reset email sent" });
+    } catch (e) {
+      console.error("Error sending reset password email:", e);
+      res.status(500).send({ error: e });
+    }
+  });
+
   app.post("/reset-password", async (req, res) => {
     try {
       const { token, password } = req.body;
