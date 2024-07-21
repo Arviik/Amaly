@@ -6,6 +6,7 @@ export interface donationsRequest {
   donorName: string;
   donorEmail: string;
   organizationId: number;
+  recurring?: boolean;
 }
 
 export const donationsValidation = Joi.object<donationsRequest>({
@@ -14,6 +15,7 @@ export const donationsValidation = Joi.object<donationsRequest>({
   donorName: Joi.string().required(),
   donorEmail: Joi.string().email().required(),
   organizationId: Joi.number().required(),
+  recurring: Joi.boolean().required(),
 }).options({ abortEarly: true });
 
 export const donationsPatchValidation = Joi.object<donationsRequest>({
@@ -22,4 +24,5 @@ export const donationsPatchValidation = Joi.object<donationsRequest>({
   donorName: Joi.string().required(),
   donorEmail: Joi.string().email().required(),
   organizationId: Joi.number().required(),
+  recurring: Joi.boolean().required(),
 }).options({ abortEarly: true });
