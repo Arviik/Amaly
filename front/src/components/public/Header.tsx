@@ -20,8 +20,8 @@ export const Header = () => {
             </Button>
           </li>
           <li>
-            <Link href="/signup">
-              <Button variant="secondary">Essayer gratuitement</Button>
+            <Link href="/landing">
+              <Button variant="secondary">Organisation</Button>
             </Link>
           </li>
         </ul>
