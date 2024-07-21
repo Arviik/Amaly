@@ -25,10 +25,10 @@ export const agsPatchValidation = Joi.object<agsRequest>({
   organizationId: Joi.number().integer().optional(),
 }).options({ abortEarly: true });
 
-export interface attendanceValidator{
+export interface AgAttendanceSchema{
   agId: number
 }
 
-export const attendanceValidator = Joi.object<attendanceValidator>({
+export const AgAttendanceValidator = Joi.object<AgAttendanceSchema>({
   agId: Joi.number().integer().required(),
 })

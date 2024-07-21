@@ -100,3 +100,18 @@ export interface DecodedToken {
   iat?: number;
   exp?: number;
 }
+
+export interface Activity {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  organizationId: number;
+}
+
+export interface ActivityPatch {
+  title?: string;
+  description?: string;
+  date?: string;
+  organizationId?: number;
+}

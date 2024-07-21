@@ -41,7 +41,7 @@ const authSlice = createSlice({
     setSelectedOrganization: (state, action: PayloadAction<number>) => {
       state.selectedOrganizationId = action.payload;
     },
-    setCurrentMember: (state, action: PayloadAction<UserMembership>) => {
+    setCurrentMember: (state, action: PayloadAction<UserMembership|null>) => {
       state.selectedMember = action.payload;
     },
     clearCredentials: (state) => {

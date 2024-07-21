@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { SafeUser, UserMembership } from "../utils/userTypes";
+import { SafeUser, UserMembership } from "./userTypes";
 
 export const generateAccessToken = (
   user: SafeUser,
