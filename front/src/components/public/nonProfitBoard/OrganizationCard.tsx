@@ -15,14 +15,16 @@ interface OrganizationCardProps {
 
 export const OrganizationCard = ({ organization }: OrganizationCardProps) => {
   return (
-    <Card>
+    <Card className="bg-card text-card-foreground">
       <CardHeader>
         <CardTitle>{organization.name}</CardTitle>
         <CardDescription>{organization.description}</CardDescription>
       </CardHeader>
       <CardContent>
         <Link href={`/organizations/${organization.id}`}>
-          <Button>En savoir plus</Button>
+          <Button className="bg-primary text-primary-foreground hover:bg-primary-foreground hover:text-primary">
+            Learn More
+          </Button>
         </Link>
       </CardContent>
     </Card>
