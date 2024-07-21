@@ -59,12 +59,12 @@ export const authService = {
     const membershipsCount = decoded.memberships.length;
 
     if (membershipsCount === 0) {
-      return "/"; // À remplacer par "/marketplace" une fois implémenté
+      return "/";
     }
 
     if (selectedOrganizationId) {
       const selectedMembership = decoded.memberships.find(
-        (m) => m.organizationId === selectedOrganizationId
+        (m) => m.organizationId === selectedOrganizationId && m.isAdmin
       );
       if (selectedMembership) {
         return selectedMembership.isAdmin ? "/dashboard" : "/member";

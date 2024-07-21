@@ -124,11 +124,8 @@ export interface UserMembership {
   id: number;
   role: string;
   isAdmin: boolean;
-  organization: {
-    id: number;
-    name: string;
-    type: string;
-  };
+  organizationId: number;
+  organizationName: string;
 }
 
 export interface DecodedToken {
