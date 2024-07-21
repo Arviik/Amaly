@@ -30,23 +30,32 @@ model Users {
 }
 
 model Organizations {
-  id              Int               @id @default(autoincrement())
-  name            String
-  description     String?
-  type            String
-  address         String
-  phone           String
-  email           String            @unique
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime?         @updatedAt
-  members         Members[]
-  membershipTypes MembershipTypes[]
-  activities      Activities[]
-  ags             AGs[]
-  donations       Donations[]
-  documents       Documents[]
+  id                     Int                      @id @default(autoincrement())
+  name                   String
+  description            String?
+  type                   String
+  address                String
+  phone                  String
+  email                  String                   @unique
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime?                @updatedAt
+  members                Members[]
+  membershipTypes        MembershipTypes[]
+  activities             Activities[]
+  ags                    AGs[]
+  donations              Donations[]
+  documents              Documents[]
+  OrganizationInvitation OrganizationInvitation[]
 
   @@map("organizations")
+}
+
+model OrganizationInvitation {
+  organization   Organizations @relation(fields: [organizationId], references: [id])
+  organizationId Int           @id
+  uuid           String
+
+  @@map("organization_invitation")
 }
 
 model Members {
