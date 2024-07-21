@@ -3,7 +3,7 @@
 import Link from "next/link";
 import {useEffect, useState} from "react";
 import {AGs} from "@/api/type";
-import {declareAttendance, getAGSById} from "@/api/services/ags";
+import {declareAgAttendance, getAGSById} from "@/api/services/ags";
 import {useSelector} from "react-redux";
 import {selectCurrentMember} from "@/app/store/slices/authSlice";
 
@@ -18,7 +18,7 @@ const AGDetails = ({id}: {id: string}) => {
 
     const handleDeclarePresence = async () => {
         if (!member || !AG) return;
-        const response = await declareAttendance(member.organizationId, {agId: AG.id})
+        const response = await declareAgAttendance(member.organizationId, {agId: AG.id})
         console.log(response)
     }
 

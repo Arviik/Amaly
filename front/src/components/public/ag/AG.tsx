@@ -5,12 +5,16 @@ import {useSelector} from "react-redux";
 import {selectCurrentMember} from "@/app/store/slices/authSlice";
 import {AGs} from "@/api/type";
 import Link from "next/link";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
 
 const AGCreation = () => {
     const titleRef = useRef<HTMLInputElement>(null);
-    const agendaRef = useRef<HTMLTextAreaElement>(null);
+    const agendaRef = useRef<HTMLInputElement>(null);
     const dateRef = useRef<HTMLInputElement>(null);
-    const typeRef = useRef<HTMLSelectElement>(null);
+    const typeRef = useRef<any>(null);
+    const [selectedType, setSelectedType] = useState<string>()
     const member = useSelector(selectCurrentMember);
 
     const handleSubmit = async (e: FormEvent) => {
@@ -26,17 +30,32 @@ const AGCreation = () => {
         })
     };
 
+    const handleChange = () => {
+
+    }
+
     return (
         <div>
             <form onSubmit={handleSubmit}>
-                <input ref={titleRef}  type="text" placeholder="Title" />
-                <textarea ref={agendaRef} placeholder="Ordre du jour" />
-                <input ref={dateRef} type="datetime-local"/>
-                <select ref={typeRef}>
-                    <option>ORDINARY</option>
-                    <option>EXTRAORDINARY</option>
-                </select>
-                <button type="submit">SUBMIT FORM</button>
+                <Input ref={titleRef}  type="text" placeholder="Title" />
+                <Input ref={agendaRef} placeholder="Ordre du jour" />
+                <Input ref={dateRef} type="datetime-local"/>
+                <Select
+                    onValueChange={(value) => setSelectedType(value)}
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder={`Select Type`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="ORDINARY">
+                            ORDINARY
+                        </SelectItem>
+                        <SelectItem value="EXTRAORDINARY">
+                            EXTRAORDINARY
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
+                <Button type="submit">Create AG</Button>
             </form>
         </div>
     )
@@ -49,9 +68,11 @@ const AG = () => {
     const [AGList, setAGList] = useState<AGs[]>([])
 
     const loadAGs = async () => {
+        console.log(member)
         if (!member) return;
         const response = await getAGSByOrganizationId(member.organizationId)
         setAGList(response)
+        console.log(response)
     }
 
     useEffect(() => {
@@ -61,7 +82,7 @@ const AG = () => {
     return (
         <>
             <h1>AG Working!</h1>
-            {member?.isAdmin ? <AGCreation></AGCreation> : null}
+            {member?.isAdmin && <AGCreation></AGCreation>}
             {AGList.map((AG: AGs) => (
                 <div key={AG.id} style={{border: "1px solid black"}}>
                     <Link href={`ag/${AG.id}`}>{AG.title}</Link>

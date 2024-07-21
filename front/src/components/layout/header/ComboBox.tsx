@@ -16,7 +16,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { setSelectedOrganization } from "@/app/store/slices/authSlice";
+import {setCurrentMember, setSelectedOrganization} from "@/app/store/slices/authSlice";
 import { UserMembership } from "@/api/type";
 import { Check } from "lucide-react"; // Assurez-vous d'avoir importé l'icône Check
 
@@ -38,9 +38,11 @@ export function ComboBox() {
           (m) => m.organizationId === selectedOrganizationId
         );
         setSelectedMembership(membership || memberships[0]);
+        dispatch(setCurrentMember(membership || null))
       } else {
         setSelectedMembership(memberships[0]);
         dispatch(setSelectedOrganization(memberships[0].organizationId));
+        dispatch(setCurrentMember(memberships[0] || null))
       }
     }
   }, [selectedOrganizationId, memberships, dispatch]);
@@ -51,6 +53,7 @@ export function ComboBox() {
 
   const handleSelectOrganization = (membership: UserMembership) => {
     dispatch(setSelectedOrganization(membership.organizationId));
+    dispatch(setCurrentMember(membership))
     setSelectedMembership(membership);
     setOpen(false);
     router.push(membership.isAdmin ? "/dashboard" : "/member");

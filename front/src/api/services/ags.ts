@@ -45,10 +45,10 @@ export const createAGS = async (data: any) => {
     }
 };
 
-export const declareAttendance = async (id: number, data: any) => {
+export const declareAgAttendance = async (id: number, data: any) => {
     try {
         const tokens = tokenUtils.getTokens
-        return await api.post(`attendance/${id}`, { json: data, headers: {"authorization": `Bearer ${tokens()?.accessToken}`} }).json();
+        return await api.post(`agattendance/${id}`, { json: data, headers: {"authorization": `Bearer ${tokens()?.accessToken}`} }).json();
     } catch (error) {
         console.error('Error creating AGS:', error);
         throw error;
