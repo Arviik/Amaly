@@ -1,13 +1,11 @@
 package dev.esgi.javaclient.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class User {
+public class User extends Member {
     private String name;
     private String email;
 }
