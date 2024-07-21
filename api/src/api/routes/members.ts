@@ -49,6 +49,7 @@ export const initMembers = (app: express.Express) => {
           employmentType: memberRequest.employmentType,
           organizationId: memberRequest.organizationId,
           userId: memberRequest.userId,
+          isAdmin: memberRequest.isAdmin
         },
       });
       res.json(member);

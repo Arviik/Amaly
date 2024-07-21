@@ -6,10 +6,12 @@ import {AGs} from "@/api/type";
 import {declareAgAttendance, getAGSById} from "@/api/services/ags";
 import {useSelector} from "react-redux";
 import {selectCurrentMember} from "@/app/store/slices/authSlice";
+import {usePathname} from "next/navigation";
 
 const AGDetails = ({id}: {id: string}) => {
     const [AG, setAG] = useState<AGs>();
     const member = useSelector(selectCurrentMember)
+    const pathname = usePathname()
 
     const loadAG = async () => {
         const response = await getAGSById(Number(id))
@@ -28,7 +30,7 @@ const AGDetails = ({id}: {id: string}) => {
 
     return (
         <div>
-            <Link href={`/ag`}>Back</Link>
+            <Link href={pathname.split('/').slice(0, pathname.split('/').length-1).join('/')}>Back</Link>
             <h1>AG Details</h1>
             <h1>{AG?.title}</h1>
             <h1>{AG?.description}</h1>

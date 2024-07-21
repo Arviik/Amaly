@@ -3,21 +3,26 @@ import {api} from "../config"
 
 const toBase64 = (file: any) => new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
+    console.log(file)
+    reader.readAsText(file);
+    reader.onload = () => {
+        resolve(reader.result);
+    }
     reader.onerror = reject;
 });
 
 export const uploadDocument = async (title: string, path: string, fileData: any, organizationId: number) => {
-    let file = await toBase64(fileData)
-    return await ky.post('/documents', {
+    const file = await toBase64(fileData)
+    return await api.post('documents', {
         json: {
             title: title,
             description: "description",
             path: path,
             fileData: file,
             organizationId: organizationId
-        }, headers: {'Content-Type': 'application/json'}
+        }, headers: {
+            "Content-Type": "application/json",
+        }
     }).json()
 }
 

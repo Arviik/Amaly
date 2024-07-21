@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
+import {redirect, useRouter} from "next/navigation";
 import { RootState } from "@/app/store";
 import {
   Popover,
@@ -16,14 +16,14 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {setCurrentMember, setSelectedOrganization} from "@/app/store/slices/authSlice";
+import {selectMemberships, setCurrentMember, setSelectedOrganization} from "@/app/store/slices/authSlice";
 import { UserMembership } from "@/api/type";
 import { Check } from "lucide-react"; // Assurez-vous d'avoir importé l'icône Check
 
 export function ComboBox() {
   const dispatch = useDispatch();
   const router = useRouter();
-  const memberships = useSelector((state: RootState) => state.auth.memberships);
+  const memberships = useSelector(selectMemberships);
   const selectedOrganizationId = useSelector(
     (state: RootState) => state.auth.selectedOrganizationId
   );
@@ -33,6 +33,7 @@ export function ComboBox() {
 
   useEffect(() => {
     if (memberships.length > 0) {
+      console.log(memberships)
       if (selectedOrganizationId) {
         const membership = memberships.find(
           (m) => m.organizationId === selectedOrganizationId
@@ -128,6 +129,8 @@ export function ComboBox() {
             </CommandGroup>
           </CommandList>
         </Command>
+        <Button onClick={() => {
+          router.push("/createorganization")}}>Créer une organisation</Button>
       </PopoverContent>
     </Popover>
   );

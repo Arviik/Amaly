@@ -59,8 +59,6 @@ export interface OrganizationPatch {
 
 export interface Member {
   id: number;
-  membershipType: string;
-  status: string;
   startDate: Date;
   endDate?: Date;
   userId: number;

@@ -11,6 +11,7 @@ import {
 } from "@/api/services/documents";
 import {selectCurrentMember, selectSelectedOrganizationId} from "@/app/store/slices/authSlice";
 import {useSelector} from "react-redux";
+import {Button} from "@/components/ui/button";
 
 
 interface file {
@@ -160,13 +161,23 @@ interface uploadFileProps {
 
 function UploadFile({onDocumentUpload, currentPath}: uploadFileProps) {
 
+    const member = useSelector(selectCurrentMember)
     const dropZoneRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const onUploadFile = async (event: React.DragEvent<HTMLDivElement>): Promise<void> => {
+        if (!member) return;
         const file: File = event.dataTransfer.files[0];
         event.preventDefault()
         dropZoneRef.current?.classList.remove("drop-active");
-        await uploadDocument(file.name, currentPath, file, 1)
+        await uploadDocument(file.name, currentPath, file, member.organizationId)
+        onDocumentUpload()
+    }
+
+    const onUploadFileManual = async (file: any): Promise<void> => {
+        if (!member) return;
+        dropZoneRef.current?.classList.remove("drop-active");
+        await uploadDocument(file.name, currentPath, file, member.organizationId)
         onDocumentUpload()
     }
 
@@ -184,13 +195,29 @@ function UploadFile({onDocumentUpload, currentPath}: uploadFileProps) {
         event.preventDefault()
     }
 
+    const handleFileUploadButton = (event: any) => {
+        event.preventDefault()
+        fileInputRef.current?.click()
+        console.log(fileInputRef)
+    }
+
+    const fileUploaded = async (event: any) => {
+        if (fileInputRef.current?.files){
+            console.log(fileInputRef.current?.files[0])
+            await onUploadFileManual(fileInputRef.current?.files[0])
+        }
+    }
+
     return (
         <>
             <form>
-                <div id="dropZone" ref={dropZoneRef} onDrop={onUploadFile} onDragOver={preventEvent} onDragEnter={onDragEnter}
+                <div id="dropZone" ref={dropZoneRef} onDrop={onUploadFile} onDragOver={preventEvent}
+                     onDragEnter={onDragEnter}
                      onDragLeave={onDragLeave}>
                     Upload your file by dragging them inside.
                 </div>
+                <input ref={fileInputRef} onChange={fileUploaded} type="file" hidden/>
+                <Button onClick={handleFileUploadButton}>Choose File</Button>
             </form>
         </>
     )
@@ -206,6 +233,7 @@ const Ged: React.FC = () => {
     const loadDocuments = async () => {
         if (!member) return;
         const result: any = await getAllDocumentsFromOrganization(member.organizationId)
+        console.log(result)
         const files = result.map((e: any) => ({...e, type: 'file'}))
 
         const folderToAdd: Map<string, any> = new Map();
@@ -311,7 +339,6 @@ const Ged: React.FC = () => {
         if (!document){
             return;
         }
-        console.log(document)
         switch (document.type){
             case 'file':
                 await deleteDocument(id)

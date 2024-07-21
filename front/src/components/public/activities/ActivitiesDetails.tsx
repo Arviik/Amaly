@@ -13,14 +13,19 @@ import {
     unregisterActivityAttendance
 } from "@/api/services/activity";
 import {Button} from "@/components/ui/button";
+import {redirect, usePathname} from "next/navigation";
 
 const AGDetails = ({id}: { id: string }) => {
     const [activity, setActivity] = useState<Activity>();
     const [isSignedUp, setIsSignedUp] = useState<boolean>(false)
     const member = useSelector(selectCurrentMember)
+    const pathname = usePathname()
 
     const loadActivity = async () => {
         const response = await getActivityById(Number(id))
+        if (response.organizationId !== member?.organizationId){
+            redirect("activities")
+        }
         setActivity(response)
         loadSignedUpList(response)
     }
@@ -51,7 +56,7 @@ const AGDetails = ({id}: { id: string }) => {
 
     return (
         <div>
-            <Link href={`/ag`}>Back</Link>
+            <Link href={pathname.split('/').slice(0, pathname.split('/').length-1).join('/')}>Back</Link>
             <h1>Activity Details</h1>
             {
                 activity &&

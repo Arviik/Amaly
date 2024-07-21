@@ -27,7 +27,7 @@ export const getMemberById = async (id: number): Promise<Member> => {
 };
 
 export const createMember = async (
-  memberData: Omit<Member, "id">
+  memberData: Omit<Member, "id" | "createdAt" | "updatedAt">
 ): Promise<Member> => {
   try {
     const response = await api.post("members", {
