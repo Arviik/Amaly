@@ -8,20 +8,15 @@ import {
 } from "../validators/organization-validator";
 
 export const initOrganizations = (app: express.Express) => {
-  app.get(
-    "/organizations",
-    authMiddleware,
-    authzMiddleware,
-    async (req, res) => {
-      try {
-        const allOrganizations = await prisma.organizations.findMany();
-        res.json(allOrganizations);
-      } catch (e) {
-        res.status(500).send({ error: e });
-        return;
-      }
+  app.get("/organizations", async (req, res) => {
+    try {
+      const allOrganizations = await prisma.organizations.findMany();
+      res.json(allOrganizations);
+    } catch (e) {
+      res.status(500).send({ error: e });
+      return;
     }
-  );
+  });
 
   app.get("/organizations/:id", async (req, res) => {
     try {
