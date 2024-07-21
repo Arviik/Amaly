@@ -90,14 +90,17 @@ model MembershipTypes {
 }
 
 model Subscriptions {
-  id               Int            @id @default(autoincrement())
-  member           Members         @relation(fields: [memberId], references: [id])
-  memberId         Int
-  membershipType   MembershipTypes @relation(fields: [membershipTypeId], references: [id])
-  membershipTypeId Int
-  startDate        DateTime       @default(now())
-  endDate          DateTime
-  paymentStatus    PaymentStatus
+  id                  Int            @id @default(autoincrement())
+  member              Members        @relation(fields: [memberId], references: [id])
+  memberId            Int
+  membershipType      MembershipTypes @relation(fields: [membershipTypeId], references: [id])
+  membershipTypeId    Int
+  startDate           DateTime       @default(now())
+  endDate             DateTime
+  paymentStatus       PaymentStatus
+  stripeSubscriptionId String
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
 
   @@unique([memberId, membershipTypeId])
   @@map("subscriptions")
@@ -208,6 +211,8 @@ model Donations {
   donorEmail     String
   organization   Organizations @relation(fields: [organizationId], references: [id])
   organizationId Int
+  stripePaymentId String?
+  recurring      Boolean       @default(false)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
