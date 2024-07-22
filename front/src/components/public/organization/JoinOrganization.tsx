@@ -7,12 +7,11 @@ import {
     setMemberships,
     setSelectedOrganization
 } from "@/app/store/slices/authSlice";
-import {useSearchParams} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import {declareAgAttendance} from "@/api/services/ags";
 import {getOrganizationInviteWithUuid} from "@/api/services/organization";
 import {createMember} from "@/api/services/member";
 import {Button} from "@/components/ui/button";
-import {router} from "next/client";
 
 const JoinOrganization = () => {
     const [organization, setOrganization] = useState<Organization>();
@@ -21,6 +20,7 @@ const JoinOrganization = () => {
     const searchParams = useSearchParams()
     const actualMemberships = useSelector(selectMemberships)
     const dispatch = useDispatch()
+    const router = useRouter()
 
     const loadInvite = async () => {
         if (!searchParams.has("orgId")) return;
@@ -47,7 +47,9 @@ const JoinOrganization = () => {
         }]
         dispatch(setMemberships(newList))
         dispatch(setSelectedOrganization(organization.id))
-        router.push("/dashboard")
+        setTimeout(() => {
+            router.push("/dashboard")
+        }, 1000)
     }
 
     useEffect(() => {

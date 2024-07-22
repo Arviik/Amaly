@@ -1,4 +1,4 @@
-import { api } from "../config";
+import {api, tokenUtils} from "../config";
 import { Member } from "../type";
 
 export const getMembersByOrganizationId = async (
@@ -19,6 +19,17 @@ export const getMembersByOrganizationId = async (
 export const getMemberById = async (id: number): Promise<Member> => {
   try {
     const response = await api.get(`members/${id}`);
+    return response.json();
+  } catch (error) {
+    console.error("Erreur lors de la récupération du membre:", error);
+    throw error;
+  }
+};
+
+export const getMembershipsByUserId = async (id: number): Promise<any> => {
+  try {
+    const tokens = tokenUtils.getTokens
+    const response = await api.get(`members/me`,{ headers: {"authorization": `Bearer ${tokens()?.accessToken}`}});
     return response.json();
   } catch (error) {
     console.error("Erreur lors de la récupération du membre:", error);

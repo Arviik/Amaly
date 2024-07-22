@@ -14,7 +14,7 @@ const navItems = [
     { icon: Settings, label: "Settings", href: "/settings" },
     { icon: Calendar, label: "Activities", href: "/member/activities" },
     { icon: Presentation, label: "Assemblé Générale", href: "/member/ag" },
-    { icon: UserRoundCog, label: "Profile", href: "/user-profile" },
+    { icon: UserRoundCog, label: "Profile", href: "/member/user-profile" },
 ];
 
 export default function MemberPageLayout({children,}: { children: React.ReactNode; }) {

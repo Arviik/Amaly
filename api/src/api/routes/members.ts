@@ -4,6 +4,7 @@ import {
   memberPatchValidation,
   memberValidation,
 } from "../validators/member-validator";
+import {authMiddleware} from "../middlewares/auth-middleware";
 
 export const initMembers = (app: express.Express) => {
   app.get("/members", async (req, res) => {
@@ -16,13 +17,36 @@ export const initMembers = (app: express.Express) => {
     }
   });
 
-  app.get("/members/:id", async (req, res) => {
+  app.get("/members/:id(\\d+)", async (req, res) => {
     try {
       const member = await prisma.members.findUnique({
         where: { id: Number(req.params.id) },
       });
       if (member) {
         res.json(member);
+      } else {
+        res.status(404).send({ error: "Member not found" });
+      }
+    } catch (e) {
+      res.status(500).send({ error: e });
+      return;
+    }
+  });
+
+  app.get("/members/me", authMiddleware, async (req: any, res) => {
+    try {
+      if (!req.payload.userId) {
+        res.status(404).send({ error: "No userId found" });
+        return;
+      }
+      const memberships = await prisma.members.findMany({
+        where: { userId: Number(req.payload.userId) },
+        include: {
+          organization: true
+        }
+      });
+      if (memberships) {
+        res.json(memberships);
       } else {
         res.status(404).send({ error: "Member not found" });
       }

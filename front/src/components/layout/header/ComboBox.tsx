@@ -33,7 +33,6 @@ export function ComboBox() {
 
   useEffect(() => {
     if (memberships.length > 0) {
-      console.log(memberships)
       if (selectedOrganizationId) {
         const membership = memberships.find(
           (m) => m.organizationId === selectedOrganizationId
