@@ -1,14 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
 import { getOrganizationById } from "@/api/services/organization";
 import { Organization } from "@/api/type";
+import LoadingSpinner from "@/components/public/LoadingSpinner";
+import { DonationDialog } from "@/components/public/nonProfitBoard/DonationDialog";
+import { JoinOrganizationModal } from "@/components/public/nonProfitBoard/JoinOrganizationModal";
 import { Button } from "@/components/ui/button";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import Link from "next/link";
-import LoadingSpinner from "@/components/public/LoadingSpinner";
-import { DonationForm } from "@/app/Donation/page";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 
 interface OrganizationDetailsPageProps {
   params: {
@@ -35,6 +34,10 @@ export default function OrganizationDetailsPage({
 
     fetchOrganization();
   }, [params]);
+
+  const handleJoinSuccess = () => {
+    setIsJoinModalOpen(false);
+  };
 
   if (stripePromise === null) {
     return <div className="text-center text-red-500">Stripe is not loaded</div>;
@@ -63,18 +66,24 @@ export default function OrganizationDetailsPage({
           </div>
 
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-            <Button
-              onClick={() => setIsDonationModalOpen(true)}
-              variant="default"
-            >
-              Donate
-            </Button>
+            <DonationDialog
+              organizationId={organization.id}
+              organizationName={organization.name}
+            />
+
             <Button onClick={() => setIsJoinModalOpen(true)} variant="outline">
               Join Organization
             </Button>
           </div>
         </div>
       </div>
+      <JoinOrganizationModal
+        isOpen={isJoinModalOpen}
+        onClose={() => setIsJoinModalOpen(false)}
+        organizationId={organization.id}
+        organizationName={organization.name}
+        onJoin={handleJoinSuccess}
+      />
     </div>
   );
 }
