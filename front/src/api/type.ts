@@ -138,3 +138,10 @@ export interface DecodedToken {
   iat?: number;
   exp?: number;
 }
+
+export interface SignupRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}

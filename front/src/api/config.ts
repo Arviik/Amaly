@@ -97,8 +97,6 @@ const refreshToken = async (): Promise<boolean> => {
   return refreshPromise;
 };
 
-// ...
-
 const getUserRole = (): boolean | null => {
   const tokens = tokenUtils.getTokens();
   if (!tokens?.accessToken) {
