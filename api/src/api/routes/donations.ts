@@ -35,14 +35,19 @@ export const initDonations = (app: express.Express) => {
   });
 
   app.post("/donations", async (req, res) => {
+    console.log("the path is", req.path);
+    console.log("The request is", req.body);
     const validation = donationsValidation.validate(req.body);
+    console.log("The validation is", validation);
 
     if (validation.error) {
       res.status(400).send({ error: validation.error });
       return;
     }
+    console.log("The validation is ok");
 
     const donationsRequest = validation.value;
+    console.log("The donations request is", donationsRequest);
     try {
       // Créer un client Stripe pour le donateur
       const customer = await createStripeCustomer(
@@ -50,9 +55,10 @@ export const initDonations = (app: express.Express) => {
         donationsRequest.donorName
       );
 
+      let session;
       if (donationsRequest.recurring) {
         const product = await stripe.products.create({
-          name: "Donation",
+          name: "Recurring Donation",
           metadata: {
             organization_id: donationsRequest.organizationId.toString(),
           },
@@ -66,34 +72,50 @@ export const initDonations = (app: express.Express) => {
           product: product.id,
         });
 
-        // Créer un abonnement Stripe pour les dons récurrents
-        await stripe.subscriptions.create({
-          customer: customer.id,
-          items: [
+        session = await stripe.checkout.sessions.create({
+          payment_method_types: ["card"],
+          line_items: [
             {
               price: price.id,
+              quantity: 1,
             },
           ],
+          mode: "subscription",
+          success_url: `${process.env.FRONTEND_URL}/donation-success`,
+          cancel_url: `${process.env.FRONTEND_URL}/donation-cancel`,
+          customer: customer.id,
           metadata: {
             organization_id: donationsRequest.organizationId.toString(),
           },
         });
       } else {
-        // Créer un paiement unique avec Stripe pour les dons uniques
-        await stripe.paymentIntents.create({
-          amount: donationsRequest.amount,
-          currency: "eur",
-          description: "One-time Donation",
+        session = await stripe.checkout.sessions.create({
+          payment_method_types: ["card"],
+          line_items: [
+            {
+              price_data: {
+                currency: "eur",
+                product_data: {
+                  name: "One-time Donation",
+                },
+                unit_amount: donationsRequest.amount,
+              },
+              quantity: 1,
+            },
+          ],
+          mode: "payment",
+          success_url: `${process.env.FRONTEND_URL}/donation-success`,
+          cancel_url: `${process.env.FRONTEND_URL}/donation-cancel`,
           customer: customer.id,
-          receipt_email: donationsRequest.donorEmail,
           metadata: {
             organization_id: donationsRequest.organizationId.toString(),
           },
         });
       }
 
-      res.sendStatus(200);
+      res.json({ checkoutUrl: session.url });
     } catch (e) {
+      console.error("Error creating donation:", e);
       res.status(500).send({ error: e });
     }
   });

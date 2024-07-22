@@ -1,6 +1,7 @@
 import express from "express";
 import { prisma } from "../../utils/prisma";
 import Stripe from "stripe";
+import { Donations, Subscriptions } from "@prisma/client";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2024-06-20",
@@ -8,60 +9,111 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
 
 export const initStripes = (app: express.Express) => {
   app.post("/stripe-webhook", async (req, res) => {
-    const stripeRequest = req.body;
+    const stripeRequest = req.body as Stripe.Event;
+
     try {
-      if (stripeRequest.type === "payment_intent.succeeded") {
-        const paymentIntent = stripeRequest.data.object;
-        const donationData = {
-          amount: paymentIntent.amount,
-          date: new Date(paymentIntent.created * 1000),
-          donorEmail: paymentIntent.receipt_email,
-          donorName: paymentIntent.name,
-          organizationId: parseInt(paymentIntent.metadata.organization_id),
-          stripePaymentId: paymentIntent.id,
-          recurring: false,
-        };
+      switch (stripeRequest.type) {
+        case "checkout.session.completed": {
+          const session = stripeRequest.data.object as Stripe.Checkout.Session;
+          const stripOrganizationId = session.metadata?.organization_id;
 
-        await prisma.donations.create({ data: donationData });
-      } else if (stripeRequest.type === "invoice.payment_succeeded") {
-        const invoice = stripeRequest.data.object;
-        const subscriptionId = invoice.subscription;
+          if (!stripOrganizationId) {
+            console.error("Missing organization_id in session metadata");
+            res.sendStatus(400);
+            return;
+          }
 
-        const subscription = await stripe.subscriptions.retrieve(
-          subscriptionId
-        );
-        const donationData = {
-          amount: invoice.amount_paid,
-          date: new Date(invoice.created * 1000),
-          donorName: invoice.user.name,
-          donorEmail: invoice.customer_email,
-          organizationId: parseInt(subscription.metadata.organization_id),
-          stripePaymentId: subscriptionId,
-          recurring: true,
-        };
+          const donationData: Omit<
+            Donations,
+            "id" | "createdAt" | "updatedAt"
+          > = {
+            amount: session.amount_total ? session.amount_total / 100 : 0, // Convert cents to dollars
+            date: new Date(session.created * 1000),
+            donorEmail: session.customer_details?.email || "",
+            donorName: session.customer_details?.name || "",
+            organizationId: parseInt(stripOrganizationId),
+            stripePaymentId: session.payment_intent as string,
+            recurring: session.mode === "subscription",
+          };
 
-        await prisma.donations.create({ data: donationData });
-      } else if (stripeRequest.type === "invoice.payment_succeeded") {
-        const invoice = stripeRequest.data.object;
-        const subscriptionId = invoice.subscription;
+          await prisma.donations.create({ data: donationData });
+          console.log("Donation created:", donationData);
+          break;
+        }
+        case "invoice.payment_succeeded": {
+          const invoice = stripeRequest.data.object as Stripe.Invoice;
+          const subscriptionId = invoice.subscription as string;
 
-        const subscription = await stripe.subscriptions.retrieve(
-          subscriptionId
-        );
+          if (!subscriptionId) {
+            console.error("Missing subscription ID in invoice");
+            res.sendStatus(400);
+            return;
+          }
 
-        await prisma.subscriptions.update({
-          where: { id: parseInt(subscription.metadata.subscription_id) },
-          data: {
+          const subscription = await stripe.subscriptions.retrieve(
+            subscriptionId
+          );
+          const memberId = parseInt(subscription.metadata.member_id || "0");
+          const membershipTypeId = parseInt(
+            subscription.metadata.membership_type_id || "0"
+          );
+
+          if (!memberId || !membershipTypeId) {
+            console.error(
+              "Missing member_id or membership_type_id in subscription metadata"
+            );
+            res.sendStatus(400);
+            return;
+          }
+
+          const subscriptionData: Omit<
+            Subscriptions,
+            "id" | "createdAt" | "updatedAt"
+          > = {
+            memberId,
+            membershipTypeId,
+            startDate: new Date(subscription.current_period_start * 1000),
+            endDate: new Date(subscription.current_period_end * 1000),
             paymentStatus: "PAID",
-          },
-        });
+            stripeSubscriptionId: subscriptionId,
+          };
 
-        await prisma.members.update({
-          where: { id: parseInt(subscription.metadata.member_id) },
-          data: {
-            status: "SUBSCRIBER",
-          },
-        });
+          await prisma.subscriptions.upsert({
+            where: {
+              memberId_membershipTypeId: {
+                memberId,
+                membershipTypeId,
+              },
+            },
+            update: subscriptionData,
+            create: subscriptionData,
+          });
+
+          console.log("Subscription updated:", subscriptionData);
+
+          // Create a donation record for the subscription payment
+          const donationData: Omit<
+            Donations,
+            "id" | "createdAt" | "updatedAt"
+          > = {
+            amount: invoice.amount_paid / 100, // Convert cents to dollars
+            date: new Date(invoice.created * 1000),
+            donorEmail: invoice.customer_email || "",
+            donorName: invoice.customer_name || "",
+            organizationId: parseInt(
+              subscription.metadata.organization_id || "0"
+            ),
+            stripePaymentId: invoice.payment_intent as string,
+            recurring: true,
+          };
+
+          await prisma.donations.create({ data: donationData });
+          console.log("Recurring donation created:", donationData);
+
+          break;
+        }
+        default:
+          console.log(`Unhandled event type: ${stripeRequest.type}`);
       }
 
       res.sendStatus(200);

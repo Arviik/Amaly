@@ -6,6 +6,7 @@ import {
   LoginResponse,
   TokenResponse,
   DecodedToken,
+  SignupRequest,
 } from "../type";
 
 export const authService = {
@@ -77,5 +78,52 @@ export const authService = {
     }
 
     return "/profiles";
+  },
+  sendPasswordResetEmail: async (email: string): Promise<void> => {
+    try {
+      await api.post("auth/forgot-password", { json: { email } });
+    } catch (error) {
+      console.error("Send password reset email error:", error);
+      throw error;
+    }
+  },
+
+  resetPassword: async (token: string, newPassword: string): Promise<void> => {
+    try {
+      await api.post("auth/reset-password", { json: { token, newPassword } });
+    } catch (error) {
+      console.error("Reset password error:", error);
+      throw error;
+    }
+  },
+  signup: async (data: SignupRequest): Promise<TokenResponse> => {
+    try {
+      const response = await api.post("auth/signup", { json: data });
+      const result: TokenResponse = await response.json();
+      if (result.accessToken && result.refreshToken) {
+        tokenUtils.setTokens(result);
+        const decoded: DecodedToken = tokenUtils.decodeToken(
+          result.accessToken
+        );
+        store.dispatch(
+          setCredentials({
+            user: {
+              id: decoded.userId,
+              firstName: decoded.firstName || "",
+              lastName: decoded.lastName || "",
+              email: decoded.email,
+              isSuperAdmin: decoded.isSuperAdmin,
+            },
+            memberships: decoded.memberships,
+          })
+        );
+        return result;
+      } else {
+        throw new Error("Invalid signup response");
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      throw error;
+    }
   },
 };
