@@ -37,6 +37,29 @@ export const initDocuments = (app: express.Express) => {
         }
     });
 
+    app.get("/documents/organization/:id", async (req, res) => {
+        try {
+            const allDocuments = await prisma.documents.findMany({
+                where: {
+                    organizationId: Number(req.params.id),
+                },
+                select: {
+                    id: true,
+                    description: true,
+                    title: true,
+                    path: true,
+                    updatedAt: true
+                }});
+            allDocuments.forEach((document) => {
+
+            })
+            res.json(allDocuments);
+        } catch (e) {
+            res.status(500).send({ error: e });
+            return;
+        }
+    });
+
     app.post("/documents", async (req, res) => {
         console.log('req' , req)
         const validation = documentsValidation.validate(req.body);
