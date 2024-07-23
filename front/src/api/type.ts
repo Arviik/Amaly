@@ -101,15 +101,6 @@ export enum MemberStatus {
   EMPLOYEE = "EMPLOYEE",
 }
 
-export interface MembershipType {
-  id: number;
-  name: string;
-  description?: string;
-  duration: number;
-  fee: number;
-  organizationId: number;
-}
-
 export interface AGs {
   createdAt: string;
   date: string;
@@ -161,4 +152,13 @@ export interface ActivityPatch {
   description?: string;
   date?: string;
   organizationId?: number;
+}
+
+export interface MembershipType {
+  id: number;
+  name: string;
+  description: string;
+  amount: number;
+  duration: number;
+  organizationId: number;
 }

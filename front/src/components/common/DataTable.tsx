@@ -28,6 +28,7 @@ interface DataTableProps<T> {
   onUpdate: (id: number, data: Partial<T>) => void;
   onDelete: (id: number) => void;
   onResetPassword?: (id: number) => void;
+  onDetails?: (id: number) => void;
   getColumnValue?: (data: T, column: { key: keyof T; header: string }) => any;
   fields: Field[];
 }
@@ -39,6 +40,7 @@ export function DataTable<T extends { id: number }>({
   onUpdate,
   onDelete,
   onResetPassword,
+  onDetails,
   fields,
   getColumnValue = (data, column) => data[column.key],
 }: DataTableProps<T>) {
@@ -81,6 +83,12 @@ export function DataTable<T extends { id: number }>({
   const handleResetPassword = () => {
     if (selectedItem && onResetPassword) {
       onResetPassword(selectedItem.id);
+    }
+  };
+
+  const handleDetails = () => {
+    if (selectedItem && onDetails) {
+      onDetails(selectedItem.id);
     }
   };
 
@@ -188,13 +196,16 @@ export function DataTable<T extends { id: number }>({
                         Reset Password
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem
-                      onClick={() => {
-                        goToDetails(item.id);
-                      }}
-                    >
-                      Details
-                    </DropdownMenuItem>
+                    {onDetails && (
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelectedItem(item);
+                          handleDetails();
+                        }}
+                      >
+                        Details
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
