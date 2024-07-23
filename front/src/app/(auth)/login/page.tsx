@@ -1,18 +1,17 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import { useDispatch } from "react-redux";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { tokenUtils } from "@/api/config";
 import { authService } from "@/api/services/auth";
 import { DecodedToken, LoginRequest } from "@/api/type";
-import { tokenUtils } from "@/api/config";
-import { setCredentials } from "@/app/store/slices/authSlice";
-import { Eye, EyeOff } from "lucide-react"; // Import icons
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -21,6 +20,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
+  const searchParams = useSearchParams();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +31,15 @@ export default function LoginPage() {
       const result = await authService.login(credentials);
 
       const decoded: DecodedToken = tokenUtils.decodeToken(result.accessToken);
-      const redirectPath = authService.getInitialRoute(decoded, null);
+
+      // Récupérer l'URL de redirection depuis les paramètres de requête
+      const redirectUrl = searchParams.get("redirect");
+
+      const redirectPath = authService.getInitialRoute(
+        decoded,
+        null,
+        redirectUrl || undefined
+      );
       router.push(redirectPath);
     } catch (error) {
       if (error instanceof Error) {
@@ -42,7 +50,6 @@ export default function LoginPage() {
       console.error("Login error:", error);
     }
   };
-
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };

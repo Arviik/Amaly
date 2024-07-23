@@ -51,8 +51,17 @@ export const authService = {
 
   getInitialRoute: (
     decoded: DecodedToken,
-    selectedOrganizationId: number | null
+    selectedOrganizationId: number | null,
+    redirectUrl?: string
   ): string => {
+    // Si un redirectUrl est fourni, on l'utilise en priorité
+    if (redirectUrl) {
+      // Vérifiez si l'URL de redirection est valide (par exemple, commence par '/')
+      if (redirectUrl.startsWith("/")) {
+        return redirectUrl;
+      }
+    }
+
     if (decoded.isSuperAdmin) {
       return "/admin/overview";
     }
@@ -79,6 +88,7 @@ export const authService = {
 
     return "/profiles";
   },
+
   sendPasswordResetEmail: async (email: string): Promise<void> => {
     try {
       await api.post("auth/forgot-password", { json: { email } });

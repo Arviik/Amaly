@@ -31,10 +31,9 @@ export const JoinOrganizationModal: React.FC<JoinOrganizationModalProps> = ({
     if (!acceptedCharter) return;
 
     try {
-      const response = await api.post(
-        `/api/members/${organizationId}/join`,
-        {}
-      );
+      console.log("Joining organization", organizationId);
+
+      const response = await api.post(`organizations/${organizationId}/join`);
 
       if (response.ok) {
         onJoin();

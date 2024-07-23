@@ -135,22 +135,52 @@ export const initMembers = (app: express.Express) => {
     }
   );
 
-  app.post("/members/:id/join", authMiddleware, async (req, res) => {
-    try {
-      await prisma.members.update({
-        where: {
-          id: Number(req.params.id),
-        },
-        data: {
-          status: MemberStatus.VOLUNTEER,
-        },
-      });
-      res.status(200).json({ message: "Member joined" });
-    } catch (e) {
-      res.status(500).json({ error: e });
-    }
-  });
+  app.post(
+    "/organizations/:organizationId/join",
+    authMiddleware,
+    async (req: any, res) => {
+      try {
+        const organizationId = Number(req.params.organizationId);
+        const userId = req.payload.userId; // Supposons que authMiddleware ajoute l'utilisateur à req
 
+        console.log("organizationId:", organizationId);
+        console.log("userId:", userId);
+
+        if (isNaN(organizationId) || isNaN(userId)) {
+          return res
+            .status(400)
+            .json({ message: "Invalid organizationId or userId" });
+        }
+
+        const existingMember = await prisma.members.findFirst({
+          where: {
+            organizationId: organizationId,
+            userId: userId,
+          },
+        });
+
+        if (existingMember) {
+          return res
+            .status(400)
+            .json({ message: "Vous êtes déjà membre de cette organisation" });
+        }
+
+        const newMember = await prisma.members.create({
+          data: {
+            role: "MEMBER",
+            organizationId: organizationId,
+            userId: userId,
+            status: MemberStatus.VOLUNTEER,
+          },
+        });
+
+        res.status(201).json(newMember);
+      } catch (e: any) {
+        console.error("error", e);
+        res.status(500).json({ error: e.message });
+      }
+    }
+  );
   app.post("/members/:id/leave", authMiddleware, async (req, res) => {
     try {
       await prisma.members.delete({

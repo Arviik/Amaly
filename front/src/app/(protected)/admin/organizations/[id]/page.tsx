@@ -31,26 +31,6 @@ const OrganizationDetailsPage = ({ params }: OrganizationDetailsPageProps) => {
     fetchOrganization();
   }, [params.id]);
 
-  const handleEdit = () => {
-    setIsEditModalOpen(true);
-  };
-
-  const handleDelete = async () => {
-    if (organization) {
-      await deleteOrganization(organization.id);
-      router.push("/super-admin/organizations");
-    }
-  };
-
-  const handleOrganizationUpdate = async (
-    updatedData: Partial<Organization>
-  ) => {
-    if (organization) {
-      await updateOrganization(organization.id, updatedData);
-      setOrganization({ ...organization, ...updatedData });
-    }
-  };
-
   if (!organization) {
     return <div>Loading...</div>;
   }

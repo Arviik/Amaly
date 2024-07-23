@@ -1,47 +1,91 @@
 "use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
 import { getOrganizationById } from "@/api/services/organization";
-import { Organization } from "@/api/type";
+import { Organization, UserMembership } from "@/api/type";
+import { RootState } from "@/app/store";
+import {
+  setSelectedOrganization,
+  setCurrentMember,
+} from "@/app/store/slices/authSlice";
 import LoadingSpinner from "@/components/public/LoadingSpinner";
 import { DonationDialog } from "@/components/public/nonProfitBoard/DonationDialog";
 import { JoinOrganizationModal } from "@/components/public/nonProfitBoard/JoinOrganizationModal";
 import { Button } from "@/components/ui/button";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import { useEffect, useState } from "react";
+import { toast } from "@/components/ui/use-toast";
+import { api } from "@/api/config";
 
-interface OrganizationDetailsPageProps {
+export interface OrganizationDetailsPageProps {
   params: {
-    Orgid: number;
+    Orgid: string;
   };
 }
-
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || ""
-);
 
 export default function OrganizationDetailsPage({
   params,
 }: OrganizationDetailsPageProps) {
   const [organization, setOrganization] = useState<Organization | null>(null);
-  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [isAlreadyMember, setIsAlreadyMember] = useState(false);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const memberships = useSelector((state: RootState) => state.auth.memberships);
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  let paramsOrgid = parseInt(params.Orgid);
 
   useEffect(() => {
     const fetchOrganization = async () => {
-      const data = await getOrganizationById(params.Orgid);
+      const data = await getOrganizationById(paramsOrgid);
       setOrganization(data);
     };
 
     fetchOrganization();
-  }, [params]);
 
-  const handleJoinSuccess = () => {
-    setIsJoinModalOpen(false);
+    // Vérifier si l'utilisateur est déjà membre
+    if (user && memberships) {
+      const isMember = memberships.some(
+        (m) => m.organizationId === paramsOrgid
+      );
+      setIsAlreadyMember(isMember);
+    }
+  }, [params, user, memberships, paramsOrgid]);
+
+  const handleJoinClick = () => {
+    if (!user) {
+      // Si l'utilisateur n'est pas connecté, rediriger vers la page de connexion
+      router.push(`/login?redirect=/organizations/${params.Orgid}`);
+    } else if (!isAlreadyMember) {
+      // Si l'utilisateur est connecté mais n'est pas membre, ouvrir le modal
+      setIsJoinModalOpen(true);
+    }
   };
 
-  if (stripePromise === null) {
-    return <div className="text-center text-red-500">Stripe is not loaded</div>;
-  }
+  const handleJoinSuccess = async () => {
+    try {
+      const response = await api.post(`organizations/${params.Orgid}/join`);
+
+      if (response.ok) {
+        const newMembership: UserMembership = await response.json();
+        dispatch(setSelectedOrganization(newMembership.organizationId));
+        dispatch(setCurrentMember(newMembership));
+        toast({
+          title: "Adhésion réussie",
+          description: "Vous avez rejoint l'organisation avec succès.",
+        });
+        router.push("/member");
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'adhésion à l'organisation:", error);
+      toast({
+        title: "Erreur",
+        description:
+          "Une erreur est survenue lors de l'adhésion à l'organisation.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (!organization) {
     return <LoadingSpinner />;
@@ -70,20 +114,25 @@ export default function OrganizationDetailsPage({
               organizationId={organization.id}
               organizationName={organization.name}
             />
-
-            <Button onClick={() => setIsJoinModalOpen(true)} variant="outline">
-              Join Organization
+            <Button
+              onClick={handleJoinClick}
+              variant="outline"
+              disabled={isAlreadyMember}
+            >
+              {isAlreadyMember ? "Already Member" : "Join Organization"}
             </Button>
           </div>
         </div>
       </div>
-      <JoinOrganizationModal
-        isOpen={isJoinModalOpen}
-        onClose={() => setIsJoinModalOpen(false)}
-        organizationId={organization.id}
-        organizationName={organization.name}
-        onJoin={handleJoinSuccess}
-      />
+      {user && !isAlreadyMember && (
+        <JoinOrganizationModal
+          isOpen={isJoinModalOpen}
+          onClose={() => setIsJoinModalOpen(false)}
+          organizationId={organization.id}
+          organizationName={organization.name}
+          onJoin={handleJoinSuccess}
+        />
+      )}
     </div>
   );
 }
