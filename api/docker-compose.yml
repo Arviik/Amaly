@@ -10,7 +10,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     healthcheck:
-      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 2s
       timeout: 20s
       retries: 10
@@ -44,6 +44,9 @@ services:
         delay: 5s
         max_attempts: 5
         window: 120s
+    volumes:
+      - ./server.crt:/etc/ssl/certs/server.crt
+      - ./server.key:/etc/ssl/private/server.key
 
 volumes:
   db_data:

@@ -20,4 +20,7 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
 COPY .env ./
 
+COPY server.crt /etc/ssl/certs/server.crt
+COPY server.key /etc/ssl/private/server.key
+
 CMD npm run start:migrate:prod
