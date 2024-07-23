@@ -9,6 +9,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
 
 export const initStripes = (app: express.Express) => {
   app.post("/stripe-webhook", async (req, res) => {
+    console.log("Received Stripe webhook event");
+    console.log("Event type:", req.body.type);
     const stripeRequest = req.body as Stripe.Event;
 
     try {
@@ -117,9 +119,13 @@ export const initStripes = (app: express.Express) => {
       }
 
       res.sendStatus(200);
-    } catch (e) {
-      console.error("Error processing webhook:", e);
+    } catch (e: any) {
+      console.error("Detailed error processing webhook:", e);
+      console.error("Error name:", e.name);
+      console.error("Error message:", e.message);
+      console.error("Error stack:", e.stack);
       res.sendStatus(400);
+      return;
     }
   });
 };
