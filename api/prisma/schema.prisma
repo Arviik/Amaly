@@ -65,7 +65,7 @@ model OrganizationInvitation {
 
 model Members {
   id             Int           @id @default(autoincrement())
-  role           String        @default("volunteer")
+  role           String        @default("member")
   isAdmin        Boolean       @default(false)
   user           Users         @relation(fields: [userId], references: [id])
   userId         Int
@@ -96,6 +96,7 @@ model MembershipTypes {
   organization  Organizations   @relation(fields: [organizationId], references: [id])
   organizationId Int
   subscriptions  Subscriptions[]
+  stripeProductId String
 
   @@map("membershiptypes")
 }
