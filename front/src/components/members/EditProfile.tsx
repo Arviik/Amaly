@@ -3,6 +3,9 @@ import {useSelector} from "react-redux";
 import {useEffect, useRef, useState} from "react";
 import {getMe, updateUser} from "@/api/services/user";
 import {User} from "@/api/type";
+import {Input} from "@/components/ui/input";
+import { Button } from "../ui/button";
+import {Label} from "@/components/ui/label";
 
 const EditProfile = () => {
     const user = useSelector(selectCurrentUser)
@@ -37,12 +40,6 @@ const EditProfile = () => {
         if (!fullUser) return;
         if (oldPasswordRef.current?.value === "" || newPasswordRef.current?.value === "" || verifyNewPasswordRef.current?.value === "") {return}
         if (verifyNewPasswordRef.current?.value !== newPasswordRef.current?.value) {}
-
-        console.log(fullUser)
-        /*const credentials: LoginRequest = { email, password };
-        const result = await authService.login(credentials);
-        await updateUser(user.id,{
-        })*/
     }
 
     return (
@@ -50,15 +47,18 @@ const EditProfile = () => {
             <h1>Edit your profile</h1>
             {fullUser ?
                 <>
-                    <input value={fullUser.email} onChange={() => {setFullUser({...fullUser, email: String(emailRef.current?.value)})}} ref={emailRef} placeholder={"Email"} type={"email"}/>
-                    <input value={fullUser.firstName} onChange={() => {setFullUser({...fullUser, firstName: String(firstNameRef.current?.value)})}} ref={firstNameRef} placeholder={"First Name"} type={"text"}/>
-                    <input value={fullUser.lastName} onChange={() => {setFullUser({...fullUser, lastName: String(lastNameRef.current?.value)})}}  ref={lastNameRef} placeholder={"Last Name"} type={"text"}/>
-                    <button onClick={handleChangesInformation}>Confirm Changes</button>
+                    <Label htmlFor={"email"}>Email</Label>
+                    <Input id={"email"} value={fullUser.email} onChange={() => {setFullUser({...fullUser, email: String(emailRef.current?.value)})}} ref={emailRef} placeholder={"Email"} type={"email"}/>
+                    <Label htmlFor={"firstName"}>First Name</Label>
+                    <Input id={"firstName"} value={fullUser.firstName} onChange={() => {setFullUser({...fullUser, firstName: String(firstNameRef.current?.value)})}} ref={firstNameRef} placeholder={"First Name"} type={"text"}/>
+                    <Label htmlFor={"lastName"}>Last Name</Label>
+                    <Input id={"lastName"} value={fullUser.lastName} onChange={() => {setFullUser({...fullUser, lastName: String(lastNameRef.current?.value)})}}  ref={lastNameRef} placeholder={"Last Name"} type={"text"}/>
+                    <Button onClick={handleChangesInformation}>Confirm Changes</Button>
                     <hr/>
-                    <input ref={oldPasswordRef} placeholder={"Old Password"} type={"password"}/>
-                    <input ref={newPasswordRef} placeholder={"New Password"} type={"password"}/>
-                    <input ref={verifyNewPasswordRef} placeholder={"Verify New Password"} type={"password"}/>
-                    <button onClick={handleChangesPassword}>Confirm Changes</button>
+                    <Input ref={oldPasswordRef} placeholder={"Old Password"} type={"password"}/>
+                    <Input ref={newPasswordRef} placeholder={"New Password"} type={"password"}/>
+                    <Input ref={verifyNewPasswordRef} placeholder={"Verify New Password"} type={"password"}/>
+                    <Button onClick={handleChangesPassword}>Confirm Changes</Button>
                 </>
                 :
                     null
