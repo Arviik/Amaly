@@ -79,6 +79,8 @@ export interface Member {
   id: number;
   role: string;
   isAdmin: boolean;
+  startDate: Date;
+  endDate?: Date;
   userId: number;
   organizationId: number;
   status: MemberStatus;
@@ -144,4 +146,19 @@ export interface SignupRequest {
   lastName: string;
   email: string;
   password: string;
+}
+
+export interface Activity {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  organizationId: number;
+}
+
+export interface ActivityPatch {
+  title?: string;
+  description?: string;
+  date?: string;
+  organizationId?: number;
 }

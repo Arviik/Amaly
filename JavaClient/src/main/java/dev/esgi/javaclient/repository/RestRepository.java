@@ -1,6 +1,7 @@
-package dev.esgi.javaclient.rest.services;
+package dev.esgi.javaclient.repository;
 
 import dev.esgi.javaclient.model.*;
+import dev.esgi.javaclient.rest.services.RestService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class RestRepository {
+public class RestRepository implements Repository {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final Map<Class<?>, RestService<?>> restServiceMap = new HashMap<>();

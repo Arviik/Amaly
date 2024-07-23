@@ -3,13 +3,17 @@
 import AdaptiveLayout from "@/components/layout/AdaptiveLayout";
 import HeaderConnected from "@/components/layout/header/HeaderConnected";
 import { ProtectedRoute } from "@/components/public/ProtectedRoute";
-import { Home, Users, Settings, File } from "lucide-react";
+import {Home, Users, Settings, Calendar, File, Presentation, UserRoundCog, UserPlus} from "lucide-react";
 
-export const navItems = [
+const navItems = [
   { icon: Home, label: "Dashboard", href: "/dashboard" },
   { icon: Users, label: "Members", href: "/ManageMembers" },
   { icon: File, label: "Documents", href: "/documents" },
   { icon: Settings, label: "Settings", href: "/settings" },
+  { icon: Calendar, label: "Activities", href: "/activities" },
+  { icon: Presentation, label: "Assemblé Générale", href: "/ag" },
+  { icon: UserRoundCog, label: "Profile", href: "/user-profile" },
+  { icon: UserPlus, label: "Invite", href: "/invite" },
 ];
 
 export default function AdminPageLayout({

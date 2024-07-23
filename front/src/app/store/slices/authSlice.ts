@@ -38,10 +38,13 @@ const authSlice = createSlice({
       state.memberships = action.payload.memberships;
       state.isAuthenticated = true;
     },
+    setMemberships: (state, action: PayloadAction<UserMembership[]>) => {
+      state.memberships = action.payload;
+    },
     setSelectedOrganization: (state, action: PayloadAction<number>) => {
       state.selectedOrganizationId = action.payload;
     },
-    setCurrentMember: (state, action: PayloadAction<UserMembership>) => {
+    setCurrentMember: (state, action: PayloadAction<UserMembership|null>) => {
       state.selectedMember = action.payload;
     },
     clearCredentials: (state) => {
@@ -53,7 +56,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, setSelectedOrganization, setCurrentMember, clearCredentials } =
+export const { setCredentials, setSelectedOrganization, setMemberships, setCurrentMember, clearCredentials } =
   authSlice.actions;
 
 export default authSlice.reducer;

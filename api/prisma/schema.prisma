@@ -50,8 +50,17 @@ model Organizations {
   donations   Donations[]
   documents   Documents[]
   invitations Invitations[]
+  OrganizationInvitation OrganizationInvitation[]
 
   @@map("organizations")
+}
+
+model OrganizationInvitation {
+  organization   Organizations @relation(fields: [organizationId], references: [id])
+  organizationId Int           @id
+  uuid           String
+
+  @@map("organization_invitation")
 }
 
 model Members {
@@ -70,6 +79,8 @@ model Members {
   updatedAt      DateTime      @updatedAt
   assignments    Assignments[]
   AGAttendance   AGAttendance[]
+
+  ActivitiesAttendance ActivitiesAttendance[]
 
   @@unique([userId, organizationId])
   @@map("members")
@@ -133,8 +144,8 @@ model Invitations {
   @@map("invitations")
 }
 
-model ResetPasswordTokens {  
-  userId    Int      @id 
+model ResetPasswordTokens {
+  userId    Int      @id
   token     String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
@@ -145,18 +156,28 @@ model ResetPasswordTokens {
   @@map("reset_password_tokens")
 }
 
-
 model Activities {
-  id             Int           @id @default(autoincrement())
-  title          String
-  description    String
-  date           DateTime
-  organization   Organizations @relation(fields: [organizationId], references: [id])
-  organizationId Int
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id                   Int                    @id @default(autoincrement())
+  title                String
+  description          String
+  date                 DateTime
+  organization         Organizations          @relation(fields: [organizationId], references: [id])
+  organizationId       Int
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  ActivitiesAttendance ActivitiesAttendance[]
 
   @@map("activities")
+}
+
+model ActivitiesAttendance {
+  memberId   Int
+  members    Members    @relation(fields: [memberId], references: [id])
+  activityId Int
+  Activities Activities @relation(fields: [activityId], references: [id])
+
+  @@id([activityId, memberId])
+  @@map("activities_attendance")
 }
 
 model AGs {
