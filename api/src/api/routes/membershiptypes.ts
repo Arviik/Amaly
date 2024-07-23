@@ -4,6 +4,13 @@ import {
   membershipTypesCreateValidator,
   membershipTypesUpdateValidator,
 } from "../validators/membershiptypes-validator";
+import Stripe from "stripe";
+import { authMiddleware } from "../middlewares/auth-middleware";
+import { authzMiddleware } from "../middlewares/authz-middleware";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+  apiVersion: "2024-06-20",
+});
 
 export const initMembershipTypes = (app: express.Express) => {
   app.get("/membershiptypes", async (req, res) => {
@@ -28,31 +35,56 @@ export const initMembershipTypes = (app: express.Express) => {
     }
   });
 
-  app.post("/membershiptypes", async (req, res) => {
-    const validation = membershipTypesCreateValidator.validate(req.body);
+  app.post(
+    "/membershiptypes",
+    authMiddleware,
+    authzMiddleware,
+    async (req, res) => {
+      const validation = membershipTypesCreateValidator.validate(req.body);
 
-    if (validation.error) {
-      res.status(400).send({ error: validation.error });
-      return;
-    }
+      if (validation.error) {
+        res.status(400).send({ error: validation.error });
+        return;
+      }
 
-    const membershipTypesRequest = validation.value;
-    try {
-      const membershipType = await prisma.membershipTypes.create({
-        data: {
+      const membershipTypesRequest = validation.value;
+      try {
+        // Créer le produit Stripe
+        const stripeProduct = await stripe.products.create({
           name: membershipTypesRequest.name,
           description: membershipTypesRequest.description,
-          amount: membershipTypesRequest.amount,
-          duration: membershipTypesRequest.duration,
-          organizationId: membershipTypesRequest.organizationId,
-        },
-      });
-      res.json(membershipType);
-    } catch (e) {
-      res.status(500).send({ error: e });
-      return;
+        });
+
+        // Créer le prix Stripe
+        const stripePrice = await stripe.prices.create({
+          product: stripeProduct.id,
+          unit_amount: Math.round(membershipTypesRequest.amount * 100),
+          currency: "eur",
+          recurring: {
+            interval: "month",
+            interval_count: membershipTypesRequest.duration,
+          },
+        });
+
+        // Créer le type d'adhésion dans la base de données
+        const membershipType = await prisma.membershipTypes.create({
+          data: {
+            name: membershipTypesRequest.name,
+            description: membershipTypesRequest.description,
+            amount: membershipTypesRequest.amount,
+            duration: membershipTypesRequest.duration,
+            organizationId: membershipTypesRequest.organizationId,
+            stripeProductId: stripeProduct.id,
+          },
+        });
+
+        res.json(membershipType);
+      } catch (e) {
+        res.status(500).send({ error: e });
+        return;
+      }
     }
-  });
+  );
 
   app.put("/membershiptypes/:id", async (req, res) => {
     const validation = membershipTypesUpdateValidator.validate(req.body);
@@ -100,6 +132,24 @@ export const initMembershipTypes = (app: express.Express) => {
 
       const membershipTypesRequest = validation.value;
       try {
+        // Créer le produit Stripe
+        const stripeProduct = await stripe.products.create({
+          name: membershipTypesRequest.name,
+          description: membershipTypesRequest.description,
+        });
+
+        // Créer le prix Stripe
+        const stripePrice = await stripe.prices.create({
+          product: stripeProduct.id,
+          unit_amount: Math.round(membershipTypesRequest.amount * 100),
+          currency: "eur",
+          recurring: {
+            interval: "month",
+            interval_count: membershipTypesRequest.duration,
+          },
+        });
+
+        // Créer le type d'adhésion dans la base de données
         const membershipType = await prisma.membershipTypes.create({
           data: {
             name: membershipTypesRequest.name,
@@ -107,8 +157,10 @@ export const initMembershipTypes = (app: express.Express) => {
             amount: membershipTypesRequest.amount,
             duration: membershipTypesRequest.duration,
             organizationId: membershipTypesRequest.organizationId,
+            stripeProductId: stripeProduct.id,
           },
         });
+
         res.json(membershipType);
       } catch (e) {
         res.status(500).send({ error: e });

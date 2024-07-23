@@ -18,9 +18,6 @@ const organizationSlice = createSlice({
   name: "organization",
   initialState,
   reducers: {
-    setSelectedOrganization: (state, action: PayloadAction<number>) => {
-      state.selectedOrganizationId = action.payload;
-    },
     setUserMemberships: (state, action: PayloadAction<UserMembership[]>) => {
       state.userMemberships = action.payload;
     },
@@ -35,12 +32,8 @@ const organizationSlice = createSlice({
   },
 });
 
-export const {
-  setSelectedOrganization,
-  setUserMemberships,
-  setIsOwner,
-  clearOrganizationState,
-} = organizationSlice.actions;
+export const { setUserMemberships, setIsOwner, clearOrganizationState } =
+  organizationSlice.actions;
 
 export default organizationSlice.reducer;
 
