@@ -13,7 +13,7 @@ export const Header = () => {
       </div>
 
       <nav>
-        <ul className="flex space-x-4">
+        <ul className="flex space-x-4 pr-4">
           <li>
             <Button variant="link" asChild>
               <Link href="/login">Se connecter</Link>
