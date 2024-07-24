@@ -3,17 +3,13 @@ import React, { FormEvent, useEffect, useState } from "react";
 import { createAGS, getAGSByOrganizationId } from "@/api/services/ags";
 import { useSelector } from "react-redux";
 import { selectCurrentMember } from "@/app/store/slices/authSlice";
-import { AGs } from "@/api/type";
+import { AGs , Member} from "@/api/type";
 import Link from "next/link";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
+import {useRouter} from "next/navigation";
+import {CreateModal, Field} from "@/components/common/CrudModals";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 
@@ -75,9 +71,18 @@ const AGCreation = () => {
   );
 };
 
+const fields: Field[] = [
+    { name: "title", label: "Title", type: "text" },
+    { name: "description", label: "Agenda", type: "text" },
+    { name: "date", label: "Date", type: "datetime" },
+    { name: "type", label: "Type", type: "select", options: ["ORDINARY","EXTRAORDINARY"] }
+];
+
 const AG = () => {
-  const member = useSelector(selectCurrentMember);
-  const [AGList, setAGList] = useState<AGs[]>([]);
+    const member = useSelector(selectCurrentMember);
+    const [createModalOpen , setCreateModalOpen] = useState(false);
+    const [AGList, setAGList] = useState<AGs[]>([])
+    const router = useRouter()
 
   const loadAGs = async () => {
     if (!member) return;
@@ -85,8 +90,22 @@ const AG = () => {
     setAGList(response);
   };
 
-  useEffect(() => {
-    loadAGs();
+  const handleCreate = async (data: Partial<AGs>) => {
+        if (!member) return;
+        if (!data.type || !data.title || !data.description || !data.date) return;
+        await createAGS({
+            title: data.title,
+            description: data.description,
+            date: Date.parse(data.date),
+            type: data.type,
+            organizationId: member.organizationId,
+        })
+        setCreateModalOpen(false)
+        loadAGs()
+    }
+
+    useEffect(() => {
+        loadAGs();
   }, []);
 
   return (
@@ -94,12 +113,24 @@ const AG = () => {
       <h1 className="text-3xl font-bold mb-8 text-center">
         Assemblées Générales
       </h1>
-      {member?.isAdmin && <AGCreation />}
+        {member?.isAdmin && <Button onClick={() => setCreateModalOpen(true)}>Organiser une Assemblé Générale</Button>}
+        <CreateModal
+            isOpen={createModalOpen}
+            onClose={() => setCreateModalOpen(false)}
+            onSubmit={handleCreate}
+            fields={fields}
+            title="Create New Item"
+        />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {AGList.map((AG: AGs) => (
-          <Card
-            key={AG.id}
-            className="hover:shadow-lg transition-shadow duration-300"
+          {AGList.length == 0 &&
+              <h1 className="text-xl font-bold mb-8 text-center">
+                  Pas d&apos;assemblées organisés
+              </h1>
+          }
+          {AGList.map((AG: AGs) => (
+              <Card
+                  key={AG.id}
+                  className="hover:shadow-lg transition-shadow duration-300"
           >
             <CardContent className="p-6">
               <Link

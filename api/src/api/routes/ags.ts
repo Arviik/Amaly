@@ -84,6 +84,26 @@ export const initAGS = (app: express.Express) => {
     }
   });
 
+  app.delete("/ags/:id/members", async (req, res) => {
+    try {
+      if (!req.query.memberId) return;
+      const ags = await prisma.aGAttendance.delete({
+        where: { agId_memberId: {
+            agId: Number(req.params.id), memberId: Number(req.query.memberId)
+          } }
+      });
+
+      if (ags) {
+        res.json(ags);
+      } else {
+        res.status(404).send({ error: "AG not found" });
+      }
+    } catch (e) {
+      res.status(500).send({ error: e });
+      return;
+    }
+  });
+
   app.post("/ags", async (req, res) => {
     const validation = agsValidation.validate(req.body);
 

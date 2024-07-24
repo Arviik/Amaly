@@ -15,6 +15,7 @@ import { Activity, AGs } from "@/api/type";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {useRouter} from "next/navigation";
 
 const ActivityCreation = () => {
   const titleRef = useRef<HTMLInputElement>(null);
@@ -58,11 +59,10 @@ const ActivityCreation = () => {
 };
 
 const ActivitiesMain = () => {
-  const member = useSelector(selectCurrentMember);
-  const [ActivityList, setActivityList] = useState<Activity[]>([]);
-  const [signedUpList, setSignedUpList] = useState<Map<number, boolean>>(
-    new Map()
-  );
+    const member = useSelector(selectCurrentMember);
+    const [ActivityList, setActivityList] = useState<Activity[]>([])
+    const [signedUpList, setSignedUpList] = useState<Map<number, boolean>>(new Map())
+    const router = useRouter()
 
   const loadActivity = async () => {
     if (!member) return;
@@ -111,27 +111,32 @@ const ActivitiesMain = () => {
 
   return (
     <div>
-      <h1>Activities Working ! </h1>
-      {member?.isAdmin && <ActivityCreation></ActivityCreation>}
-      {ActivityList.map((activity: Activity) => (
-        <div key={activity.id} style={{ border: "1px solid black" }}>
-          <Link href={`activities/${activity.id}`}>{activity.title}</Link>
+      <h1>Activité</h1>
+            {member?.isAdmin && <ActivityCreation></ActivityCreation>}
+            {ActivityList.map((activity: Activity) => (
+                <div key={activity.id} style={{border: "1px solid black"}}>
+                    <h1>{activity.title}</h1>
+                    <Button onClick={() => {
+                        router.push(`activities/${activity.id}`)
+                    }}>
+                        Access Details
+                    </Button>
           {signedUpList && signedUpList.has(activity.id) ? (
-            <button
+            <Button
               onClick={() => {
                 unsignUpToActivity(activity);
               }}
             >
               Se Désinscrire
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               onClick={() => {
                 signUpToActivity(activity);
               }}
             >
               S&apos;inscrire
-            </button>
+            </Button>
           )}
         </div>
       ))}

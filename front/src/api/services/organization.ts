@@ -48,7 +48,7 @@ export const createInvitation = async (
 };
 
 export const createOrganization = async (
-  OrganizationData: Omit<Organization, "id" | "createdAt" | "updatedAt">
+  OrganizationData: Pick<Organization, "name" | "type" | "address" | "email" | "phone" | "ownerId">
 ): Promise<Organization> => {
   try {
     const response = await api.post("organizations", {

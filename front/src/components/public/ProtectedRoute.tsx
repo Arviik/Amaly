@@ -5,9 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { tokenUtils } from "@/api/config";
 import { authService } from "@/api/services/auth";
 import { setCredentials, clearCredentials } from "@/app/store/slices/authSlice";
-import { DecodedToken } from "@/api/type";
+import {DecodedToken, Member, UserMembership} from "@/api/type";
 import { RootState } from "@/app/store";
 import LoadingSpinner from "./LoadingSpinner";
+import {getMembershipsByUserId} from "@/api/services/member";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -51,6 +52,20 @@ export function ProtectedRoute({
           decoded = tokenUtils.decodeToken(tokenUtils.getTokens()!.accessToken);
         }
 
+        const userMembers = await getMembershipsByUserId(decoded.userId);
+
+
+        const newUserMemberships = userMembers.map((member: any): UserMembership => {
+          return {
+            id: member.id,
+            organizationId: member.organizationId,
+            organizationName: member.organization.name,
+            isAdmin: member.isAdmin,
+            status: member.status,
+            role: member.role
+          }
+        })
+
         dispatch(
           setCredentials({
             user: {
@@ -60,7 +75,7 @@ export function ProtectedRoute({
               email: decoded.email,
               isSuperAdmin: decoded.isSuperAdmin,
             },
-            memberships: decoded.memberships,
+            memberships: newUserMemberships,
           })
         );
 

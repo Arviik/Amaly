@@ -1,3 +1,4 @@
+"use client"
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -8,9 +9,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import {useSelector} from "react-redux";
+import {selectMemberships} from "@/app/store/slices/authSlice";
 
 const DashboardAdmin: React.FC = () => {
+
   return (
     <div className="min-h-screen bg-background-100">
       {/* Main Content Section */}

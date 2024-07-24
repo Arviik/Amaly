@@ -1,5 +1,6 @@
 import {api, tokenUtils} from "../config";
-import { Activity, ActivityPatch } from "../type";
+import {Activity, ActivityPatch, Member} from "../type";
+import {number} from "prop-types";
 
 export const getAllActivities = async (): Promise<Activity[]> => {
     try {
@@ -28,6 +29,31 @@ export const getActivityByOrganizationId = async (
 ): Promise<Activity[]> => {
     try {
         const response = await api.get(`activities/organization/${id}`);
+        return response.json();
+    } catch (error) {
+        console.error("Error fetching Activity:", error);
+        throw error;
+    }
+};
+
+export const getMemberFromActivity = async (
+    id: number
+): Promise<{activityId: number, memberId: number, members: Member}[]> => {
+    try {
+        const response = await api.get(`activities/${id}/members`);
+        return response.json();
+    } catch (error) {
+        console.error("Error fetching Activity:", error);
+        throw error;
+    }
+};
+
+export const deleteMemberFromActivity = async (
+    id: number,
+    memberId: number
+): Promise<any> => {
+    try {
+        const response = await api.delete(`activities/${id}/members?memberId=${memberId}`);
         return response.json();
     } catch (error) {
         console.error("Error fetching Activity:", error);

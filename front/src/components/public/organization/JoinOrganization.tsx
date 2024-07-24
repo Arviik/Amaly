@@ -1,18 +1,17 @@
 import {useEffect, useState} from "react";
-import {AGs, Organization} from "@/api/type";
+import {AGs, MemberStatus, Organization} from "@/api/type";
 import {useDispatch, useSelector} from "react-redux";
 import {
     selectCurrentMember,
-    selectCurrentUser, selectMemberships,
+    selectCurrentUser, selectMemberships, setCurrentMember,
     setMemberships,
     setSelectedOrganization
 } from "@/app/store/slices/authSlice";
-import {useSearchParams} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import {declareAgAttendance} from "@/api/services/ags";
 import {getOrganizationInviteWithUuid} from "@/api/services/organization";
 import {createMember} from "@/api/services/member";
 import {Button} from "@/components/ui/button";
-import {router} from "next/client";
 
 const JoinOrganization = () => {
     const [organization, setOrganization] = useState<Organization>();
@@ -21,6 +20,7 @@ const JoinOrganization = () => {
     const searchParams = useSearchParams()
     const actualMemberships = useSelector(selectMemberships)
     const dispatch = useDispatch()
+    const router = useRouter()
 
     const loadInvite = async () => {
         if (!searchParams.has("orgId")) return;
@@ -34,10 +34,11 @@ const JoinOrganization = () => {
         console.log(organization)
         if (!organization || !user) return;
         const response = await createMember({
+            role: "Member",
+            status: MemberStatus.VOLUNTEER,
             organizationId: organization.id,
             userId: user.id,
-            isAdmin: false,
-            startDate: new Date()
+            isAdmin: false
         })
         const newList = [...actualMemberships, {
             id: response.id,
@@ -45,9 +46,16 @@ const JoinOrganization = () => {
             organizationName: organization.name,
             isAdmin: false
         }]
-        dispatch(setMemberships(newList))
+        dispatch(setCurrentMember({
+            id: response.id,
+            organizationId: response.organizationId,
+            organizationName: organization.name,
+            isAdmin: false,
+            status: response.status,
+            role: response.role
+        }))
         dispatch(setSelectedOrganization(organization.id))
-        router.push("/dashboard")
+        router.push("member")
     }
 
     useEffect(() => {

@@ -72,6 +72,27 @@ export const initUsers = (app: express.Express) => {
     }
   });
 
+  app.get("/users/:id/name", async (req, res) => {
+    try {
+      const user = await prisma.members.findUnique({
+        where: { id: Number(req.params.id) },
+        include: {
+          user: {
+            select: {
+              lastName: true,
+              firstName: true
+            }
+          }
+        }
+      });
+      res.json(user);
+    } catch (e) {
+      res.status(500).send({ error: e });
+      return;
+    }
+  });
+
+
   app.post("/users", async (req, res) => {
     const validation = userValidation.validate(req.body);
 

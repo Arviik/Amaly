@@ -1,6 +1,7 @@
 import ky from 'ky';
-import {AGs} from "@/api/type";
+import {AGs, Member} from "@/api/type";
 import {tokenUtils} from "@/api/config";
+import {number} from "prop-types";
 
 const api = ky.create({
     prefixUrl: 'http://localhost:3000', // Remplacez par l'URL de votre serveur
@@ -32,6 +33,31 @@ export const getAGSByOrganizationId = async (id: number): Promise<AGs[]> => {
         return await api.get(`ags/organization/${id}`).json();
     } catch (error) {
         console.error(`Error fetching AGS with id ${id}:`, error);
+        throw error;
+    }
+};
+
+export const getMemberFromAG = async (
+    id: number
+): Promise<{activityId: number, memberId: number, members: Member}[]> => {
+    try {
+        const response = await api.get(`ags/${id}/members`);
+        return response.json();
+    } catch (error) {
+        console.error("Error fetching Activity:", error);
+        throw error;
+    }
+};
+
+export const deleteMemberFromAG = async (
+    id: number,
+    memberId: number
+): Promise<any> => {
+    try {
+        const response = await api.delete(`ags/${id}/members?memberId=${memberId}`);
+        return response.json();
+    } catch (error) {
+        console.error("Error fetching Activity:", error);
         throw error;
     }
 };

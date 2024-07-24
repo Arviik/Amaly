@@ -6,7 +6,7 @@ import {
   MemberRequest,
   memberValidation,
 } from "../validators/member-validator";
-import { authMiddleware } from "../middlewares/auth-middleware";
+import {authMiddleware} from "../middlewares/auth-middleware";
 import { createInvitation } from "../services/email-service";
 
 export const initMembers = (app: express.Express) => {
@@ -23,7 +23,7 @@ export const initMembers = (app: express.Express) => {
     }
   });
 
-  app.get("/members/:id", authMiddleware, async (req, res) => {
+  app.get("/members/:id(\\d+)", authMiddleware, async (req, res) => {
     try {
       const member = await prisma.members.findUnique({
         where: { id: Number(req.params.id) },
@@ -50,6 +50,29 @@ export const initMembers = (app: express.Express) => {
     }
   });
 
+  app.get("/members/me", authMiddleware, async (req: any, res) => {
+    try {
+      if (!req.payload.userId) {
+        res.status(404).send({ error: "No userId found" });
+        return;
+      }
+      const memberships = await prisma.members.findMany({
+        where: { userId: Number(req.payload.userId) },
+        include: {
+          organization: true
+        }
+      });
+      if (memberships) {
+        res.json(memberships);
+      } else {
+        res.status(404).send({ error: "Member not found" });
+      }
+    } catch (e) {
+      res.status(500).send({ error: e });
+      return;
+    }
+  });
+
   app.post("/members", authMiddleware, async (req, res) => {
     const validation = memberValidation.validate(req.body);
 
@@ -65,7 +88,8 @@ export const initMembers = (app: express.Express) => {
           role: memberRequest.role,
           organizationId: memberRequest.organizationId,
           userId: memberRequest.userId,
-          isAdmin: memberRequest.isAdmin
+          isAdmin: memberRequest.isAdmin,
+          status: memberRequest.status
         },
       });
       res.status(201).json(member);
