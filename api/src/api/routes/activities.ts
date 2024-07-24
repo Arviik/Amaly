@@ -43,6 +43,25 @@ export const initActivities = (app: express.Express) => {
                 where: { activityId: Number(req.params.id) },
                 include: {members: true}
             });
+            if (activities) {
+                res.json(activities);
+            } else {
+                res.status(404).send({ error: "Activity not found" });
+            }
+        } catch (e) {
+            res.status(500).send({ error: e });
+            return;
+        }
+    });
+
+    app.delete("/activities/:id/members", async (req, res) => {
+        try {
+            if (!req.query.memberId) return;
+            const activities = await prisma.activitiesAttendance.delete({
+                where: { activityId_memberId: {
+                        activityId: Number(req.params.id), memberId: Number(req.query.memberId)
+                    } }
+            });
 
             if (activities) {
                 res.json(activities);

@@ -8,6 +8,7 @@ import Link from "next/link";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
+import {useRouter} from "next/navigation";
 
 const AGCreation = () => {
     const titleRef = useRef<HTMLInputElement>(null);
@@ -66,6 +67,7 @@ const AGCreation = () => {
 const AG = () => {
     const member = useSelector(selectCurrentMember);
     const [AGList, setAGList] = useState<AGs[]>([])
+    const router = useRouter()
 
     const loadAGs = async () => {
         console.log(member)
@@ -81,11 +83,13 @@ const AG = () => {
 
     return (
         <>
-            <h1>AG Working!</h1>
+            <h1>Assemblé Générale</h1>
             {member?.isAdmin && <AGCreation></AGCreation>}
             {AGList.map((AG: AGs) => (
                 <div key={AG.id} style={{border: "1px solid black"}}>
-                    <Link href={`ag/${AG.id}`}>{AG.title}</Link>
+                    <h1>{AG.title}</h1>
+                    <Button onClick={() => {router.push(`ag/${AG.id}`)}}>
+                        Access Details</Button>
                 </div>
             ))}
         </>

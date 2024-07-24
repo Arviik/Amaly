@@ -21,6 +21,16 @@ export const getUser = async (id: number): Promise<User> => {
   }
 };
 
+export const getUserName = async (id: number): Promise<{ user: User }> => {
+  try {
+    const response = await api.get(`users/${id}/name`);
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
 export const getMe = async (): Promise<User> => {
   try {
     const tokens = tokenUtils.getTokens
