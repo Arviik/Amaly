@@ -88,7 +88,8 @@ export const initMembers = (app: express.Express) => {
           role: memberRequest.role,
           organizationId: memberRequest.organizationId,
           userId: memberRequest.userId,
-          isAdmin: memberRequest.isAdmin
+          isAdmin: memberRequest.isAdmin,
+          status: memberRequest.status
         },
       });
       res.status(201).json(member);

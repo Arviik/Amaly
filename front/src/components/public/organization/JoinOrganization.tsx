@@ -3,7 +3,7 @@ import {AGs, MemberStatus, Organization} from "@/api/type";
 import {useDispatch, useSelector} from "react-redux";
 import {
     selectCurrentMember,
-    selectCurrentUser, selectMemberships,
+    selectCurrentUser, selectMemberships, setCurrentMember,
     setMemberships,
     setSelectedOrganization
 } from "@/app/store/slices/authSlice";
@@ -38,8 +38,7 @@ const JoinOrganization = () => {
             status: MemberStatus.VOLUNTEER,
             organizationId: organization.id,
             userId: user.id,
-            isAdmin: false,
-            startDate: new Date()
+            isAdmin: false
         })
         const newList = [...actualMemberships, {
             id: response.id,
@@ -47,8 +46,16 @@ const JoinOrganization = () => {
             organizationName: organization.name,
             isAdmin: false
         }]
+        dispatch(setCurrentMember({
+            id: response.id,
+            organizationId: response.organizationId,
+            organizationName: organization.name,
+            isAdmin: false,
+            status: response.status,
+            role: response.role
+        }))
         dispatch(setSelectedOrganization(organization.id))
-        router.push("dashboard")
+        router.push("member")
     }
 
     useEffect(() => {
