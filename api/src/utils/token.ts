@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { SafeUser, UserMembership } from "../utils/userTypes";
+import { SafeUser, UserMembership } from "./userTypes";
 
 export const generateAccessToken = (
   user: SafeUser,
@@ -8,6 +8,8 @@ export const generateAccessToken = (
 ) => {
   const memberships = userMemberships.map((membership) => ({
     id: membership.id,
+    role: membership.role,
+    status: membership.status,
     organizationId: membership.organizationId,
     organizationName: membership.organizationName,
     isAdmin: membership.isAdmin,

@@ -6,6 +6,7 @@ import {
   organizationPatchValidation,
   organizationValidation,
 } from "../validators/organization-validator";
+import { v4 } from "uuid";
 
 export const initOrganizations = (app: express.Express) => {
   app.get("/organizations", async (req, res) => {
@@ -18,10 +19,58 @@ export const initOrganizations = (app: express.Express) => {
     }
   });
 
-  app.get("/organizations/:id", async (req, res) => {
+  app.get("/organizations/:id(\\d+)", async (req, res) => {
     try {
       const organization = await prisma.organizations.findUnique({
         where: { id: Number(req.params.id) },
+        include: {
+          owner: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+          documents: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              path: true,
+              createdAt: true,
+            },
+          },
+          ags: {
+            select: {
+              title: true,
+              type: true,
+              date: true,
+            },
+          },
+          members: {
+            select: {
+              role: true,
+              isAdmin: true,
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+          membershipTypes: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              amount: true,
+              duration: true,
+            },
+          },
+        },
       });
       res.json(organization);
     } catch (e) {
@@ -30,6 +79,7 @@ export const initOrganizations = (app: express.Express) => {
     }
   });
 
+  //get all members of an organization
   app.get(
     "/organizations/:organizationId/members",
     authMiddleware,
@@ -37,6 +87,16 @@ export const initOrganizations = (app: express.Express) => {
       try {
         const members = await prisma.members.findMany({
           where: { organizationId: Number(req.params.organizationId) },
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
         });
         res.json(members);
       } catch (e) {
@@ -45,22 +105,61 @@ export const initOrganizations = (app: express.Express) => {
     }
   );
 
-  app.post("/organizations", authMiddleware, async (req: any, res) => {
+  app.get("/organizations/createinvite/:id", async (req, res) => {
+    try {
+      if (!req.params.id) {
+        res.status(400).send({ error: "You must specify a id" });
+        return;
+      }
+      const uuid = v4();
+      const alreadyExists = await prisma.organizationInvitation.findUnique({
+        where: { organizationId: Number(req.params.id) },
+      });
+      let invitation;
+      if (alreadyExists) {
+        invitation = await prisma.organizationInvitation.update({
+          where: { organizationId: Number(req.params.id) },
+          data: {
+            uuid: uuid,
+          },
+        });
+      } else {
+        invitation = await prisma.organizationInvitation.create({
+          data: {
+            organizationId: Number(req.params.id),
+            uuid: uuid,
+          },
+        });
+      }
+      res.json(invitation);
+    } catch (e) {
+      res.status(500).send({ error: e });
+    }
+  );
+
+  app.get("/organizations/invite", async (req, res) => {
+    try {
+      if (!req.query.uuid) {
+        res.status(400).send({ error: "You must specify a uuid" });
+        return;
+      }
+      const invitation = await prisma.organizationInvitation.findFirst({
+        where: { uuid: String(req.query.uuid) },
+        include: {
+          organization: true,
+        },
+      });
+      res.json(invitation);
+    } catch (e) {
+      res.status(500).send({ error: e });
+    }
+  });
+
+  app.post("/organizations", authMiddleware, async (req, res) => {
     const validation = organizationValidation.validate(req.body);
 
     if (validation.error) {
       res.status(400).send({ error: validation.error });
-      return;
-    }
-
-    const curentUser = await prisma.members.findUnique({
-      where: {
-        id: Number(req.payload.userId),
-      },
-    });
-
-    if (!curentUser) {
-      res.status(401).send({ error: "Unauthorized" });
       return;
     }
 
@@ -73,7 +172,7 @@ export const initOrganizations = (app: express.Express) => {
           address: organizationRequest.address,
           email: organizationRequest.email,
           phone: organizationRequest.phone,
-          ownerId: curentUser.id,
+          ownerId: organizationRequest.ownerId,
         },
       });
       res.json(organization);
@@ -91,7 +190,10 @@ export const initOrganizations = (app: express.Express) => {
       const validation = organizationPatchValidation.validate(req.body);
 
       if (validation.error) {
-        res.status(400).json({ error: validation.error });
+        console.log("error validation", validation.error);
+
+        res.status(400).send({ error: validation.error });
+
         return;
       }
 
@@ -105,6 +207,7 @@ export const initOrganizations = (app: express.Express) => {
         });
         res.json(organization);
       } catch (e) {
+        console.log("error e", e);
         res.status(500).json({ error: e });
         return;
       }
@@ -125,5 +228,11 @@ export const initOrganizations = (app: express.Express) => {
         res.status(500).send({ error: e });
       }
     }
+  );
+
+  app.post(
+    "/organization/:organizationId/join",
+    authMiddleware,
+    async (req, res) => {}
   );
 };

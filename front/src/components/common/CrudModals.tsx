@@ -97,6 +97,16 @@ function RenderField<T>({
         </div>
       );
     case "text":
+      return (
+        <Input
+          type="text"
+          id={field.name}
+          name={field.name}
+          value={formData[field.name as keyof T]?.toString() || ""}
+          onChange={(e) => handleChange(field.name, e.target.value)}
+          autoComplete="off"
+        />
+      );
     case "email":
       return (
         <Input
@@ -129,6 +139,18 @@ function RenderField<T>({
           id={field.name}
           name={field.name}
           //make the format of date input as dd/mm/yyyy
+          value={formData[field.name as keyof T]?.toString() || ""}
+          onChange={(e) => handleChange(field.name, e.target.value)}
+          required
+          autoComplete="off"
+        />
+      );
+    case "number":
+      return (
+        <Input
+          type="number"
+          id={field.name}
+          name={field.name}
           value={formData[field.name as keyof T]?.toString() || ""}
           onChange={(e) => handleChange(field.name, e.target.value)}
           required

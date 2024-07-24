@@ -1,6 +1,10 @@
 import express from "express";
 import { prisma } from "../../utils/prisma";
-import {agsValidation, agsPatchValidation, attendanceValidator} from "../validators/ag-validator";
+import {
+  agsValidation,
+  agsPatchValidation,
+  AgAttendanceValidator
+} from "../validators/ag-validator";
 import { authMiddleware } from "../middlewares/auth-middleware";
 
 export const initAGS = (app: express.Express) => {
@@ -38,9 +42,9 @@ export const initAGS = (app: express.Express) => {
     }
   });
 
-  app.post("/attendance/:id", authMiddleware, async (req: any, res) => {
+  app.post("/agattendance/:id", authMiddleware, async (req: any, res) => {
     try {
-      const validation = attendanceValidator.validate(req.body)
+      const validation = AgAttendanceValidator.validate(req.body)
 
       if (validation.error) {
         res.status(400).send({ error: validation.error });
@@ -61,6 +65,24 @@ export const initAGS = (app: express.Express) => {
       return;
     }
   })
+
+  app.get("/ags/:id/members", async (req, res) => {
+    try {
+      const members = await prisma.aGAttendance.findMany({
+        where: { agId: Number(req.params.id) },
+        include: {members: true}
+      });
+
+      if (members) {
+        res.json(members);
+      } else {
+        res.status(404).send({ error: "Activity not found" });
+      }
+    } catch (e) {
+      res.status(500).send({ error: e });
+      return;
+    }
+  });
 
   app.post("/ags", async (req, res) => {
     const validation = agsValidation.validate(req.body);

@@ -2,10 +2,14 @@ import { Users, Members, Organizations } from "@prisma/client";
 
 export interface UserMembership {
   id: number;
+  role: string;
+  status: memberStatus;
   organizationId: number;
   organizationName: string;
   isAdmin: boolean;
 }
+
+export type memberStatus = "VOLUNTEER" | "SUBSCRIBER" | "INTERN" | "EMPLOYEE";
 
 export interface SafeUser {
   id: number;
@@ -29,6 +33,8 @@ export function transformUserToSafeUser(user: UserWithMemberships): SafeUser {
     isSuperAdmin: user.isSuperAdmin,
     memberships: user.memberships.map((membership) => ({
       id: membership.id,
+      status: membership.status,
+      role: membership.role,
       organizationId: membership.organizationId,
       organizationName: membership.organization.name,
       isAdmin: membership.isAdmin,

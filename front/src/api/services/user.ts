@@ -1,4 +1,4 @@
-import {api, tokenUtils} from "../config";
+import { api, tokenUtils } from "../config";
 import { User, UserPatch } from "../type";
 
 export const getAllUsers = async (): Promise<User[]> => {
@@ -23,8 +23,10 @@ export const getUser = async (id: number): Promise<User> => {
 
 export const getMe = async (): Promise<User> => {
   try {
-    const tokens = tokenUtils.getTokens
-    const response = await api.get(`users/me`,{ headers: {"authorization": `Bearer ${tokens()?.accessToken}`}});
+    const tokens = tokenUtils.getTokens;
+    const response = await api.get(`users/me`, {
+      headers: { authorization: `Bearer ${tokens()?.accessToken}` },
+    });
     return response.json();
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -63,6 +65,15 @@ export const updateUser = async (
     return response.json();
   } catch (error) {
     console.error("Error updating user:", error);
+    throw error;
+  }
+};
+
+export const resetPassword = async (userId: number): Promise<void> => {
+  try {
+    await api.post(`users/${userId}/reset-password`);
+  } catch (error) {
+    console.error("Error resetting password:", error);
     throw error;
   }
 };

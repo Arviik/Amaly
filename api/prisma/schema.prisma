@@ -25,12 +25,14 @@ model Users {
   memberships   Members[]
   refreshTokens RefreshToken[]
   votes         Votes[]
-
+  organizations Organizations[] @relation("OrganizationOwner")
+  resetPasswordTokens ResetPasswordTokens[]
   @@map("users")
 }
 
+
 model Organizations {
-  id          Int          @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   name        String
   description String?
   type        String
@@ -39,82 +41,144 @@ model Organizations {
   email       String       @unique
   createdAt   DateTime     @default(now())
   updatedAt   DateTime?    @updatedAt
+  owner       Users     @relation(name: "OrganizationOwner", fields: [ownerId], references: [id])
+  ownerId     Int
   members     Members[]
   membershipTypes MembershipTypes[]
   activities  Activities[]
   ags         AGs[]
   donations   Donations[]
   documents   Documents[]
+  invitations Invitations[]
+  OrganizationInvitation OrganizationInvitation[]
 
   @@map("organizations")
+}
+
+model OrganizationInvitation {
+  organization   Organizations @relation(fields: [organizationId], references: [id])
+  organizationId Int           @id
+  uuid           String
+
+  @@map("organization_invitation")
 }
 
 model Members {
   id             Int           @id @default(autoincrement())
   role           String        @default("member")
   isAdmin        Boolean       @default(false)
+  user           Users         @relation(fields: [userId], references: [id])
+  userId         Int
   startDate      DateTime      @default(now())
   endDate        DateTime?
-  user           Users          @relation(fields: [userId], references: [id])
-  userId         Int
-  organization   Organizations  @relation(fields: [organizationId], references: [id])
-  organizationId Int
-  membership     Memberships?
-  employmentType String?       @default("NULL")
+  organization      Organizations  @relation(fields: [organizationId], references: [id])
+  organizationId    Int
+  status            MemberStatus   @default(VOLUNTEER)
+  subscriptions     Subscriptions[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   assignments    Assignments[]
   AGAttendance   AGAttendance[]
 
+  ActivitiesAttendance ActivitiesAttendance[]
+
+  @@unique([userId, organizationId])
   @@map("members")
 }
 
-model Memberships {
-  id              Int               @id @default(autoincrement())
-  status          String            @default("volunteer")
-  startDate       DateTime          @default(now())
-  endDate         DateTime?
-  member          Members           @relation(fields: [memberId], references: [id])
-  memberId        Int               @unique
-  membershipType  MembershipTypes   @relation(fields: [membershipTypeId], references: [id])
-  membershipTypeId Int
-  subscriptions   Subscriptions[]
+
+model MembershipTypes {
+  id            Int            @id @default(autoincrement())
+  name          String
+  description   String
+  amount        Int
+  duration      Int
+  organization  Organizations   @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  subscriptions  Subscriptions[]
+  stripeProductId String
+
+  @@map("membershiptypes")
 }
 
 model Subscriptions {
-  id              Int           @id @default(autoincrement())
-  amount          Float
-  paymentDate     DateTime?
-  startDate       DateTime
-  endDate         DateTime
-  isPaid          Boolean       @default(false)
-  membership      Memberships    @relation(fields: [membershipId], references: [id])
-  membershipId    Int
+  id                  Int            @id @default(autoincrement())
+  member              Members        @relation(fields: [memberId], references: [id])
+  memberId            Int
+  membershipType      MembershipTypes @relation(fields: [membershipTypeId], references: [id])
+  membershipTypeId    Int
+  startDate           DateTime       @default(now())
+  endDate             DateTime
+  paymentStatus       PaymentStatus
+  stripeSubscriptionId String
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  @@unique([memberId, membershipTypeId])
+  @@map("subscriptions")
 }
 
-model MembershipTypes {
-  id              Int           @id @default(autoincrement())
-  name            String
-  description     String?
-  duration        Int           // durée en jours
-  fee             Float         // montant de la cotisation
-  organization    Organizations @relation(fields: [organizationId], references: [id])
-  organizationId  Int
-  memberships     Memberships[]
+
+enum MemberStatus {
+  VOLUNTEER
+  SUBSCRIBER
+  INTERN
+  EMPLOYEE
 }
 
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model Invitations {
+  id             Int      @id @default(autoincrement())
+  email          String
+  organizationId Int
+  token          String
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  organization   Organizations @relation(fields: [organizationId], references: [id])
+
+  @@map("invitations")
+}
+
+model ResetPasswordTokens {
+  userId    Int      @id
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      Users     @relation(fields: [userId], references: [id])
+
+  @@map("reset_password_tokens")
+}
 
 model Activities {
-  id             Int           @id @default(autoincrement())
-  title          String
-  description    String
-  date           DateTime
-  organization   Organizations @relation(fields: [organizationId], references: [id])
-  organizationId Int
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id                   Int                    @id @default(autoincrement())
+  title                String
+  description          String
+  date                 DateTime
+  organization         Organizations          @relation(fields: [organizationId], references: [id])
+  organizationId       Int
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  ActivitiesAttendance ActivitiesAttendance[]
 
   @@map("activities")
+}
+
+model ActivitiesAttendance {
+  memberId   Int
+  members    Members    @relation(fields: [memberId], references: [id])
+  activityId Int
+  Activities Activities @relation(fields: [activityId], references: [id])
+
+  @@id([activityId, memberId])
+  @@map("activities_attendance")
 }
 
 model AGs {
@@ -169,6 +233,8 @@ model Donations {
   donorEmail     String
   organization   Organizations @relation(fields: [organizationId], references: [id])
   organizationId Int
+  stripePaymentId String?
+  recurring      Boolean       @default(false)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 

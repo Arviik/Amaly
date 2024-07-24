@@ -23,8 +23,32 @@ export const getOrganizationById = async (
   }
 };
 
+export const getOrganizationInviteWithUuid = async (
+    uuid: string
+): Promise<any> => {
+  try {
+    const response = await api.get(`organizations/invite?uuid=${uuid}`);
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching Organization:", error);
+    throw error;
+  }
+};
+
+export const createInvitation = async (
+    id: number
+): Promise<any> => {
+  try {
+    const response = await api.get(`organizations/createinvite/${id}`);
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching Organization:", error);
+    throw error;
+  }
+};
+
 export const createOrganization = async (
-  OrganizationData: Omit<Organization, "id">
+  OrganizationData: Omit<Organization, "id" | "createdAt" | "updatedAt">
 ): Promise<Organization> => {
   try {
     const response = await api.post("organizations", {
@@ -42,6 +66,7 @@ export const updateOrganization = async (
   organizationData: Partial<OrganizationPatch>
 ): Promise<Organization> => {
   try {
+    console.log("Updating Organization with data:", organizationData);
     const response = await api.patch(`organizations/${id}`, {
       json: organizationData,
     });

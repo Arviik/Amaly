@@ -1,4 +1,4 @@
-import { User, Organization, UserMembership } from "@/api/type";
+import { User, Organization, UserMembership, MemberStatus } from "@/api/type";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "..";
 
@@ -23,7 +23,7 @@ const initialState: AuthState = {
   memberships: [],
   isAuthenticated: false,
   selectedOrganizationId: null,
-  selectedMember: null
+  selectedMember: null,
 };
 
 const authSlice = createSlice({
@@ -38,10 +38,13 @@ const authSlice = createSlice({
       state.memberships = action.payload.memberships;
       state.isAuthenticated = true;
     },
+    setMemberships: (state, action: PayloadAction<UserMembership[]>) => {
+      state.memberships = action.payload;
+    },
     setSelectedOrganization: (state, action: PayloadAction<number>) => {
       state.selectedOrganizationId = action.payload;
     },
-    setCurrentMember: (state, action: PayloadAction<UserMembership>) => {
+    setCurrentMember: (state, action: PayloadAction<UserMembership | null>) => {
       state.selectedMember = action.payload;
     },
     clearCredentials: (state) => {
@@ -50,11 +53,22 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.selectedOrganizationId = null;
     },
+    updateMemberStatus: (state, action: PayloadAction<MemberStatus>) => {
+      if (state.selectedMember) {
+        state.selectedMember.status = action.payload;
+      }
+    },
   },
 });
 
-export const { setCredentials, setSelectedOrganization, setCurrentMember, clearCredentials } =
-  authSlice.actions;
+export const {
+  setCredentials,
+  setSelectedOrganization,
+  setMemberships,
+  setCurrentMember,
+  clearCredentials,
+  updateMemberStatus,
+} = authSlice.actions;
 
 export default authSlice.reducer;
 
@@ -68,4 +82,4 @@ export const selectMemberships = (state: RootState) => state.auth.memberships;
 export const selectSelectedOrganizationId = (state: RootState) =>
   state.auth.selectedOrganizationId;
 export const selectCurrentMember = (state: RootState) =>
-    state.auth.selectedMember;
+  state.auth.selectedMember;

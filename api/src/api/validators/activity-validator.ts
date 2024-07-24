@@ -20,3 +20,11 @@ export const activityPatchValidation = Joi.object<ActivityRequest>({
     date: Joi.date().required(),
     organizationId: Joi.number().optional()
 }).options({abortEarly: true});
+
+export interface ActivityAttendanceSchema{
+    activityId: number
+}
+
+export const ActivityAttendanceValidator = Joi.object<ActivityAttendanceSchema>({
+    activityId: Joi.number().integer().required(),
+})

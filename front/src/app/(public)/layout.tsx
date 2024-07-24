@@ -1,3 +1,4 @@
+import { Footer } from "@/components/public/Footer";
 import { Header } from "@/components/public/Header";
 
 export const metadata = {
@@ -14,6 +15,7 @@ export default function RootLayout({
     <>
       <Header />
       <div>{children}</div>
+      <Footer />
     </>
   );
 }

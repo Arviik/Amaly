@@ -13,15 +13,15 @@ export const Header = () => {
       </div>
 
       <nav>
-        <ul className="flex space-x-4">
+        <ul className="flex space-x-4 pr-4">
           <li>
             <Button variant="link" asChild>
               <Link href="/login">Se connecter</Link>
             </Button>
           </li>
           <li>
-            <Link href="/signup">
-              <Button variant="secondary">Essayer gratuitement</Button>
+            <Link href="/landing">
+              <Button variant="secondary">Organisation</Button>
             </Link>
           </li>
         </ul>
