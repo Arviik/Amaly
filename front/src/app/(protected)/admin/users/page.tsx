@@ -1,5 +1,5 @@
 import React from "react";
-import { UserTable } from "@/components/super-admin/UserTable";
+import { UserTable } from "@/components/super-admin/User/UserTable";
 
 const UsersPage: React.FC = () => {
   return (

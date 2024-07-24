@@ -18,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import path from "path";
 
 interface DataTableProps<T> {
   data: T[];
@@ -26,6 +28,8 @@ interface DataTableProps<T> {
   onUpdate: (id: number, data: Partial<T>) => void;
   onDelete: (id: number) => void;
   onResetPassword?: (id: number) => void;
+  onDetails?: (id: number) => void;
+  getColumnValue?: (data: T, column: { key: keyof T; header: string }) => any;
   fields: Field[];
 }
 
@@ -36,7 +40,9 @@ export function DataTable<T extends { id: number }>({
   onUpdate,
   onDelete,
   onResetPassword,
+  onDetails,
   fields,
+  getColumnValue = (data, column) => data[column.key],
 }: DataTableProps<T>) {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -47,6 +53,13 @@ export function DataTable<T extends { id: number }>({
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const router = useRouter();
+  const pathName = usePathname();
+
+  const goToDetails = (id: number) => {
+    router.push(`${pathName}/${id}`);
+  };
 
   const handleCreate = (newData: Partial<T>) => {
     onCreate(newData);
@@ -70,6 +83,12 @@ export function DataTable<T extends { id: number }>({
   const handleResetPassword = () => {
     if (selectedItem && onResetPassword) {
       onResetPassword(selectedItem.id);
+    }
+  };
+
+  const handleDetails = () => {
+    if (selectedItem && onDetails) {
+      onDetails(selectedItem.id);
     }
   };
 
@@ -142,7 +161,7 @@ export function DataTable<T extends { id: number }>({
             <TableRow key={item.id}>
               {columns.map((column) => (
                 <TableCell key={column.key as string}>
-                  {String(item[column.key])}
+                  {String(getColumnValue(item, column))}
                 </TableCell>
               ))}
               <TableCell>
@@ -175,6 +194,16 @@ export function DataTable<T extends { id: number }>({
                         }}
                       >
                         Reset Password
+                      </DropdownMenuItem>
+                    )}
+                    {onDetails && (
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelectedItem(item);
+                          handleDetails();
+                        }}
+                      >
+                        Details
                       </DropdownMenuItem>
                     )}
                   </DropdownMenuContent>
