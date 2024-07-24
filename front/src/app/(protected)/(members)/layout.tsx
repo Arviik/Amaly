@@ -7,6 +7,7 @@ import {Calendar, File, Home, Users, UserRoundCog, Presentation, Settings} from 
 import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {selectCurrentMember} from "@/app/store/slices/authSlice";
+import {MemberStatus} from "@/api/type";
 
 const navItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
@@ -24,11 +25,13 @@ export default function MemberPageLayout({
 }) {
     const [currentNavItems, setCurrentNavItems] = useState(navItems);
     const member = useSelector(selectCurrentMember)
-    const ag = { icon: Presentation, label: "Assemblé Générale", href: "/member/ag" }
     useEffect(() => {
-        console.log(member)
-        if (member) console.log(member)
-    }, [])
+        if (member && member.status == MemberStatus.SUBSCRIBER && !currentNavItems.find((navItems: any) => navItems.label == "Assemblé Générale")) {
+            const newNavItems = [...currentNavItems];
+            newNavItems.splice(4, 0,{ icon: Presentation, label: "Assemblé Générale", href: "/member/ag" })
+            setCurrentNavItems(newNavItems)
+        }
+    }, [member])
 
     return (
         <ProtectedRoute>

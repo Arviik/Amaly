@@ -14,6 +14,7 @@ import {
     setSelectedOrganization
 } from "@/app/store/slices/authSlice";
 import {RootState} from "@/app/store";
+import {MemberStatus, Organization} from "@/api/type";
 
 const OrganizationForm = () => {
     const nameRef = useRef<HTMLInputElement>(null);
@@ -29,12 +30,13 @@ const OrganizationForm = () => {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!nameRef.current?.value || !typeRef.current?.value || !addressRef.current?.value || !emailRef.current?.value || !phoneRef.current?.value || !user) return;
-        const formData = {
+        const formData: Pick<Organization, "name" | "type" | "address" | "email" | "phone" | "ownerId"> = {
             name: nameRef.current.value,
             type: typeRef.current.value,
             address: addressRef.current.value,
             email: emailRef.current.value,
             phone: phoneRef.current.value,
+            ownerId: user.id
         };
         const orgaResponse = await createOrganization(formData)
         const memberResponse = await createMember({
@@ -42,7 +44,8 @@ const OrganizationForm = () => {
             isAdmin: true,
             startDate: new Date(),
             userId: user?.id,
-            employmentType: "Admin"
+            role: "member",
+            status: MemberStatus.VOLUNTEER
         })
         const newList = [...actualMemberships, {
             id: memberResponse.id,

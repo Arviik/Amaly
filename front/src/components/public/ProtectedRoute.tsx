@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { tokenUtils } from "@/api/config";
 import { authService } from "@/api/services/auth";
 import { setCredentials, clearCredentials } from "@/app/store/slices/authSlice";
-import {DecodedToken, Member} from "@/api/type";
+import {DecodedToken, Member, UserMembership} from "@/api/type";
 import { RootState } from "@/app/store";
 import LoadingSpinner from "./LoadingSpinner";
 import {getMembershipsByUserId} from "@/api/services/member";
@@ -53,12 +53,16 @@ export function ProtectedRoute({
         }
 
         const userMembers = await getMembershipsByUserId(decoded.userId);
-        const newUserMemberships = userMembers.map((member: any) => {
+
+
+        const newUserMemberships = userMembers.map((member: any): UserMembership => {
           return {
             id: member.id,
             organizationId: member.organizationId,
             organizationName: member.organization.name,
-            isAdmin: member.isAdmin
+            isAdmin: member.isAdmin,
+            status: member.status,
+            role: member.role
           }
         })
 
