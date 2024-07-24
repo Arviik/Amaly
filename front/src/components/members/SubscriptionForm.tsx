@@ -30,6 +30,7 @@ export const SubscriptionForm = ({
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const currentMember = useSelector(selectCurrentMember);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   useEffect(() => {
     const fetchMembershipTypes = async () => {
@@ -63,38 +64,29 @@ export const SubscriptionForm = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("je suis ici", selectedMembershipType);
+    console.log(isConfirmed);
     if (!selectedMembershipType || !isConfirmed) return;
 
     setLoading(true);
 
     try {
-      const startDate = new Date();
-      const endDate = new Date(
-        startDate.getTime() +
-          selectedMembershipType.duration * 30 * 24 * 60 * 60 * 1000
-      );
-
       const response = await api.post("subscriptions", {
         json: {
           memberId: currentMember.id,
           membershipTypeId: selectedMembershipType.id,
-          startDate: startDate,
-          endDate: endDate,
+          startDate: new Date().toISOString(),
+          endDate: new Date(
+            new Date().getTime() +
+              selectedMembershipType.duration * 30 * 24 * 60 * 60 * 1000
+          ).toISOString(),
           PaymentStatus: "PENDING",
         },
       });
 
       if (response.ok) {
         const data: any = await response.json();
-        if (data.checkoutUrl) {
-          window.location.href = data.checkoutUrl;
-        } else {
-          toast({
-            title: "Success",
-            description: "Subscription created successfully.",
-          });
-          onClose();
-        }
+        window.location.href = data.checkoutUrl;
       } else {
         throw new Error("Failed to create subscription");
       }
@@ -109,6 +101,10 @@ export const SubscriptionForm = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleButtonDisabledConditionChanged = () => {
+    setIsButtonDisabled(isConfirmed);
   };
 
   return (
@@ -151,7 +147,10 @@ export const SubscriptionForm = ({
         <Checkbox
           id="confirm"
           checked={isConfirmed}
-          onCheckedChange={(checked) => setIsConfirmed(checked as boolean)}
+          onCheckedChange={(checked) => {
+            setIsConfirmed(checked as boolean);
+            handleButtonDisabledConditionChanged();
+          }}
         />
         <label
           htmlFor="confirm"
@@ -161,8 +160,9 @@ export const SubscriptionForm = ({
         </label>
       </div>
       <Button
+        onClick={handleSubmit}
+        disabled={isButtonDisabled}
         type="submit"
-        disabled={!selectedMembershipType || !isConfirmed || loading}
         className="mt-4 w-full"
       >
         {loading ? "Processing..." : "Subscribe"}

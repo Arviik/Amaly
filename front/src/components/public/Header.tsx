@@ -1,4 +1,5 @@
-"use client";
+"use client ";
+import { RootState } from "@/app/store";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
 import Image from "next/image";
 import Link from "next/link";

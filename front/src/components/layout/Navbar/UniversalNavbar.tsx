@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Image from "next/image";
 import NavItem, { NavItemProps } from "./NavItem";
@@ -40,15 +40,21 @@ const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
   );
   const currentMember = useSelector(selectCurrentMember);
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
+  const [specialBadge, setSpecialBadge] = useState(false);
+
+  useEffect(() => {
+    if (!currentMember) return;
+    setSpecialBadge(
+      currentMember.status !== "VOLUNTEER" &&
+        (userType === "admin" || userType === "member")
+    );
+  }, [currentMember, userType]);
 
   if (!currentMember) return null;
 
   const showUpgradeCard =
     userType === "member" && currentMember.status === "VOLUNTEER";
 
-  const specialBadge =
-    currentMember.status !== "VOLUNTEER" &&
-    (userType === "admin" || userType === "member");
   return (
     <>
       <nav

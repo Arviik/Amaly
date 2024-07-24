@@ -12,7 +12,12 @@ import {
   getActivityById, getMemberFromActivity,
   unregisterActivityAttendance,
 } from "@/api/services/activity";
+import { Activity } from "@/api/type";
+import { selectCurrentMember } from "@/app/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
+import { redirect, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { redirect, usePathname , useRouter} from "next/navigation";
 import {DataTable} from "@/components/common/DataTable";
 import {deleteMember, getMembersByOrganizationId} from "@/api/services/member";

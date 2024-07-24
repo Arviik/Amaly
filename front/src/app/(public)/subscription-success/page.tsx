@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+
+import { MemberStatus } from "@/api/type";
 import {
   selectCurrentMember,
   updateMemberStatus,
-} from "../store/slices/authSlice";
-import { MemberStatus } from "@/api/type";
+} from "@/app/store/slices/authSlice";
 
 export default function DonationSuccess() {
   const router = useRouter();
@@ -17,7 +18,10 @@ export default function DonationSuccess() {
   const confettiRef = useRef<ConfettiRef>(null);
   const currentMember = useSelector(selectCurrentMember);
 
+  console.log(currentMember);
+
   const handleGoHome = () => {
+    console.log(currentMember);
     if (!currentMember) return;
     dispatch(updateMemberStatus(MemberStatus.SUBSCRIBER));
     router.push("/member");

@@ -1,66 +1,80 @@
 "use client";
 
-import React, { FormEvent, useEffect, useRef, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectCurrentMember } from "@/app/store/slices/authSlice";
 import {
   createActivity,
   declareActivityAttendance,
   getActivityAttendance,
-  getActivityById,
   getActivityByOrganizationId,
   unregisterActivityAttendance,
 } from "@/api/services/activity";
-import { Activity, AGs } from "@/api/type";
+import { Activity } from "@/api/type";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { CalendarIcon, PlusCircleIcon, MinusCircleIcon } from "lucide-react";
 import {useRouter} from "next/navigation";
 
 const ActivityCreation = () => {
-  const titleRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLInputElement>(null);
-  const dateRef = useRef<HTMLInputElement>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = useState("");
   const member = useSelector(selectCurrentMember);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!member) return;
-    if (
-      titleRef.current?.value === "" ||
-      descriptionRef.current?.value === "" ||
-      !dateRef.current?.valueAsDate
-    )
-      return;
-    if (
-      !titleRef.current?.value ||
-      !descriptionRef.current?.value ||
-      !dateRef.current?.value
-    )
-      return;
+    if (!member || !title || !description || !date) return;
     await createActivity({
-      title: titleRef.current?.value,
-      description: descriptionRef.current?.value,
-      date: dateRef.current?.value,
+      title,
+      description,
+      date,
       organizationId: member.organizationId,
     });
+    // Reset form fields after submission
+    setTitle("");
+    setDescription("");
+    setDate("");
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <Input ref={titleRef} type="text" placeholder="Title" />
-        <Input ref={descriptionRef} placeholder="Description" />
-        <Input ref={dateRef} type="datetime-local" />
-        <Button type="submit">CREATE ACTIVITY</Button>
-      </form>
-    </div>
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle>Create a new activity</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            type="text"
+            placeholder="Title"
+          />
+          <Input
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Description"
+          />
+          <Input
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            type="datetime-local"
+          />
+          <Button type="submit" className="w-full">
+            Create Activity
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
 
 const ActivitiesMain = () => {
     const member = useSelector(selectCurrentMember);
-    const [ActivityList, setActivityList] = useState<Activity[]>([])
+    const [activityList, setActivityList] = useState<Activity[]>([])
     const [signedUpList, setSignedUpList] = useState<Map<number, boolean>>(new Map())
     const router = useRouter()
 
@@ -71,7 +85,7 @@ const ActivitiesMain = () => {
     loadSignedUpList(response);
   };
 
-  const loadSignedUpList = async (activities: Activity[] = ActivityList) => {
+  const loadSignedUpList = async (activities: Activity[] = activityList) => {
     if (!member) return;
     const mapToSetup = new Map<number, boolean>();
     for (const activity of activities) {
@@ -90,7 +104,7 @@ const ActivitiesMain = () => {
     const newMap = new Map(signedUpList);
     newMap.set(activity.id, true);
     setSignedUpList(newMap);
-    const response = await declareActivityAttendance(member.organizationId, {
+    await declareActivityAttendance(member.organizationId, {
       activityId: activity.id,
     });
   };
@@ -100,7 +114,7 @@ const ActivitiesMain = () => {
     const newMap = new Map(signedUpList);
     newMap.delete(activity.id);
     setSignedUpList(newMap);
-    const response = await unregisterActivityAttendance(member.organizationId, {
+    await unregisterActivityAttendance(member.organizationId, {
       activityId: activity.id,
     });
   };
@@ -110,36 +124,51 @@ const ActivitiesMain = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Activité</h1>
-            {member?.isAdmin && <ActivityCreation></ActivityCreation>}
-            {ActivityList.map((activity: Activity) => (
-                <div key={activity.id} style={{border: "1px solid black"}}>
-                    <h1>{activity.title}</h1>
-                    <Button onClick={() => {
-                        router.push(`activities/${activity.id}`)
-                    }}>
-                        Access Details
-                    </Button>
-          {signedUpList && signedUpList.has(activity.id) ? (
-            <Button
-              onClick={() => {
-                unsignUpToActivity(activity);
-              }}
-            >
-              Se Désinscrire
-            </Button>
-          ) : (
-            <Button
-              onClick={() => {
-                signUpToActivity(activity);
-              }}
-            >
-              S&apos;inscrire
-            </Button>
-          )}
-        </div>
-      ))}
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Activités</h1>
+      {member?.isAdmin && <ActivityCreation />}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {activityList.map((activity: Activity) => (
+          <Card key={activity.id} className="flex flex-col">
+            <CardHeader>
+              <CardTitle className="text-xl">
+                <Link
+                  href={`activities/${activity.id}`}
+                  className="hover:underline"
+                >
+                  {activity.title}
+                </Link>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="text-gray-600 mb-4">{activity.description}</p>
+              <div className="flex items-center text-sm text-gray-500 mb-4">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {new Date(activity.date).toLocaleString()}
+              </div>
+              <Separator className="my-4" />
+              {signedUpList && signedUpList.has(activity.id) ? (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => unsignUpToActivity(activity)}
+                >
+                  <MinusCircleIcon className="mr-2 h-4 w-4" />
+                  unsubscribes
+                </Button>
+              ) : (
+                <Button
+                  className="w-full"
+                  onClick={() => signUpToActivity(activity)}
+                >
+                  <PlusCircleIcon className="mr-2 h-4 w-4" />
+                  subscribes
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };
