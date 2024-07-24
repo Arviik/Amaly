@@ -1,8 +1,5 @@
 "use client";
-
-import Image from "next/image";
-import Link from "next/link";
-import React from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,24 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Bar, BarChart, Line, LineChart } from "recharts";
-
-const memberData = [
-  { name: "Jan", count: 50 },
-  { name: "Feb", count: 55 },
-  { name: "Mar", count: 60 },
-  { name: "Apr", count: 62 },
-  { name: "May", count: 65 },
-];
-
-const donationData = [
-  { name: "Jan", value: 4000 },
-  { name: "Feb", value: 3000 },
-  { name: "Mar", value: 2000 },
-  { name: "Apr", value: 2780 },
-  { name: "May", value: 1890 },
-];
+import Link from "next/link";
+import React from "react";
 
 const DashboardAdmin: React.FC = () => {
   return (
@@ -53,9 +34,9 @@ const DashboardAdmin: React.FC = () => {
                       <p className="text-sm text-muted-foreground">
                         Total members
                       </p>
-                      <BarChart className="h-[200px]" data={memberData}>
-                        <Bar dataKey="count" className="fill-primary" />
-                      </BarChart>
+                      <div className="h-[200px] bg-gray-100 mt-4 flex items-center justify-center">
+                        Graph placeholder
+                      </div>
                       <Button asChild className="mt-4 w-full">
                         <Link href="/ManageMembers">Manage Members</Link>
                       </Button>
@@ -70,9 +51,9 @@ const DashboardAdmin: React.FC = () => {
                       <p className="text-sm text-muted-foreground">
                         Total donations this year
                       </p>
-                      <LineChart className="h-[200px]" data={donationData}>
-                        <Line dataKey="value" className="stroke-primary" />
-                      </LineChart>
+                      <div className="h-[200px] bg-gray-100 mt-4 flex items-center justify-center">
+                        Graph placeholder
+                      </div>
                       <Button asChild className="mt-4 w-full">
                         <Link href="/donations">View Donations</Link>
                       </Button>

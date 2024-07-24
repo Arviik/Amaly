@@ -1,4 +1,5 @@
-import React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,32 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ActivityIcon, CalendarIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  CalendarIcon,
-  UserIcon,
-  ActivityIcon,
-  SettingsIcon,
-} from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-
-const activityData = [
-  { name: "Jan", count: 4 },
-  { name: "Feb", count: 3 },
-  { name: "Mar", count: 5 },
-  { name: "Apr", count: 2 },
-  { name: "May", count: 6 },
-];
+import React from "react";
 
 const MemberDashboard: React.FC = () => {
   // Mock data
@@ -148,15 +126,9 @@ const MemberDashboard: React.FC = () => {
                   <CardTitle>Activity Participation</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={activityData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="#8884d8" />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <div className="h-[300px] flex items-center justify-center bg-gray-100">
+                    Activity Participation Graph Placeholder
+                  </div>
                 </CardContent>
               </Card>
             </CardContent>

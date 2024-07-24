@@ -68,33 +68,17 @@ export const SubscriptionForm = ({
     setLoading(true);
 
     try {
-      const startDate = new Date();
-      const endDate = new Date(
-        startDate.getTime() +
-          selectedMembershipType.duration * 30 * 24 * 60 * 60 * 1000
-      );
-
       const response = await api.post("subscriptions", {
         json: {
-          memberId: currentMember.id,
           membershipTypeId: selectedMembershipType.id,
-          startDate: startDate,
-          endDate: endDate,
-          PaymentStatus: "PENDING",
+          organizationId,
+          memberId: currentMember.id,
         },
       });
 
       if (response.ok) {
         const data: any = await response.json();
-        if (data.checkoutUrl) {
-          window.location.href = data.checkoutUrl;
-        } else {
-          toast({
-            title: "Success",
-            description: "Subscription created successfully.",
-          });
-          onClose();
-        }
+        window.location.href = data.checkoutUrl;
       } else {
         throw new Error("Failed to create subscription");
       }
