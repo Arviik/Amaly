@@ -1,19 +1,18 @@
 "use client";
 
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { Activity, AGs } from "@/api/type";
-import { declareAgAttendance, getAGSById } from "@/api/services/ags";
-import { useSelector } from "react-redux";
-import { selectCurrentMember } from "@/app/store/slices/authSlice";
 import {
   declareActivityAttendance,
   getActivityAttendance,
   getActivityById,
   unregisterActivityAttendance,
 } from "@/api/services/activity";
+import { Activity } from "@/api/type";
+import { selectCurrentMember } from "@/app/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { redirect, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 const AGDetails = ({ id }: { id: string }) => {
   const [activity, setActivity] = useState<Activity>();

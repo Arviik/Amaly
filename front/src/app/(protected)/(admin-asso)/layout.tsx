@@ -20,7 +20,6 @@ const navItems = [
   { icon: File, label: "Documents", href: "/documents" },
   { icon: Calendar, label: "Activities", href: "/activities" },
   { icon: Presentation, label: "Assemblé Générale", href: "/ag" },
-  { icon: UserPlus, label: "Invite", href: "/invite" },
   { icon: Settings, label: "Settings", href: "/settings" },
 ];
 
