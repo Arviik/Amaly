@@ -12,11 +12,15 @@ export const membershipTypeApi = {
   },
 
   createMembershipType: async (
+    organizationId: number,
     membershipType: Omit<MembershipType, "id">
   ): Promise<MembershipType> => {
-    const response = await api.post("membershiptypes", {
-      json: membershipType,
-    });
+    const response = await api.post(
+      `organization/${organizationId}/membershiptypes`,
+      {
+        json: membershipType,
+      }
+    );
     return response.json();
   },
 

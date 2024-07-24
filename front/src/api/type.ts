@@ -115,6 +115,7 @@ export interface AGs {
 
 export interface UserMembership {
   id: number;
+  status: MemberStatus;
   role: string;
   isAdmin: boolean;
   organizationId: number;

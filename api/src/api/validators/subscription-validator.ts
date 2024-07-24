@@ -23,7 +23,6 @@ export const subscriptionCreateValidator = Joi.object({
   PaymentStatus: Joi.string()
     .required()
     .valid(...Object.values(PaymentStatus)),
-  stripeSubscriptionId: Joi.string().required(),
 });
 
 export const subscriptionUpdateValidator = Joi.object({

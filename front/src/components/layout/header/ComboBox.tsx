@@ -43,11 +43,11 @@ export function ComboBox() {
           (m) => m.organizationId === selectedOrganizationId
         );
         setSelectedMembership(membership || memberships[0]);
-        dispatch(setCurrentMember(membership as UserMembership));
+        dispatch(setCurrentMember(membership || null));
       } else {
         setSelectedMembership(memberships[0]);
         dispatch(setSelectedOrganization(memberships[0].organizationId));
-        dispatch(setCurrentMember(memberships[0] || null));
+        dispatch(setCurrentMember(memberships[0]));
       }
     }
   }, [selectedOrganizationId, memberships, dispatch]);
@@ -103,6 +103,7 @@ export function ComboBox() {
                   </CommandItem>
                 ))}
                 <CommandItem onSelect={() => setIsCreateModalOpen(true)}>
+                  <span>Créer une organisation</span>
                   <CreateOrganizationModal
                     isOpen={isCreateModalOpen}
                     onClose={() => setIsCreateModalOpen(false)}

@@ -12,7 +12,6 @@ import { authzMiddleware } from "../middlewares/authz-middleware";
 export const initUsers = (app: express.Express) => {
   app.get("/users/me", authMiddleware, async (req: any, res) => {
     try {
-      console.log(req.payload);
       const user = await prisma.users.findUnique({
         where: { id: Number(req.payload.userId) },
         select: {
@@ -136,9 +135,6 @@ export const initUsers = (app: express.Express) => {
 
   app.post("/forgot-password", async (req, res) => {
     try {
-      console.log(req.body);
-      console.log("Reset password");
-
       const email = req.body.email;
       const user = await prisma.users.findUnique({
         where: { email: email },

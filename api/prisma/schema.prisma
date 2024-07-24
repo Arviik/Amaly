@@ -91,7 +91,7 @@ model MembershipTypes {
   id            Int            @id @default(autoincrement())
   name          String
   description   String
-  amount        Decimal
+  amount        Int
   duration      Int
   organization  Organizations   @relation(fields: [organizationId], references: [id])
   organizationId Int

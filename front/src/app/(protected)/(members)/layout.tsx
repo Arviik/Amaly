@@ -6,7 +6,7 @@ import { ProtectedRoute } from "@/components/public/ProtectedRoute";
 import { Calendar, File, Home, Presentation, Settings } from "lucide-react";
 
 const navItems = [
-  { icon: Home, label: "Dashboard", href: "/dashboard" },
+  { icon: Home, label: "Dashboard", href: "/member" },
   { icon: File, label: "Documents", href: "/member/documents" },
   { icon: Calendar, label: "Activities", href: "/member/activities" },
   { icon: Presentation, label: "Assemblé Générale", href: "/member/ag" },
@@ -27,7 +27,7 @@ export default function MemberPageLayout({
             navItems={navItems}
             userType="member"
             logo="/leaflogo.svg"
-            title="Amaly Admin"
+            title="Amaly"
           >
             {children}
           </AdaptiveLayout>

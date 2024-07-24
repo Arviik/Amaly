@@ -124,13 +124,15 @@ export const initMembershipTypes = (app: express.Express) => {
     "/organization/:organizationId/membershiptypes",
     async (req, res) => {
       const validation = membershipTypesCreateValidator.validate(req.body);
-
+      console.log("validation ici", validation);
       if (validation.error) {
+        console.log("error validation", validation.error);
         res.status(400).send({ error: validation.error });
         return;
       }
 
       const membershipTypesRequest = validation.value;
+      console.log("membershipTypesRequest", membershipTypesRequest);
       try {
         // Créer le produit Stripe
         const stripeProduct = await stripe.products.create({

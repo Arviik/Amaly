@@ -93,6 +93,13 @@ export const initStripes = (app: express.Express) => {
 
           console.log("Subscription updated:", subscriptionData);
 
+          await prisma.members.update({
+            where: { id: memberId },
+            data: { status: "SUBSCRIBER" },
+          });
+
+          console.log("Member status updated to SUBSCRIBER");
+
           // Create a donation record for the subscription payment
           const donationData: Omit<
             Donations,

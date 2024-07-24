@@ -51,10 +51,13 @@ const MembershipTypesManager = () => {
 
   const handleCreate = async (data: Partial<MembershipType>) => {
     try {
-      const newType = await membershipTypeApi.createMembershipType({
-        ...(data as Omit<MembershipType, "id">),
+      const newType = await membershipTypeApi.createMembershipType(
         organizationId,
-      });
+        {
+          ...(data as Omit<MembershipType, "id">),
+          organizationId,
+        }
+      );
       setMembershipTypes([...membershipTypes, newType]);
     } catch (error) {
       console.error(error);

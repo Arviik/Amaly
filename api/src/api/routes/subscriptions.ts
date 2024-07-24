@@ -40,27 +40,29 @@ export const initSubscriptions = (app: express.Express) => {
     const validation = subscriptionCreateValidator.validate(req.body);
 
     if (validation.error) {
+      console.error("Error validating subscription:", validation.error);
       res.status(400).send({ error: validation.error });
       return;
     }
 
     const subscriptionReq = validation.value;
     try {
-      const membershipType =
-        (await prisma.membershipTypes.findUnique({
-          where: { id: subscriptionReq.membershipTypeId },
-        })) || null;
+      const membershipType = await prisma.membershipTypes.findUnique({
+        where: { id: subscriptionReq.membershipTypeId },
+      });
 
       if (!membershipType) {
         res.status(404).send({ error: "Membership type not found" });
         return;
       }
 
-      const member =
-        (await prisma.members.findUnique({
-          where: { id: subscriptionReq.memberId },
-          include: { user: true },
-        })) || null;
+      const member = await prisma.members.findFirst({
+        where: {
+          organizationId: subscriptionReq.organizationId,
+          id: req.body.memberId,
+        },
+        include: { user: true },
+      });
 
       if (!member) {
         res.status(404).send({ error: "Member not found" });
@@ -72,59 +74,40 @@ export const initSubscriptions = (app: express.Express) => {
         member.user.firstName + " " + member.user.lastName
       );
 
-      const product = await stripe.products.create({
-        name: membershipType.name,
-      });
-
-      const price = await stripe.prices.create({
-        currency: "eur",
-        recurring: {
-          interval: "month",
-        },
-        unit_amount: Number(membershipType.amount),
-        product: product.id,
-      });
-
-      const subscriptionData: subscriptionRequest = {
-        memberId: subscriptionReq.memberId,
-        membershipTypeId: subscriptionReq.membershipTypeId,
-        startDate: new Date(),
-        endDate: new Date(),
-        PaymentStatus: PaymentStatus.PENDING,
-        stripeSubscriptionId: "",
-      };
-
-      const createdSubscription = await prisma.subscriptions.create({
-        data: subscriptionData as any,
-      });
-
-      const subscription = await stripe.subscriptions.create({
-        customer: customer.id,
-        items: [
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
           {
-            price: price.id,
+            price_data: {
+              currency: "eur",
+              product_data: {
+                name: membershipType.name,
+              },
+              unit_amount: membershipType.amount * 100,
+              recurring: {
+                interval: "month",
+                interval_count: membershipType.duration,
+              },
+            },
+            quantity: 1,
           },
         ],
+        mode: "subscription",
+        success_url: `${process.env.FRONTEND_URL}/subscription-success`,
+        cancel_url: `${process.env.FRONTEND_URL}/subscription-cancel`,
+        customer: customer.id,
         metadata: {
           membership_type_id: membershipType.id.toString(),
           member_id: member.id.toString(),
-          subscription_id: createdSubscription.id.toString(),
+          organization_id: subscriptionReq.organizationId,
         },
       });
 
-      const updatedSubscription = await prisma.subscriptions.update({
-        where: { id: createdSubscription.id },
-        data: {
-          startDate: new Date(subscription.current_period_start * 1000),
-          endDate: new Date(subscription.current_period_end * 1000),
-          stripeSubscriptionId: subscription.id,
-        },
-      } as any);
-
-      res.status(201).json(updatedSubscription);
+      res.json({ checkoutUrl: session.url });
     } catch (e) {
+      console.log("la requete est", req.body);
+      console.error("Error creating subscription:", e);
       res.status(500).send({ error: e });
-      return;
     }
   });
 

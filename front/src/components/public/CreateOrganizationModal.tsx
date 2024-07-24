@@ -59,10 +59,7 @@ export const CreateOrganizationModal: React.FC<
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogTrigger>
-        <Button>Create Organization</Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={() => onClose()}>
       <DialogContent>
         <DialogTitle>Create a new organization</DialogTitle>
         <form onSubmit={handleSubmit} className="space-y-4">
