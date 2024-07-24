@@ -46,7 +46,6 @@ export const initMembers = (app: express.Express) => {
         data: {
           startDate: memberRequest.startDate,
           endDate: memberRequest.endDate,
-          employmentType: memberRequest.employmentType,
           organizationId: memberRequest.organizationId,
           userId: memberRequest.userId,
         },
