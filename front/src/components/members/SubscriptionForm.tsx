@@ -30,7 +30,6 @@ export const SubscriptionForm = ({
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const currentMember = useSelector(selectCurrentMember);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   useEffect(() => {
     const fetchMembershipTypes = async () => {
@@ -41,7 +40,7 @@ export const SubscriptionForm = ({
         if (response.ok) {
           const data: MembershipType[] = await response.json();
           setMembershipTypes(data);
-          if (data.length === 1) {
+          if (data.length > 0) {
             setSelectedMembershipType(data[0]);
           }
         } else {
@@ -82,7 +81,7 @@ export const SubscriptionForm = ({
           startDate: startDate.toISOString(),
           endDate: endDate.toISOString(),
           PaymentStatus: "PENDING",
-          stripeSubscriptionId: "",
+          stripeSubscriptionId: "", // This will be filled by the backend
         },
       });
 
@@ -113,10 +112,6 @@ export const SubscriptionForm = ({
     }
   };
 
-  const handleButtonDisabledConditionChanged = () => {
-    setIsButtonDisabled(isConfirmed);
-  };
-
   return (
     <form onSubmit={handleSubmit}>
       {membershipTypes.length > 1 ? (
@@ -140,27 +135,24 @@ export const SubscriptionForm = ({
             ))}
           </SelectContent>
         </Select>
-      ) : selectedMembershipType ? (
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold">
-            {selectedMembershipType.name}
-          </h3>
-          <p>
-            ${selectedMembershipType.amount} / {selectedMembershipType.duration}{" "}
-            months
-          </p>
-        </div>
       ) : (
-        <p>No membership types available</p>
+        selectedMembershipType && (
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold">
+              {selectedMembershipType.name}
+            </h3>
+            <p>
+              ${selectedMembershipType.amount} /{" "}
+              {selectedMembershipType.duration} months
+            </p>
+          </div>
+        )
       )}
       <div className="flex items-center space-x-2 mt-4">
         <Checkbox
           id="confirm"
           checked={isConfirmed}
-          onCheckedChange={(checked) => {
-            setIsConfirmed(checked as boolean);
-            handleButtonDisabledConditionChanged();
-          }}
+          onCheckedChange={(checked) => setIsConfirmed(checked as boolean)}
         />
         <label
           htmlFor="confirm"
@@ -169,7 +161,11 @@ export const SubscriptionForm = ({
           I confirm my choice to subscribe and agree to pay the amount
         </label>
       </div>
-      <Button type="submit" disabled={isButtonDisabled} className="mt-4 w-full">
+      <Button
+        type="submit"
+        disabled={!selectedMembershipType || !isConfirmed || loading}
+        className="mt-4 w-full"
+      >
         {loading ? "Processing..." : "Subscribe"}
       </Button>
     </form>
