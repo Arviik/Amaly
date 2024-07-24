@@ -1,5 +1,5 @@
 import ky from 'ky';
-import {AGs} from "@/api/type";
+import {AGs, Member} from "@/api/type";
 import {tokenUtils} from "@/api/config";
 import {number} from "prop-types";
 
@@ -33,6 +33,18 @@ export const getAGSByOrganizationId = async (id: number): Promise<AGs[]> => {
         return await api.get(`ags/organization/${id}`).json();
     } catch (error) {
         console.error(`Error fetching AGS with id ${id}:`, error);
+        throw error;
+    }
+};
+
+export const getMemberFromAG = async (
+    id: number
+): Promise<{activityId: number, memberId: number, members: Member}[]> => {
+    try {
+        const response = await api.get(`ags/${id}/members`);
+        return response.json();
+    } catch (error) {
+        console.error("Error fetching Activity:", error);
         throw error;
     }
 };

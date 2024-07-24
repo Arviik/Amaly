@@ -3,7 +3,7 @@
 import Link from "next/link";
 import React, {useCallback, useEffect, useState} from "react";
 import {AGs, Member, User} from "@/api/type";
-import {declareAgAttendance, getAGSById} from "@/api/services/ags";
+import {declareAgAttendance, deleteMemberFromAG, getAGSById, getMemberFromAG} from "@/api/services/ags";
 import {useSelector} from "react-redux";
 import {selectCurrentMember} from "@/app/store/slices/authSlice";
 import {usePathname, useRouter} from "next/navigation";
@@ -33,7 +33,7 @@ const AGDetails = ({id}: {id: string}) => {
     const handleDelete = async (id: number) => {
         try {
             if (!AG) return;
-            await deleteMemberFromActivity(AG?.id, id);
+            await deleteMemberFromAG(AG?.id, id);
             toast({
                 title: "Success",
                 description: "Member deleted successfully",
@@ -60,7 +60,7 @@ const AGDetails = ({id}: {id: string}) => {
             return;
         }
         try {
-            const data = await getMemberFromActivity(AG.id);
+            const data = await getMemberFromAG(AG.id);
             const membersFromActivity = data.map((object) => object.members)
             const membersList: (Member & Pick<User, "firstName" | "lastName">)[] = []
             for (const member of membersFromActivity) {

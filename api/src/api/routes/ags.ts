@@ -84,7 +84,7 @@ export const initAGS = (app: express.Express) => {
     }
   });
 
-  app.delete("/activities/:id/members", async (req, res) => {
+  app.delete("/ags/:id/members", async (req, res) => {
     try {
       if (!req.query.memberId) return;
       const ags = await prisma.aGAttendance.delete({
