@@ -135,7 +135,7 @@ export const initOrganizations = (app: express.Express) => {
     } catch (e) {
       res.status(500).send({ error: e });
     }
-  );
+  });
 
   app.get("/organizations/invite", async (req, res) => {
     try {

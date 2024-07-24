@@ -1,7 +1,6 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { selectCurrentMember } from "@/app/store/slices/authSlice";
+import React, { useEffect, useRef, useState, SetStateAction } from "react";
+
 import {
   deleteDocument,
   getAllDocumentsFromOrganization,
@@ -52,10 +51,10 @@ interface File {
   fileData?: string;
   type: string;
   name: string;
-
+}
 
 interface fileProps {
-  file: file;
+  file: File;
   accessFileHandler: (path: string) => void;
   renameFileHandler: (id: number, newName: string) => void;
   deleteFileHandler: (id: number) => void;
@@ -353,7 +352,7 @@ const Ged: React.FC = () => {
     updateView();
   }, [currentPath]);
 
-  const updateView = () => {
+  const updateViewHandler = () => {
     setData(originalData.filter((item: any) => item.path === currentPath));
   };
 
@@ -376,9 +375,13 @@ const Ged: React.FC = () => {
     };
     const updatedData: File[] = [...originalData, newFolder];
     setOriginalData(updatedData);
-    setData(updatedData.filter((item: any) => item.path === currentPath));
+    setData(
+      updatedData.filter(
+        (item: any) => item.path === currentPath
+      ) as SetStateAction<File[]>
+    );
   };
-  const onNewFolder = (): void => {
+  const onNewFolderHandler = (): void => {
     let finalPath: string = currentPath.endsWith("/")
       ? currentPath
       : currentPath + "/";
@@ -394,6 +397,7 @@ const Ged: React.FC = () => {
       type: "folder",
       path: finalPath,
       id: Date.now(),
+      name: title.trim(),
     };
     const updatedData = [...originalData, newFolder];
     setOriginalData(updatedData);
@@ -406,10 +410,9 @@ const Ged: React.FC = () => {
 
   const onBack = () => {
     let fileArray = currentPath.split(/(\/)/).filter((item: any) => item);
-    fileArray =
-      fileArray.slice(
-    0,
-      fileArray .length > 1 ? fileArray.length - 2 : fileArray.length - 1
+    fileArray = fileArray.slice(
+      0,
+      fileArray.length > 1 ? fileArray.length - 2 : fileArray.length - 1
     );
     const newPath = "/" + fileArray.join("");
     setCurrentPath(newPath);
@@ -438,8 +441,8 @@ const Ged: React.FC = () => {
         }
       }
 
-    await loadDocuments();
-  toast({
+      await loadDocuments();
+      toast({
         title: "Success",
         description: "File renamed successfully.",
       });
