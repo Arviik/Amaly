@@ -1,12 +1,9 @@
 import express from "express";
-import { prisma } from "../../utils/prisma";
-import { authMiddleware } from "../middlewares/auth-middleware";
-import { authzMiddleware } from "../middlewares/authz-middleware";
-import {
-  organizationPatchValidation,
-  organizationValidation,
-} from "../validators/organization-validator";
-import { v4 } from "uuid";
+import {prisma} from "../../utils/prisma";
+import {authMiddleware} from "../middlewares/auth-middleware";
+import {authzMiddleware} from "../middlewares/authz-middleware";
+import {organizationPatchValidation, organizationValidation,} from "../validators/organization-validator";
+import {v4} from "uuid";
 
 export const initOrganizations = (app: express.Express) => {
   app.get(
@@ -103,6 +100,34 @@ export const initOrganizations = (app: express.Express) => {
           },
         });
         res.json(members);
+      } catch (e) {
+        res.status(500).send({ error: e });
+      }
+    }
+  );
+
+  app.get(
+    "/organizations/:organizationId/full-members",
+    async (req, res) => {
+      try {
+        const members = await prisma.members.findMany({
+          where: { organizationId: Number(req.params.organizationId) },
+          select: {
+            id: true,
+            user: {
+              select: {
+                firstName: true,
+                lastName: true
+              },
+            },
+          },
+        });
+
+        res.send(members.map((member: { id: any; user: { firstName: any; lastName: any; }; }) => ({
+          id: member.id,
+          firstName: member.user.firstName,
+          lastName: member.user.lastName
+        })))
       } catch (e) {
         res.status(500).send({ error: e });
       }
