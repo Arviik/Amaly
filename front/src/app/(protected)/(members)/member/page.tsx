@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import LogoutButton from "@/components/public/LogoutButton";
 
 const MemberDashboard: React.FC = () => {
   return (

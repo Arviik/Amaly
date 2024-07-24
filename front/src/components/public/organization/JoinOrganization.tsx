@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {AGs, Organization} from "@/api/type";
+import {AGs, MemberStatus, Organization} from "@/api/type";
 import {useDispatch, useSelector} from "react-redux";
 import {
     selectCurrentMember,
@@ -34,6 +34,8 @@ const JoinOrganization = () => {
         console.log(organization)
         if (!organization || !user) return;
         const response = await createMember({
+            role: "Member",
+            status: MemberStatus.VOLUNTEER,
             organizationId: organization.id,
             userId: user.id,
             isAdmin: false,
@@ -45,11 +47,8 @@ const JoinOrganization = () => {
             organizationName: organization.name,
             isAdmin: false
         }]
-        dispatch(setMemberships(newList))
         dispatch(setSelectedOrganization(organization.id))
-        setTimeout(() => {
-            router.push("/dashboard")
-        }, 1000)
+        router.push("dashboard")
     }
 
     useEffect(() => {

@@ -35,7 +35,7 @@ export const getMembershipsByUserId = async (id: number): Promise<any> => {
 };
 
 export const createMember = async (
-    memberData: Omit<Member, "id" | "createdAt" | "updatedAt">
+    memberData: Omit<Member, "id" | "createdAt" | "updatedAt" | "user">
 ): Promise<Member> => {
     try {
         const response = await api.post("members", {

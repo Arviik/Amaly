@@ -111,5 +111,6 @@ const EditProfile = () => {
             </form>
         );
     };
+}
 
-    export default EditProfile;
+export default EditProfile;
