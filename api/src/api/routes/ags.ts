@@ -42,6 +42,28 @@ export const initAGS = (app: express.Express) => {
     }
   });
 
+  app.get("/agattendance/:id(\\d+)", authMiddleware, async (req: any, res) => {
+    try {
+      if (!req.query.agId) return;
+
+
+      const agId = Number(req.query.agId);
+      const member = req.payload.memberships.find((member: any) => member.organizationId === Number(req.params.id));
+      const insertedAttendance = await prisma.aGAttendance.findUnique({
+        where: {
+          agId_memberId: {
+            agId: agId,
+            memberId: member.id
+          }
+        }
+      });
+      res.status(200).json({data: insertedAttendance});
+    } catch (e) {
+      res.status(500).send({ error: e });
+      return;
+    }
+  })
+
   app.post("/agattendance/:id", authMiddleware, async (req: any, res) => {
     try {
       const validation = AgAttendanceValidator.validate(req.body)

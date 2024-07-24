@@ -3,7 +3,13 @@
 import Link from "next/link";
 import React, {useCallback, useEffect, useState} from "react";
 import {AGs, Member, User} from "@/api/type";
-import { declareAgAttendance, deleteMemberFromAG, getAGSById, getMemberFromAG} from "@/api/services/ags";
+import {
+    declareAgAttendance,
+    deleteMemberFromAG,
+    getAgAttendancePresence,
+    getAGSById,
+    getMemberFromAG
+} from "@/api/services/ags";
 import { useSelector } from "react-redux";
 import { selectCurrentMember } from "@/app/store/slices/authSlice";
 import { usePathname , useRouter} from "next/navigation";
@@ -26,6 +32,7 @@ const AGDetails = ({id}: {id: string}) => {
     const [AG, setAG] = useState<AGs>();
     const member = useSelector(selectCurrentMember)
     const [members, setMembers] = useState<(Member & Pick<User, "firstName" | "lastName">)[]>([]);
+    const [alreadyPresent, setAlreadyPresent] = useState<boolean>(false);
     const pathname = usePathname()
     const router = useRouter()
 
@@ -48,7 +55,6 @@ const AGDetails = ({id}: {id: string}) => {
     };
 
     const fetchMembers = useCallback(async () => {
-        console.log("ok")
         if (!AG?.organizationId) {
             toast({
                 title: "Error",
@@ -83,6 +89,18 @@ const AGDetails = ({id}: {id: string}) => {
         fetchMembers()
     }, [AG]);
 
+    const checkIfAlreadyPresent = async () => {
+        if (!AG || !member) { return }
+        const response: any = await getAgAttendancePresence(member.organizationId, AG.id)
+        if (response.data){
+            setAlreadyPresent(true)
+        }
+    }
+
+    useEffect(() => {
+        checkIfAlreadyPresent()
+    });
+
   const loadAG = async () => {
     const response = await getAGSById(Number(id));
     setAG(response);
@@ -93,7 +111,7 @@ const AGDetails = ({id}: {id: string}) => {
     const response = await declareAgAttendance(member.organizationId, {
       agId: AG.id,
     });
-    console.log(response);
+    setAlreadyPresent(true)
   };
 
   useEffect(() => {
@@ -111,7 +129,8 @@ const AGDetails = ({id}: {id: string}) => {
       <h1>AG Details</h1>
       <h1>{AG?.title}</h1>
       <h1>{AG?.description}</h1>
-      <Button onClick={handleDeclarePresence}>I&apos;m present</Button>
+        {   alreadyPresent ? <h1>Déjà présent</h1> :
+            <Button onClick={handleDeclarePresence}>I&apos;m present</Button>}
             <hr/>
             {
                 member?.isAdmin &&

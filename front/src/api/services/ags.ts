@@ -81,6 +81,16 @@ export const declareAgAttendance = async (id: number, data: any) => {
     }
 };
 
+export const getAgAttendancePresence = async (id: number, agId: number) => {
+    try {
+        const tokens = tokenUtils.getTokens
+        return await api.get(`agattendance/${id}?agId=${agId}`, {headers: {"authorization": `Bearer ${tokens()?.accessToken}`} }).json();
+    } catch (error) {
+        console.error('Error creating AGS:', error);
+        throw error;
+    }
+};
+
 export const updateAGS = async (id: number, data: any) => {
     try {
         return await api.patch(`ags/${id}`, { json: data }).json();
