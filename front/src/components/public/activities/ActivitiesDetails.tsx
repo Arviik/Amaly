@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
 import Link from "next/link";
-import React, {useCallback, useEffect, useState} from "react";
+import React, { useCallback, useEffect, useState} from "react";
 import {Activity, AGs, Member, User} from "@/api/type";
-import {declareAgAttendance, getAGSById} from "@/api/services/ags";
-import {useSelector} from "react-redux";
-import {selectCurrentMember} from "@/app/store/slices/authSlice";
+import { declareAgAttendance, getAGSById } from "@/api/services/ags";
+import { useSelector } from "react-redux";
+import { selectCurrentMember } from "@/app/store/slices/authSlice";
 import {
-    declareActivityAttendance, deleteMemberFromActivity,
-    getActivityAttendance,
-    getActivityById, getMemberFromActivity,
-    unregisterActivityAttendance
+  declareActivityAttendance, deleteMemberFromActivity,
+  getActivityAttendance,
+  getActivityById, getMemberFromActivity,
+  unregisterActivityAttendance,
 } from "@/api/services/activity";
-import {Button} from "@/components/ui/button";
-import {redirect, usePathname, useRouter} from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { redirect, usePathname , useRouter} from "next/navigation";
 import {DataTable} from "@/components/common/DataTable";
 import {deleteMember, getMembersByOrganizationId} from "@/api/services/member";
 import {toast} from "@/components/ui/use-toast";
@@ -99,31 +99,37 @@ const AGDetails = ({id}: { id: string }) => {
         }
         setActivity(response)
         loadSignedUpList(response)
-    }
+  };
 
-    const signUpToActivity = async (activity: Activity) => {
-        if (!member || !activity) return;
-        setIsSignedUp(true)
-        const response = await declareActivityAttendance(member.organizationId, {activityId: activity.id})
-    }
+  const signUpToActivity = async (activity: Activity) => {
+    if (!member || !activity) return;
+    setIsSignedUp(true);
+    const response = await declareActivityAttendance(member.organizationId, {
+      activityId: activity.id,
+    });
+  };
 
-    const unsignUpToActivity = async (activity: Activity) => {
-        if (!member || !activity) return;
-        setIsSignedUp(false)
-        const response = await unregisterActivityAttendance(member.organizationId, {activityId: activity.id})
-    }
+  const unsignUpToActivity = async (activity: Activity) => {
+    if (!member || !activity) return;
+    setIsSignedUp(false);
+    const response = await unregisterActivityAttendance(member.organizationId, {
+      activityId: activity.id,
+    });
+  };
 
-    const loadSignedUpList = async (loadedActivity = activity) => {
-        if (!member || !loadedActivity) return;
-        const response = await getActivityAttendance(member.organizationId, {activityId: loadedActivity.id})
-        if (response.data) {
-            setIsSignedUp(true)
-        }
+  const loadSignedUpList = async (loadedActivity = activity) => {
+    if (!member || !loadedActivity) return;
+    const response = await getActivityAttendance(member.organizationId, {
+      activityId: loadedActivity.id,
+    });
+    if (response.data) {
+      setIsSignedUp(true);
     }
+  };
 
-    useEffect(() => {
-        loadActivity()
-    }, []);
+  useEffect(() => {
+    loadActivity();
+  }, []);
 
     return (
         <div>
@@ -138,11 +144,12 @@ const AGDetails = ({id}: { id: string }) => {
                         isSignedUp ?
                             <Button onClick={() => {
                                 unsignUpToActivity(activity)
-                            }}>Se Désinscrire</Button>
+                            }}>Unsign Up</Button>
                             :
                             <Button onClick={() => {
                                 signUpToActivity(activity)
-                            }}>S'inscrire</Button>
+                            }}>
+                                Sign Up</Button>
                     }
                     <hr/>
                     {
@@ -165,4 +172,4 @@ const AGDetails = ({id}: { id: string }) => {
     )
 }
 
-export default AGDetails
+export default AGDetails;

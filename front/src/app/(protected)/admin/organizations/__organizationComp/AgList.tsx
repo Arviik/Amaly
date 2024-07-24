@@ -1,4 +1,5 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { AGs } from "@/api/type";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -8,20 +9,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface Ag {
-  id: number;
-  title: string;
-  date: Date;
-}
-
 interface AgListProps {
-  ags: Ag[];
+  ags: AGs[];
 }
 
 export function AgList({ ags }: AgListProps) {
-  if (!ags.length) {
-    return <p>No Ags to display</p>;
-  }
+  // if (!ags.length) {
+  //   return <p>No Ags to display</p>;
+  // }
   return (
     <Card>
       <CardHeader>
@@ -33,13 +28,15 @@ export function AgList({ ags }: AgListProps) {
             <TableRow>
               <TableHead>Titre</TableHead>
               <TableHead>Date</TableHead>
+              <TableHead>Type</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {ags.map((ag) => (
               <TableRow key={ag.id}>
                 <TableCell>{ag.title}</TableCell>
-                <TableCell>{ag.date.toLocaleDateString()}</TableCell>
+                <TableCell>{ag.date}</TableCell>
+                <TableCell>{ag.type}</TableCell>
               </TableRow>
             ))}
           </TableBody>

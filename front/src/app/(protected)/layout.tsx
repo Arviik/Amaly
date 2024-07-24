@@ -1,5 +1,4 @@
 "use client";
-import HeaderConnected from "@/components/layout/header/HeaderConnected";
 import { ProtectedRoute } from "@/components/public/ProtectedRoute";
 
 export default function ProtectedLayout({

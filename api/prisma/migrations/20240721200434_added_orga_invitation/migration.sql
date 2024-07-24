@@ -1,5 +1,3 @@
--- AlterTable
-ALTER TABLE `members` MODIFY `employmentType` VARCHAR(191) NULL DEFAULT 'NULL';
 
 -- CreateTable
 CREATE TABLE `organization_invitation` (

@@ -26,7 +26,7 @@ const AdaptiveLayout: React.FC<AdaptiveLayoutProps> = ({
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-secondary">
       <UniversalNavbar
         navItems={navItems}
         userType={userType}

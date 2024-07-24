@@ -1,8 +1,6 @@
 -- DropIndex
 DROP INDEX `members_userId_idx` ON `members`;
 
--- AlterTable
-ALTER TABLE `members` MODIFY `employmentType` VARCHAR(191) NULL DEFAULT 'NULL';
 
 -- CreateTable
 CREATE TABLE `ag_attendance` (

@@ -1,71 +1,115 @@
 import {selectCurrentUser} from "@/app/store/slices/authSlice";
 import {useSelector} from "react-redux";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {getMe, updateUser} from "@/api/services/user";
 import {User} from "@/api/type";
 import {Input} from "@/components/ui/input";
-import { Button } from "../ui/button";
+import {Button} from "@/components/ui/button";
 import {Label} from "@/components/ui/label";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {toast} from "../ui/use-toast";
 
 const EditProfile = () => {
-    const user = useSelector(selectCurrentUser)
-    const [fullUser, setFullUser] = useState<User| null>(null);
-    const emailRef = useRef<HTMLInputElement>(null);
-    const firstNameRef = useRef<HTMLInputElement>(null);
-    const lastNameRef = useRef<HTMLInputElement>(null);
-    const oldPasswordRef = useRef<HTMLInputElement>(null);
-    const newPasswordRef = useRef<HTMLInputElement>(null);
-    const verifyNewPasswordRef = useRef<HTMLInputElement>(null);
-
-    const loadUser = async () => {
-        if (!user) return;
-        const response = await getMe()
-        setFullUser(response)
-    }
+    const user = useSelector(selectCurrentUser);
+    const [fullUser, setFullUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        loadUser()
-    }, []);
+        const loadUser = async () => {
+            if (!user) return;
+            const response = await getMe();
+            setFullUser(response);
+        };
+        loadUser();
+    }, [user]);
 
-    const handleChangesInformation = async () => {
-        if (!fullUser || emailRef.current?.value === "" || firstNameRef.current?.value === "" || lastNameRef.current?.value === "") {return}
-        await updateUser(fullUser.id, {
-            email: emailRef.current?.value,
-            firstName: firstNameRef.current?.value,
-            lastName: lastNameRef.current?.value,
-        })
-    }
-
-    const handleChangesPassword = () => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!fullUser) return;
-        if (oldPasswordRef.current?.value === "" || newPasswordRef.current?.value === "" || verifyNewPasswordRef.current?.value === "") {return}
-        if (verifyNewPasswordRef.current?.value !== newPasswordRef.current?.value) {}
-    }
+        setFullUser({...fullUser, [e.target.name]: e.target.value});
+    };
 
-    return (
-        <div>
-            <h1>Edit your profile</h1>
-            {fullUser ?
-                <>
-                    <Label htmlFor={"email"}>Email</Label>
-                    <Input id={"email"} value={fullUser.email} onChange={() => {setFullUser({...fullUser, email: String(emailRef.current?.value)})}} ref={emailRef} placeholder={"Email"} type={"email"}/>
-                    <Label htmlFor={"firstName"}>First Name</Label>
-                    <Input id={"firstName"} value={fullUser.firstName} onChange={() => {setFullUser({...fullUser, firstName: String(firstNameRef.current?.value)})}} ref={firstNameRef} placeholder={"First Name"} type={"text"}/>
-                    <Label htmlFor={"lastName"}>Last Name</Label>
-                    <Input id={"lastName"} value={fullUser.lastName} onChange={() => {setFullUser({...fullUser, lastName: String(lastNameRef.current?.value)})}}  ref={lastNameRef} placeholder={"Last Name"} type={"text"}/>
-                    <Button onClick={handleChangesInformation}>Confirm Changes</Button>
-                    <hr/>
-                    <Input ref={oldPasswordRef} placeholder={"Old Password"} type={"password"}/>
-                    <Input ref={newPasswordRef} placeholder={"New Password"} type={"password"}/>
-                    <Input ref={verifyNewPasswordRef} placeholder={"Verify New Password"} type={"password"}/>
-                    <Button onClick={handleChangesPassword}>Confirm Changes</Button>
-                </>
-                :
-                    null
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!fullUser) return;
+        setIsLoading(true);
+        try {
+            await updateUser(fullUser.id, {
+                email: fullUser.email,
+                firstName: fullUser.firstName,
+                lastName: fullUser.lastName,
+            });
+            toast({
+                title: "Success",
+                description: "Profile updated successfully",
+            });
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            toast({
+                title: "Error",
+                description: "Failed to update profile",
+                variant: "destructive",
+            });
+            setIsLoading(false);
+        }
+
+        if (!fullUser) return null;
+
+        /*const handleChangesPassword = () => {
+            if (!fullUser) return;
+            if (oldPasswordRef.current?.value === "" || newPasswordRef.current?.value === "" || verifyNewPasswordRef.current?.value === "") {
+                return
             }
+            if (verifyNewPasswordRef.current?.value !== newPasswordRef.current?.value) {
+            }
+        }*/
 
-        </div>
-    )
-}
+        return (
+            <form onSubmit={handleSubmit}>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Edit Your Profile</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                                id="email"
+                                name="email"
+                                type="email"
+                                value={fullUser.email}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="firstName">First Name</Label>
+                            <Input
+                                id="firstName"
+                                name="firstName"
+                                type="text"
+                                value={fullUser.firstName}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="lastName">Last Name</Label>
+                            <Input
+                                id="lastName"
+                                name="lastName"
+                                type="text"
+                                value={fullUser.lastName}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading ? "Updating..." : "Update Profile"}
+                        </Button>
+                    </CardContent>
+                </Card>
+            </form>
+        );
+    };
 
-export default EditProfile
+    export default EditProfile;

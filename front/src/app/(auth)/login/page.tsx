@@ -1,24 +1,26 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import { useDispatch } from "react-redux";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { tokenUtils } from "@/api/config";
 import { authService } from "@/api/services/auth";
 import { DecodedToken, LoginRequest } from "@/api/type";
-import { tokenUtils } from "@/api/config";
-import { setCredentials } from "@/app/store/slices/authSlice";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
+  const searchParams = useSearchParams();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,16 +31,27 @@ export default function LoginPage() {
       const result = await authService.login(credentials);
 
       const decoded: DecodedToken = tokenUtils.decodeToken(result.accessToken);
-      const redirectPath = authService.getInitialRoute(decoded, null);
+
+      // Récupérer l'URL de redirection depuis les paramètres de requête
+      const redirectUrl = searchParams.get("redirect");
+
+      const redirectPath = authService.getInitialRoute(
+        decoded,
+        null,
+        redirectUrl || undefined
+      );
       router.push(redirectPath);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
       } else {
-        setError("Une erreur s'est produite lors de la connexion");
+        setError("An error occurred during login");
       }
       console.error("Login error:", error);
     }
+  };
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -49,10 +62,10 @@ export default function LoginPage() {
             <CardTitle>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl font-semibold">Se connecter</span>
+                  <span className="text-xl font-semibold">Login</span>
                 </div>
                 <Link href="/" className="text-muted-accent hover:underline">
-                  Retour à l&apos;accueil
+                  Back to Home
                 </Link>
               </div>
             </CardTitle>
@@ -65,7 +78,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="votre@email.com"
+                  placeholder="your@email.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -73,39 +86,49 @@ export default function LoginPage() {
               </div>
               <div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Mot de passe</Label>
+                  <Label htmlFor="password">Password</Label>
                   <Link
                     href="/forgot-password"
                     className="text-sm text-muted-foreground hover:underline"
                   >
-                    Mot de passe oublié ?
+                    Forgot password?
                   </Link>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    )}
+                  </button>
+                </div>
               </div>
-              <Button type="submit" className="w-full" onSubmit={handleSubmit}>
-                Se connecter
-              </Button>
-              <Button variant="outline" className="w-full" type="button">
-                Se connecter avec Google
+              <Button type="submit" className="w-full">
+                Login
               </Button>
             </form>
             <div className="mt-4 text-center text-sm text-muted-foreground">
-              Pas encore de compte ?{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/signup" className="underline">
-                S&apos;inscrire
+                Sign up
               </Link>
             </div>
           </CardContent>
         </Card>
       </div>
-      <div className="hidden bg-muted lg:block">
+      <div className="lg:block">
         <Image
           src="/picture.PNG"
           alt="Image"

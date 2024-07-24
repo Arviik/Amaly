@@ -1,93 +1,127 @@
-import { Currency, Handshake, LucideFile, User } from "lucide-react";
+"use client";
+import { useCallback, useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Organization } from "@/api/type";
+import { OrganizationCard } from "@/components/public/nonProfitBoard/OrganizationCard";
+import { getAllOrganizations } from "@/api/services/organization";
+import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
-import FeatureCard from "@/components/public/FeatureCard";
-import { Footer } from "@/components/public/Footer";
-import { Header } from "@/components/public/Header";
 
-const features = [
-  {
-    icon: User,
-    title: "Gestion des membres",
-    description:
-      "Gérez facilement les adhésions, les statuts et les informations de vos membres.",
-  },
-  {
-    icon: Currency,
-    title: "Gestion des dons",
-    description: "Suivez et gérez les dons de manière efficace et sécurisée.",
-  },
-  {
-    icon: Handshake,
-    title: "Assemblées générales",
-    description:
-      "Organisez et gérez vos assemblées générales en toute simplicité.",
-  },
-  {
-    icon: LucideFile,
-    title: "Gestion des documents",
-    description:
-      "Stockez et partagez vos documents importants en toute sécurité.",
-  },
-];
+export default function NonprofitBoard() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [filteredOrganizations, setFilteredOrganizations] = useState<
+    Organization[]
+  >([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const { toast } = useToast();
 
-export default function RootPage() {
-  console.log("RootPage");
+  const fetchOrganizations = useCallback(async () => {
+    try {
+      const data = await getAllOrganizations();
+      setOrganizations(data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch organizations",
+      });
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    fetchOrganizations();
+  }, [fetchOrganizations]);
+
+  useEffect(() => {
+    const filtered = organizations.filter((org) =>
+      org.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredOrganizations(filtered);
+    setShowSuggestions(searchTerm.length > 0);
+  }, [searchTerm, organizations]);
+
   return (
-    <main>
-      <div className="container mx-auto py-12 px-4">
-        <section className="text-center py-12">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight">
-            Simplifiez la gestion de votre association avec{" "}
-            <span className="text-primary">Amaly</span>
-          </h1>
-          <p className="max-w-3xl mx-auto mt-4 text-lg sm:text-xl text-muted-foreground">
-            Une solution tout-en-un pour gérer vos membres, vos dons, vos
-            assemblées générales et vos documents importants.
-          </p>
-          <div className="mt-8 flex justify-center space-x-4">
-            <Link href="/login" passHref>
-              <Button size="lg">Se connecter</Button>
-            </Link>
-            <Link href="/signup" passHref>
-              <Button variant="secondary" size="lg">
-                Essayer gratuitement
-              </Button>
-            </Link>
-          </div>
-        </section>
-
-        <section className="py-12">
-          <h2 className="text-3xl font-semibold text-center mb-8">
-            Fonctionnalités clés
-          </h2>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {features.map((feature, index) => (
-              <FeatureCard key={index} {...feature} />
-            ))}
-          </div>
-        </section>
-
-        <section className="bg-gray-50 py-12 rounded-lg">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-semibold mb-4">Notre promesse</h2>
-            <p className="text-lg sm:text-xl text-muted-foreground">
-              Amaly a été conçu pour vous offrir une expérience de gestion
-              d&apos;association simplifiée et efficace. Avec notre plateforme
-              intuitive, vous pouvez facilement gérer vos membres, suivre les
-              dons, organiser des assemblées générales et stocker vos documents
-              importants en toute sécurité.
-            </p>
-            <div className="mt-8">
-              <Link href="/signup" passHref>
-                <Button size="lg">Commencer maintenant</Button>
-              </Link>
+    <main className="flex flex-col min-h-screen">
+      <section className="bg-primary text-primary-foreground p-32">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="md:w-1/2">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-justify">
+                Make a Difference
+                <br />
+                Together
+              </h1>
+            </div>
+            <div className="md:w-1/2">
+              <p className="text-xl py-4">
+                Find the organization that aligns with your values and get
+                involved for a better world.
+              </p>
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="Search for an organization..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full py-3 pl-4 pr-12 rounded-full bg-background text-foreground"
+                />
+                <Button className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full px-4 py-2 bg-secondary text-secondary-foreground">
+                  Search
+                </Button>
+                {showSuggestions && (
+                  <div className="absolute mt-2 w-full bg-background rounded-md shadow-lg  z-10">
+                    {filteredOrganizations.map((org) => (
+                      <Link key={org.id} href={`/organizations/${org.id}`}>
+                        <p className="px-4 py-2 text-secondary-foreground hover:bg-muted">
+                          {org.name}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </section>
-      </div>
-      <Footer />
+        </div>
+      </section>
+
+      <section className="bg-secondary py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold mb-8 text-center text-secondary-foreground">
+            Explore inspiring non-profit organizations
+          </h2>
+          <p className="text-center text-secondary-foreground mb-8">
+            Discover organizations that align with your values and get involved
+            for a better world.
+          </p>
+          <div className="mb-12">
+            <Carousel className="w-full">
+              <CarouselContent>
+                {organizations.map((org) => (
+                  <CarouselItem
+                    key={org.id}
+                    className="md:basis-1/2 lg:basis-1/3"
+                  >
+                    <div className="p-1">
+                      <OrganizationCard organization={org} />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

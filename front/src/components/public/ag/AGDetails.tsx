@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import React, {useCallback, useEffect, useState} from "react";
 import {AGs, Member, User} from "@/api/type";
-import {declareAgAttendance, deleteMemberFromAG, getAGSById, getMemberFromAG} from "@/api/services/ags";
-import {useSelector} from "react-redux";
-import {selectCurrentMember} from "@/app/store/slices/authSlice";
-import {usePathname, useRouter} from "next/navigation";
+import { declareAgAttendance, deleteMemberFromAG, getAGSById, getMemberFromAG} from "@/api/services/ags";
+import { useSelector } from "react-redux";
+import { selectCurrentMember } from "@/app/store/slices/authSlice";
+import { usePathname , useRouter} from "next/navigation";
 import {DataTable} from "@/components/common/DataTable";
 import {Field} from "@/components/common/CrudModals";
 import {deleteMemberFromActivity, getMemberFromActivity} from "@/api/services/activity";
@@ -21,7 +21,6 @@ const columns: { key: keyof (Member & Pick<User, "firstName" | "lastName">); hea
 
 const fields: Field[] = [
 ];
-
 
 const AGDetails = ({id}: {id: string}) => {
     const [AG, setAG] = useState<AGs>();
@@ -84,28 +83,35 @@ const AGDetails = ({id}: {id: string}) => {
         fetchMembers()
     }, [AG]);
 
-    const loadAG = async () => {
-        const response = await getAGSById(Number(id))
-        setAG(response)
-    }
+  const loadAG = async () => {
+    const response = await getAGSById(Number(id));
+    setAG(response);
+  };
 
-    const handleDeclarePresence = async () => {
-        if (!member || !AG) return;
-        const response = await declareAgAttendance(member.organizationId, {agId: AG.id})
-        console.log(response)
-    }
+  const handleDeclarePresence = async () => {
+    if (!member || !AG) return;
+    const response = await declareAgAttendance(member.organizationId, {
+      agId: AG.id,
+    });
+    console.log(response);
+  };
 
-    useEffect(() => {
-        loadAG()
-    }, []);
+  useEffect(() => {
+    loadAG();
+  }, []);
 
-    return (
-        <div>
-            <Button onClick={() => {router.push(pathname.split('/').slice(0, pathname.split('/').length - 1).join('/'))}}>Back</Button>
-            <h1>AG Details</h1>
-            <h1>{AG?.title}</h1>
-            <h1>{AG?.description}</h1>
-            <Button onClick={handleDeclarePresence}>Je suis présent</Button>
+  return (
+    <div>
+      <Button onClick={() => {router.push(pathname
+          .split("/")
+          .slice(0, pathname.split("/").length - 1).join("/"))}}
+      >
+        Back
+      </Button>
+      <h1>AG Details</h1>
+      <h1>{AG?.title}</h1>
+      <h1>{AG?.description}</h1>
+      <Button onClick={handleDeclarePresence}>I&apos;m present</Button>
             <hr/>
             {
                 member?.isAdmin &&
@@ -120,8 +126,8 @@ const AGDetails = ({id}: {id: string}) => {
                 </div>
 
             }
-        </div>
-    )
-}
+    </div>
+  );
+};
 
-export default AGDetails
+export default AGDetails;

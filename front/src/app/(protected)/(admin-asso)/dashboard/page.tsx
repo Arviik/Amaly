@@ -15,7 +15,7 @@ import {selectMemberships} from "@/app/store/slices/authSlice";
 const DashboardAdmin: React.FC = () => {
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background-100">
       {/* Main Content Section */}
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">

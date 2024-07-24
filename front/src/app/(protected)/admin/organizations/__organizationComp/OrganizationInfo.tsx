@@ -13,14 +13,19 @@ export function OrganizationInfo({ organization }: OrganizationInfoProps) {
       </CardHeader>
       <CardContent>
         <p>Description: {organization.description}</p>
-        <p>Date de création: {organization.createdAt.toLocaleDateString()}</p>
+        <p>
+          Date de création:{" "}
+          {new Date(organization.createdAt).toLocaleDateString()}
+        </p>
         <p>Type: {organization.type}</p>
         <p>Adresse: {organization.address}</p>
         <p>Email: {organization.email}</p>
         <p>Téléphone: {organization.phone}</p>
-        {/* <p>Contact principal: {organization.contactName}</p>
-        <p>Email du contact: {organization.contactEmail}</p>
-        <p>Téléphone du contact: {organization.contactPhone}</p> */}
+        <p>
+          Propriétaire: {organization.owner.firstName}{" "}
+          {organization.owner.lastName}
+        </p>
+        <p>Email du propriétaire: {organization.owner.email}</p>
       </CardContent>
     </Card>
   );

@@ -1,5 +1,4 @@
-import React from "react";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,21 +9,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
-import { RootState } from "@/app/store";
-import { clearCredentials } from "@/app/store/slices/authSlice";
-import { useRouter } from "next/navigation";
 import { authService } from "@/api/services/auth";
+import { RootState } from "@/app/store";
+import { User } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function UserNav() {
   const user = useSelector((state: RootState) => state.auth.user);
   const router = useRouter();
-  const dispatch = useDispatch();
   const handleLogout = async () => {
     try {
       await authService.logout();
-      router.push("/login");
+      router.push("/");
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
     }
@@ -35,8 +33,8 @@ export function UserNav() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={""} alt={user.firstName || ""} />
+            <Avatar className="flex justify-center items-center h-8 w-8">
+              <User />
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
@@ -53,7 +51,6 @@ export function UserNav() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
