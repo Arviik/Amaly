@@ -49,7 +49,7 @@ interface File {
   name: string;
 }
 
-const File: React.FC<{
+const FileItem: React.FC<{
   file: File;
   accessFileHandler: (path: string) => void;
   renameFileHandler: (id: number, newName: string) => void;
@@ -63,7 +63,8 @@ const File: React.FC<{
     try {
       const doc: any = await getDocument(file.id);
       const a = document.createElement("a");
-      a.href = doc.file;
+      const filet = new File([doc.file], doc.document.title)
+      a.href = URL.createObjectURL(filet);
       a.download = doc.document.title;
       a.click();
     } catch (error) {
@@ -222,7 +223,7 @@ const FileList: React.FC<{
           </TableHeader>
           <TableBody>
             {fileList.map((item) => (
-              <File
+              <FileItem
                 key={item.id}
                 file={item}
                 accessFileHandler={accessFileHandler}

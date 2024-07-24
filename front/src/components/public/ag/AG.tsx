@@ -122,10 +122,15 @@ const AG = () => {
             title="Create New Item"
         />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {AGList.map((AG: AGs) => (
-          <Card
-            key={AG.id}
-            className="hover:shadow-lg transition-shadow duration-300"
+          {AGList.length == 0 &&
+              <h1 className="text-xl font-bold mb-8 text-center">
+                  Pas d&apos;assemblées organisés
+              </h1>
+          }
+          {AGList.map((AG: AGs) => (
+              <Card
+                  key={AG.id}
+                  className="hover:shadow-lg transition-shadow duration-300"
           >
             <CardContent className="p-6">
               <Link
