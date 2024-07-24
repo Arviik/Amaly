@@ -1,4 +1,4 @@
-import { User, Organization, UserMembership } from "@/api/type";
+import { User, Organization, UserMembership, MemberStatus } from "@/api/type";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "..";
 
@@ -53,6 +53,11 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.selectedOrganizationId = null;
     },
+    updateMemberStatus: (state, action: PayloadAction<MemberStatus>) => {
+      if (state.selectedMember) {
+        state.selectedMember.status = action.payload;
+      }
+    },
   },
 });
 
@@ -62,6 +67,7 @@ export const {
   setMemberships,
   setCurrentMember,
   clearCredentials,
+  updateMemberStatus,
 } = authSlice.actions;
 
 export default authSlice.reducer;

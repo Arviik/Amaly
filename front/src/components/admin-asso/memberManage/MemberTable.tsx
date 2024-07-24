@@ -1,12 +1,11 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { Member, MemberStatus } from "@/api/type";
 import {
   getMembersByOrganizationId,
   updateMember,
   deleteMember,
-  inviteMember,
 } from "@/api/services/member";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,58 +18,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
-
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { selectSelectedOrganizationId } from "@/app/store/slices/authSlice";
-
-type InviteMemberDialogProps = {
-  onSubmit: (email: string) => void;
-};
-
-const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({
-  onSubmit,
-}) => {
-  const [email, setEmail] = useState("");
-
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button>Inviter un membre</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Inviter un membre</DialogTitle>
-          <DialogDescription>
-            Envoyez une invitation par e-mail ou partagez le lien
-            d&apos;inscription.
-          </DialogDescription>
-        </DialogHeader>
-        <div>
-          <Input
-            type="email"
-            placeholder="Adresse e-mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Button onClick={() => onSubmit(email)}>
-            Envoyer l&apos;invitation
-          </Button>
-        </div>
-        <DialogFooter>
-          <p>Lien d&apos;inscription :</p>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 interface EditMemberDialogProps {
   member: Member;
@@ -101,7 +66,7 @@ const EditMemberDialog = ({
       ...member,
       role: formData.role,
       isAdmin: formData.isAdmin,
-      status: formData.status,
+      status: formData.status as MemberStatus,
       user: {
         ...member.user,
         firstName: formData.firstName,
@@ -110,63 +75,91 @@ const EditMemberDialog = ({
       },
     });
   };
+
   return (
     <Dialog open={!!member} onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Modifier un membre</DialogTitle>
         </DialogHeader>
-        <div>
-          <label>
-            Rôle:
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="role" className="text-right">
+              Rôle
+            </Label>
             <Input
+              id="role"
               value={formData.role}
               onChange={(e) => handleChange("role", e.target.value)}
+              className="col-span-3"
             />
-          </label>
-          <label>
-            Admin:
-            <Input
-              type="checkbox"
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="isAdmin" className="text-right">
+              Admin
+            </Label>
+            <Switch
+              id="isAdmin"
               checked={formData.isAdmin}
-              onChange={(e) => handleChange("isAdmin", e.target.checked)}
+              onCheckedChange={(checked: boolean) =>
+                handleChange("isAdmin", checked)
+              }
             />
-          </label>
-          <label>
-            Statut:
-            <select
-              value={formData.status}
-              onChange={(e) => handleChange("status", e.target.value)}
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="status" className="text-right">
+              Statut
+            </Label>
+            <Select
+              onValueChange={(value) => handleChange("status", value)}
+              defaultValue={formData.status}
             >
-              {Object.values(MemberStatus).map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Prénom:
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="Sélectionnez un statut" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(MemberStatus).map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="firstName" className="text-right">
+              Prénom
+            </Label>
             <Input
+              id="firstName"
               value={formData.firstName}
               onChange={(e) => handleChange("firstName", e.target.value)}
+              className="col-span-3"
             />
-          </label>
-          <label>
-            Nom:
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="lastName" className="text-right">
+              Nom
+            </Label>
             <Input
+              id="lastName"
               value={formData.lastName}
               onChange={(e) => handleChange("lastName", e.target.value)}
+              className="col-span-3"
             />
-          </label>
-          <label>
-            E-mail:
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="email" className="text-right">
+              E-mail
+            </Label>
             <Input
+              id="email"
               type="email"
               value={formData.email}
               onChange={(e) => handleChange("email", e.target.value)}
+              className="col-span-3"
             />
-          </label>
+          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>
@@ -193,28 +186,17 @@ function MemberManagement() {
       setMembers(data);
     } catch (error) {
       console.error("Failed to fetch members", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de récupérer la liste des membres.",
+        variant: "destructive",
+      });
     }
   }, [organizationId]);
 
   useEffect(() => {
     fetchMembers();
   }, [fetchMembers]);
-
-  const handleInvite = async (email: string) => {
-    try {
-      await inviteMember(organizationId as number, email);
-      toast({
-        title: "Invitation envoyée",
-        description: `Une invitation a été envoyée à ${email}.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'envoi de l'invitation.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleUpdate = async (member: Member) => {
     try {
@@ -237,102 +219,123 @@ function MemberManagement() {
   };
 
   const handleDelete = async (id: number) => {
-    try {
-      alert("Are you sure you want to delete this member?");
-      await deleteMember(id);
-      fetchMembers();
-      toast({
-        title: "Membre supprimé",
-        description: "Le membre a été supprimé avec succès.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description:
-          "Une erreur est survenue lors de la suppression du membre.",
-        variant: "destructive",
-      });
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce membre ?")) {
+      try {
+        await deleteMember(id);
+        fetchMembers();
+        toast({
+          title: "Membre supprimé",
+          description: "Le membre a été supprimé avec succès.",
+        });
+      } catch (error) {
+        toast({
+          title: "Erreur",
+          description:
+            "Une erreur est survenue lors de la suppression du membre.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
-  const filteredMembers = members.filter((member) =>
-    Object.values(member).some((value) =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+  const filteredMembers = useMemo(() => {
+    return members.filter((member) =>
+      Object.values(member).some((value) => {
+        if (value === null || value === undefined) {
+          return false;
+        }
+        if (typeof value === "object") {
+          return Object.values(value).some((nestedValue) =>
+            String(nestedValue).toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+        return String(value).toLowerCase().includes(searchTerm.toLowerCase());
+      })
+    );
+  }, [members, searchTerm]);
 
-  const paginatedMembers = filteredMembers.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedMembers = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredMembers.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredMembers, currentPage, itemsPerPage]);
 
   return (
-    <div>
-      <div className="mb-4 flex justify-between">
-        <Input
-          placeholder="Rechercher..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <InviteMemberDialog onSubmit={handleInvite} />
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Rôle</TableHead>
-            <TableHead>Admin</TableHead>
-            <TableHead>Statut</TableHead>
-            <TableHead>Prénom</TableHead>
-            <TableHead>Nom</TableHead>
-            <TableHead>E-mail</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paginatedMembers.map((member) => (
-            <TableRow key={member.id}>
-              <TableCell>{member.id}</TableCell>
-              <TableCell>{member.role}</TableCell>
-              <TableCell>{member.isAdmin ? "Oui" : "Non"}</TableCell>
-              <TableCell>{member.status}</TableCell>
-              <TableCell>{member.user.firstName}</TableCell>
-              <TableCell>{member.user.lastName}</TableCell>
-              <TableCell>{member.user.email}</TableCell>
-              <TableCell>
-                <Button variant="link" onClick={() => setEditingMember(member)}>
-                  Modifier
-                </Button>
-                <Button variant="link" onClick={() => handleDelete(member.id)}>
-                  Supprimer
-                </Button>
-              </TableCell>
+    <main>
+      <CardContent>
+        <div className="mb-4">
+          <Input
+            placeholder="Rechercher..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>ID</TableHead>
+              <TableHead>Rôle</TableHead>
+              <TableHead>Admin</TableHead>
+              <TableHead>Statut</TableHead>
+              <TableHead>Prénom</TableHead>
+              <TableHead>Nom</TableHead>
+              <TableHead>E-mail</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <div className="mt-4 flex justify-between">
-        <Button
-          variant="outline"
-          onClick={() => setCurrentPage(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          Précédent
-        </Button>
-        <p>
-          Page {currentPage} sur{" "}
-          {Math.ceil(filteredMembers.length / itemsPerPage)}
-        </p>
-        <Button
-          variant="outline"
-          onClick={() => setCurrentPage(currentPage + 1)}
-          disabled={
-            currentPage === Math.ceil(filteredMembers.length / itemsPerPage)
-          }
-        >
-          Suivant
-        </Button>
-      </div>
+          </TableHeader>
+          <TableBody>
+            {paginatedMembers.map((member) => (
+              <TableRow key={member.id}>
+                <TableCell>{member.id}</TableCell>
+                <TableCell>{member.role}</TableCell>
+                <TableCell>{member.isAdmin ? "Oui" : "Non"}</TableCell>
+                <TableCell>{member.status}</TableCell>
+                <TableCell>{member.user.firstName}</TableCell>
+                <TableCell>{member.user.lastName}</TableCell>
+                <TableCell>{member.user.email}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mr-2"
+                    onClick={() => setEditingMember(member)}
+                  >
+                    Modifier
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(member.id)}
+                  >
+                    Supprimer
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <div className="mt-4 flex justify-between items-center">
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Précédent
+          </Button>
+          <span>
+            Page {currentPage} sur{" "}
+            {Math.ceil(filteredMembers.length / itemsPerPage)}
+          </span>
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={
+              currentPage === Math.ceil(filteredMembers.length / itemsPerPage)
+            }
+          >
+            Suivant
+          </Button>
+        </div>
+      </CardContent>
       {editingMember && (
         <EditMemberDialog
           member={editingMember}
@@ -340,7 +343,7 @@ function MemberManagement() {
           onCancel={() => setEditingMember(null)}
         />
       )}
-    </div>
+    </main>
   );
 }
 
