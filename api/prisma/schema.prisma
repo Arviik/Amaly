@@ -97,6 +97,7 @@ model MembershipTypes {
   organizationId Int
   subscriptions  Subscriptions[]
   stripeProductId String
+  stripePriceId String?
 
   @@map("membershiptypes")
 }

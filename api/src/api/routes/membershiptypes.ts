@@ -49,10 +49,13 @@ export const initMembershipTypes = (app: express.Express) => {
 
       const membershipTypesRequest = validation.value;
       try {
-        // Créer le produit Stripe
+        // Créer le produit Stripe avec métadonnées
         const stripeProduct = await stripe.products.create({
           name: membershipTypesRequest.name,
           description: membershipTypesRequest.description,
+          metadata: {
+            organization_id: membershipTypesRequest.organizationId.toString(),
+          },
         });
 
         // Créer le prix Stripe
@@ -75,6 +78,15 @@ export const initMembershipTypes = (app: express.Express) => {
             duration: membershipTypesRequest.duration,
             organizationId: membershipTypesRequest.organizationId,
             stripeProductId: stripeProduct.id,
+            stripePriceId: stripePrice.id,
+          },
+        });
+
+        // Mettre à jour le produit Stripe avec l'ID du type d'adhésion
+        await stripe.products.update(stripeProduct.id, {
+          metadata: {
+            ...stripeProduct.metadata,
+            membership_type_id: membershipType.id.toString(),
           },
         });
 
@@ -134,10 +146,27 @@ export const initMembershipTypes = (app: express.Express) => {
       const membershipTypesRequest = validation.value;
       console.log("membershipTypesRequest", membershipTypesRequest);
       try {
-        // Créer le produit Stripe
+        // Créer d'abord le type d'adhésion dans la base de données
+        const membershipType = await prisma.membershipTypes.create({
+          data: {
+            name: membershipTypesRequest.name,
+            description: membershipTypesRequest.description,
+            amount: membershipTypesRequest.amount,
+            duration: membershipTypesRequest.duration,
+            organizationId: membershipTypesRequest.organizationId,
+            stripeProductId: "",
+            stripePriceId: null,
+          },
+        });
+
+        // Ensuite, créer le produit Stripe
         const stripeProduct = await stripe.products.create({
           name: membershipTypesRequest.name,
           description: membershipTypesRequest.description,
+          metadata: {
+            membership_type_id: membershipType.id.toString(),
+            organization_id: membershipTypesRequest.organizationId.toString(),
+          },
         });
 
         // Créer le prix Stripe
@@ -151,26 +180,22 @@ export const initMembershipTypes = (app: express.Express) => {
           },
         });
 
-        // Créer le type d'adhésion dans la base de données
-        const membershipType = await prisma.membershipTypes.create({
+        // Mettre à jour le type d'adhésion avec les IDs Stripe
+        const updatedMembershipType = await prisma.membershipTypes.update({
+          where: { id: membershipType.id },
           data: {
-            name: membershipTypesRequest.name,
-            description: membershipTypesRequest.description,
-            amount: membershipTypesRequest.amount,
-            duration: membershipTypesRequest.duration,
-            organizationId: membershipTypesRequest.organizationId,
             stripeProductId: stripeProduct.id,
+            stripePriceId: stripePrice.id,
           },
         });
 
-        res.json(membershipType);
+        res.json(updatedMembershipType);
       } catch (e) {
         res.status(500).send({ error: e });
         return;
       }
     }
   );
-
   app.get("/organization/:organizationId/membershiptypes", async (req, res) => {
     try {
       const allMembershipTypes = await prisma.membershipTypes.findMany({

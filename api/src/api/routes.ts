@@ -41,7 +41,6 @@ export const initRoutes = (app: express.Express) => {
   initTaskResource(app);
   initJavaVersions(app);
   initAI(app);
-  initStripes(app);
   initSubscriptions(app);
   initMembershipTypes(app);
 

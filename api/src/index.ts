@@ -2,6 +2,7 @@ import express from "express";
 import { prisma } from "./utils/prisma";
 import { initRoutes } from "./api/routes";
 import cors from "cors";
+import { initStripes } from "./api/routes/stripes";
 
 const main = async () => {
   const app = express();
@@ -17,10 +18,10 @@ const main = async () => {
 
   app.use(cors());
 
-  app.use(express.json({ limit: "50mb" }));
-
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
+    initStripes(app);
+    app.use(express.json({ limit: "50mb" }));
     initRoutes(app);
   });
 };

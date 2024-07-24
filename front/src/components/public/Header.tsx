@@ -1,6 +1,10 @@
-import Link from "next/link";
-import { Button } from "../ui/button";
+"use client ";
+import { RootState } from "@/app/store";
 import Image from "next/image";
+import Link from "next/link";
+import { useSelector } from "react-redux";
+import HeaderConnected from "../layout/header/HeaderConnected";
+import { Button } from "../ui/button";
 
 export const Header = () => {
   return (
