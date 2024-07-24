@@ -10,9 +10,6 @@
 ALTER TABLE `organization_invitation` DROP FOREIGN KEY `organization_invitation_organizationsId_fkey`;
 
 -- AlterTable
-ALTER TABLE `members` MODIFY `employmentType` VARCHAR(191) NULL DEFAULT 'NULL';
-
--- AlterTable
 ALTER TABLE `organization_invitation` DROP PRIMARY KEY,
     DROP COLUMN `organizationsId`,
     ADD COLUMN `organizationId` INTEGER NOT NULL,

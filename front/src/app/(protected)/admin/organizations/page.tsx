@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { OrganizationTable } from "@/components/super-admin/OrgTab";
+import { OrganizationTable } from "@/components/super-admin/Org/OrgTab";
 
 const OrganizationsPage: React.FC = () => {
   return (

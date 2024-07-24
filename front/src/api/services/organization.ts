@@ -66,6 +66,7 @@ export const updateOrganization = async (
   organizationData: Partial<OrganizationPatch>
 ): Promise<Organization> => {
   try {
+    console.log("Updating Organization with data:", organizationData);
     const response = await api.patch(`organizations/${id}`, {
       json: organizationData,
     });

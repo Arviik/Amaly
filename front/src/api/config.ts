@@ -31,7 +31,7 @@ const api = ky.create({
     beforeRequest: [
       (request) => {
         const tokens = tokenUtils.getTokens();
-        console.log(tokens)
+
         if (tokens?.accessToken) {
           request.headers.set("Authorization", `Bearer ${tokens.accessToken}`);
         }
@@ -96,8 +96,6 @@ const refreshToken = async (): Promise<boolean> => {
 
   return refreshPromise;
 };
-
-// ...
 
 const getUserRole = (): boolean | null => {
   const tokens = tokenUtils.getTokens();

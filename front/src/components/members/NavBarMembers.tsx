@@ -4,8 +4,10 @@ import {
   ArrowRightToLine,
   File,
   Home,
-  Menu, Presentation,
-  Settings, UserRoundCog,
+  Menu,
+  Presentation,
+  Settings,
+  UserRoundCog,
   Users,
 } from "lucide-react";
 import Image from "next/image";
@@ -13,7 +15,7 @@ import Link from "next/link";
 import React from "react";
 import LogoutButton from "../public/LogoutButton";
 import { useMemberNav } from "./MemberNavContext";
-import NavItem from "../admin-asso/NavItem";
+import NavItem from "../layout/Navbar/NavItem";
 
 export const navItems = [
   { icon: Home, label: "Dashboard", href: "/dashboard" },

@@ -6,6 +6,7 @@ import {
   LoginResponse,
   TokenResponse,
   DecodedToken,
+  SignupRequest,
 } from "../type";
 
 export const authService = {
@@ -50,8 +51,17 @@ export const authService = {
 
   getInitialRoute: (
     decoded: DecodedToken,
-    selectedOrganizationId: number | null
+    selectedOrganizationId: number | null,
+    redirectUrl?: string
   ): string => {
+    // Si un redirectUrl est fourni, on l'utilise en priorité
+    if (redirectUrl) {
+      // Vérifiez si l'URL de redirection est valide (par exemple, commence par '/')
+      if (redirectUrl.startsWith("/")) {
+        return redirectUrl;
+      }
+    }
+
     if (decoded.isSuperAdmin) {
       return "/admin/overview";
     }
@@ -59,12 +69,12 @@ export const authService = {
     const membershipsCount = decoded.memberships.length;
 
     if (membershipsCount === 0) {
-      return "/"; // À remplacer par "/marketplace" une fois implémenté
+      return "/";
     }
 
     if (selectedOrganizationId) {
       const selectedMembership = decoded.memberships.find(
-        (m) => m.organizationId === selectedOrganizationId
+        (m) => m.organizationId === selectedOrganizationId && m.isAdmin
       );
       if (selectedMembership) {
         return selectedMembership.isAdmin ? "/dashboard" : "/member";
@@ -77,5 +87,53 @@ export const authService = {
     }
 
     return "/profiles";
+  },
+
+  sendPasswordResetEmail: async (email: string): Promise<void> => {
+    try {
+      await api.post("auth/forgot-password", { json: { email } });
+    } catch (error) {
+      console.error("Send password reset email error:", error);
+      throw error;
+    }
+  },
+
+  resetPassword: async (token: string, newPassword: string): Promise<void> => {
+    try {
+      await api.post("auth/reset-password", { json: { token, newPassword } });
+    } catch (error) {
+      console.error("Reset password error:", error);
+      throw error;
+    }
+  },
+  signup: async (data: SignupRequest): Promise<TokenResponse> => {
+    try {
+      const response = await api.post("auth/signup", { json: data });
+      const result: TokenResponse = await response.json();
+      if (result.accessToken && result.refreshToken) {
+        tokenUtils.setTokens(result);
+        const decoded: DecodedToken = tokenUtils.decodeToken(
+          result.accessToken
+        );
+        store.dispatch(
+          setCredentials({
+            user: {
+              id: decoded.userId,
+              firstName: decoded.firstName || "",
+              lastName: decoded.lastName || "",
+              email: decoded.email,
+              isSuperAdmin: decoded.isSuperAdmin,
+            },
+            memberships: decoded.memberships,
+          })
+        );
+        return result;
+      } else {
+        throw new Error("Invalid signup response");
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      throw error;
+    }
   },
 };

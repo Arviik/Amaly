@@ -8,6 +8,8 @@ export const generateAccessToken = (
 ) => {
   const memberships = userMemberships.map((membership) => ({
     id: membership.id,
+    role: membership.role,
+    status: membership.status,
     organizationId: membership.organizationId,
     organizationName: membership.organizationName,
     isAdmin: membership.isAdmin,
