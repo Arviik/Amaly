@@ -30,6 +30,7 @@ export const SubscriptionForm = ({
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const currentMember = useSelector(selectCurrentMember);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   useEffect(() => {
     const fetchMembershipTypes = async () => {
@@ -40,7 +41,7 @@ export const SubscriptionForm = ({
         if (response.ok) {
           const data: MembershipType[] = await response.json();
           setMembershipTypes(data);
-          if (data.length > 0) {
+          if (data.length === 1) {
             setSelectedMembershipType(data[0]);
           }
         } else {
@@ -68,17 +69,34 @@ export const SubscriptionForm = ({
     setLoading(true);
 
     try {
+      const startDate = new Date();
+      const endDate = new Date(
+        startDate.getTime() +
+          selectedMembershipType.duration * 30 * 24 * 60 * 60 * 1000
+      ); // Assuming duration is in months
+
       const response = await api.post("subscriptions", {
         json: {
-          membershipTypeId: selectedMembershipType.id,
-          organizationId,
           memberId: currentMember.id,
+          membershipTypeId: selectedMembershipType.id,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+          PaymentStatus: "PENDING",
+          stripeSubscriptionId: "",
         },
       });
 
       if (response.ok) {
         const data: any = await response.json();
-        window.location.href = data.checkoutUrl;
+        if (data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+        } else {
+          toast({
+            title: "Success",
+            description: "Subscription created successfully.",
+          });
+          onClose();
+        }
       } else {
         throw new Error("Failed to create subscription");
       }
@@ -93,6 +111,10 @@ export const SubscriptionForm = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleButtonDisabledConditionChanged = () => {
+    setIsButtonDisabled(isConfirmed);
   };
 
   return (
@@ -118,24 +140,27 @@ export const SubscriptionForm = ({
             ))}
           </SelectContent>
         </Select>
+      ) : selectedMembershipType ? (
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold">
+            {selectedMembershipType.name}
+          </h3>
+          <p>
+            ${selectedMembershipType.amount} / {selectedMembershipType.duration}{" "}
+            months
+          </p>
+        </div>
       ) : (
-        selectedMembershipType && (
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold">
-              {selectedMembershipType.name}
-            </h3>
-            <p>
-              ${selectedMembershipType.amount} /{" "}
-              {selectedMembershipType.duration} months
-            </p>
-          </div>
-        )
+        <p>No membership types available</p>
       )}
       <div className="flex items-center space-x-2 mt-4">
         <Checkbox
           id="confirm"
           checked={isConfirmed}
-          onCheckedChange={(checked) => setIsConfirmed(checked as boolean)}
+          onCheckedChange={(checked) => {
+            setIsConfirmed(checked as boolean);
+            handleButtonDisabledConditionChanged();
+          }}
         />
         <label
           htmlFor="confirm"
@@ -144,11 +169,7 @@ export const SubscriptionForm = ({
           I confirm my choice to subscribe and agree to pay the amount
         </label>
       </div>
-      <Button
-        type="submit"
-        disabled={!selectedMembershipType || !isConfirmed || loading}
-        className="mt-4 w-full"
-      >
+      <Button type="submit" disabled={isButtonDisabled} className="mt-4 w-full">
         {loading ? "Processing..." : "Subscribe"}
       </Button>
     </form>

@@ -12,17 +12,11 @@ import Link from "next/link";
 import React from "react";
 
 const MemberDashboard: React.FC = () => {
-  // Mock data
   const memberName = "John Doe";
   const memberRole = "Active Member";
-  const lastLogin = "2 days ago";
   const upcomingActivities = [
     { id: 1, name: "Monthly Meeting", date: "May 15, 2023" },
     { id: 2, name: "Training Workshop", date: "May 22, 2023" },
-  ];
-  const recentEvents = [
-    { id: 1, name: "Open House Day", date: "May 5, 2023" },
-    { id: 2, name: "Fundraising Event", date: "April 30, 2023" },
   ];
 
   return (
@@ -35,18 +29,9 @@ const MemberDashboard: React.FC = () => {
                 <div>
                   <CardTitle className="text-2xl">Member Dashboard</CardTitle>
                   <CardDescription className="mt-1">
-                    Welcome to your Amaly member space, {memberName}.
+                    Welcome to your Amaly member space.
                   </CardDescription>
                 </div>
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src="/avatar.png" alt={memberName} />
-                  <AvatarFallback>
-                    {memberName
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
               </div>
             </CardHeader>
             <CardContent className="pt-6">
@@ -60,9 +45,7 @@ const MemberDashboard: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{memberRole}</div>
-                    <p className="text-xs text-muted-foreground">
-                      Last login: {lastLogin}
-                    </p>
+
                     <Button asChild className="mt-4 w-full">
                       <Link href="/member/settings">View my profile</Link>
                     </Button>
@@ -95,41 +78,11 @@ const MemberDashboard: React.FC = () => {
                     </Button>
                   </CardContent>
                 </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Events
-                    </CardTitle>
-                    <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {recentEvents.length} recent
-                    </div>
-                    <p className="text-xs text-muted-foreground">Past events</p>
-                    <ul className="mt-4 space-y-2">
-                      {recentEvents.map((event) => (
-                        <li key={event.id} className="text-sm">
-                          <span className="font-medium">{event.name}</span> -{" "}
-                          {event.date}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button asChild variant="outline" className="mt-4 w-full">
-                      <Link href="/member/events">View all events</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
               </div>
               <Card className="mt-6">
                 <CardHeader>
                   <CardTitle>Activity Participation</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-[300px] flex items-center justify-center bg-gray-100">
-                    Activity Participation Graph Placeholder
-                  </div>
-                </CardContent>
               </Card>
             </CardContent>
           </Card>
