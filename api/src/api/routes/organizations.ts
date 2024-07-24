@@ -9,19 +9,15 @@ import {
 import { v4 } from "uuid";
 
 export const initOrganizations = (app: express.Express) => {
-  app.get(
-    "/organizations",
-
-    async (req, res) => {
-      try {
-        const allOrganizations = await prisma.organizations.findMany();
-        res.json(allOrganizations);
-      } catch (e) {
-        res.status(500).send({ error: e });
-        return;
-      }
+  app.get("/organizations", async (req, res) => {
+    try {
+      const allOrganizations = await prisma.organizations.findMany();
+      res.json(allOrganizations);
+    } catch (e) {
+      res.status(500).send({ error: e });
+      return;
     }
-  );
+  });
 
   app.get("/organizations/:id(\\d+)", async (req, res) => {
     try {

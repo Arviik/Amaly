@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import {  Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 export const authMiddleware = async (
@@ -10,6 +10,7 @@ export const authMiddleware = async (
   if (!authHeader) {
     return res.status(401).json({ error: "Unauthorized" });
   }
+
 
   const token = authHeader.split(" ")[1];
   if (token === null) {

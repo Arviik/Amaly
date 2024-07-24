@@ -37,6 +37,7 @@ export const initSubscriptions = (app: express.Express) => {
   });
 
   app.post("/subscriptions", async (req, res) => {
+    console.log("la requete est", req.body);
     const validation = subscriptionCreateValidator.validate(req.body);
 
     if (validation.error) {
@@ -100,10 +101,10 @@ export const initSubscriptions = (app: express.Express) => {
           membership_type_id: membershipType.id.toString(),
           member_id: member.id.toString(),
           organization_id: subscriptionReq.organizationId,
+          checkout_session_id: "{{CHECKOUT_SESSION_ID}}",
         },
       });
-
-      res.json({ checkoutUrl: session.url });
+      res.status(200).json({ checkoutUrl: session.url });
     } catch (e) {
       console.log("la requete est", req.body);
       console.error("Error creating subscription:", e);

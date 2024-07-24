@@ -1,7 +1,6 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { selectCurrentMember } from "@/app/store/slices/authSlice";
+import React, { useEffect, useRef, useState, SetStateAction } from "react";
+
 import {
   deleteDocument,
   getAllDocumentsFromOrganization,
@@ -37,7 +36,15 @@ import {
   FiUpload,
   FiTrash2,
   FiEdit2,
+  FiDownload,
+  FiEye,
 } from "react-icons/fi";
+import {
+  selectCurrentMember,
+  selectSelectedOrganizationId,
+} from "@/app/store/slices/authSlice";
+import { useSelector } from "react-redux";
+import FilePreview from "./FilePreview";
 
 interface File {
   id: number;
@@ -49,24 +56,52 @@ interface File {
   name: string;
 }
 
+interface fileProps {
+  file: File;
+  accessFileHandler: (path: string) => void;
+  renameFileHandler: (id: number, newName: string) => void;
+  deleteFileHandler: (id: number) => void;
+}
+
 const FileItem: React.FC<{
   file: File;
   accessFileHandler: (path: string) => void;
   renameFileHandler: (id: number, newName: string) => void;
   deleteFileHandler: (id: number) => void;
-}> = ({ file, accessFileHandler, renameFileHandler, deleteFileHandler }) => {
+  previewFileHandler: (id: number) => Promise<string>;
+}> = ({
+  file,
+  accessFileHandler,
+  renameFileHandler,
+  deleteFileHandler,
+  previewFileHandler,
+}) => {
   const [newName, setNewName] = useState(file.title);
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const handlePreview = async () => {
+    try {
+      const url = await previewFileHandler(file.id);
+      setPreviewUrl(url);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to preview the file.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleDownload = async () => {
     try {
-      const doc: any = await getDocument(file.id);
-      const a = document.createElement("a");
-      const filet = new File([doc.file], doc.document.title)
-      a.href = URL.createObjectURL(filet);
-      a.download = doc.document.title;
-      a.click();
+        const doc: any = await getDocument(file.id);
+        const a = document.createElement("a");
+        const filet = new File([doc.file], doc.document.title)
+        a.href = URL.createObjectURL(filet);
+        a.download = doc.document.title;
+        a.click();
     } catch (error) {
       toast({
         title: "Error",
@@ -75,97 +110,118 @@ const FileItem: React.FC<{
       });
     }
   };
-
   const handleRename = () => {
     renameFileHandler(file.id, newName);
     setIsEditing(false);
   };
 
   return (
-    <TableRow className="hover:bg-gray-50 transition-colors">
-      <TableCell className="font-medium">
-        {file.type === "folder" ? (
-          <FiFolder className="mr-2 inline text-blue-500" />
-        ) : (
-          <FiFile className="mr-2 inline text-green-500" />
-        )}
-        {isEditing ? (
-          <Input
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            className="w-40 inline-block"
-          />
-        ) : (
-          file.title
-        )}
-      </TableCell>
-      <TableCell className="text-gray-500">{file.description}</TableCell>
-      <TableCell>
-        {file.type === "file" ? (
-          <Button variant="outline" size="sm" onClick={handleDownload}>
-            Download
-          </Button>
-        ) : (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => accessFileHandler(file.path + file.title)}
-          >
-            Open
-          </Button>
-        )}
-      </TableCell>
-      <TableCell>
-        {isEditing ? (
-          <>
-            <Button variant="ghost" size="sm" onClick={handleRename}>
-              Save
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsEditing(false)}
-            >
-              Cancel
-            </Button>
-          </>
-        ) : (
-          <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
-            <FiEdit2 className="text-blue-500" />
-          </Button>
-        )}
-        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <FiTrash2 className="text-red-500" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirm Deletion</DialogTitle>
-            </DialogHeader>
-            <p>Are you sure you want to delete {file.title}?</p>
-            <DialogFooter>
+    <>
+      <TableRow className="hover:bg-gray-50 transition-colors">
+        <TableCell className="font-medium">
+          {file.type === "folder" ? (
+            <FiFolder className="mr-2 inline text-blue-500" />
+          ) : (
+            <FiFile className="mr-2 inline text-green-500" />
+          )}
+          {isEditing ? (
+            <Input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              className="w-40 inline-block"
+            />
+          ) : (
+            file.title
+          )}
+        </TableCell>
+        <TableCell className="text-gray-500">{file.description}</TableCell>
+        <TableCell>
+          {file.type === "file" ? (
+            <>
               <Button
                 variant="outline"
-                onClick={() => setIsDeleteDialogOpen(false)}
+                size="sm"
+                onClick={handleDownload}
+                className="mr-2"
+              >
+                <FiDownload className="mr-2" /> Download
+              </Button>
+              <Button variant="outline" size="sm" onClick={handlePreview}>
+                <FiEye className="mr-2" /> Preview
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => accessFileHandler(file.path + file.title)}
+            >
+              Open
+            </Button>
+          )}
+        </TableCell>
+        <TableCell>
+          {isEditing ? (
+            <>
+              <Button variant="ghost" size="sm" onClick={handleRename}>
+                Save
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsEditing(false)}
               >
                 Cancel
               </Button>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  deleteFileHandler(file.id);
-                  setIsDeleteDialogOpen(false);
-                }}
-              >
-                Delete
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+            >
+              <FiEdit2 className="text-blue-500" />
+            </Button>
+          )}
+          <Dialog
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
+          >
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <FiTrash2 className="text-red-500" />
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </TableCell>
-    </TableRow>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Confirm Deletion</DialogTitle>
+              </DialogHeader>
+              <p>Are you sure you want to delete {file.title}?</p>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDeleteDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    deleteFileHandler(file.id);
+                    setIsDeleteDialogOpen(false);
+                  }}
+                >
+                  Delete
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </TableCell>
+      </TableRow>
+      {previewUrl && (
+        <FilePreview file={previewUrl} onClose={() => setPreviewUrl(null)} />
+      )}
+    </>
   );
 };
 
@@ -177,6 +233,7 @@ const FileList: React.FC<{
   renameFileHandler: (id: number, newName: string) => void;
   deleteFileHandler: (id: number) => void;
   backHandler: () => void;
+  previewFileHandler: (id: number) => Promise<string>;
 }> = ({
   fileList,
   newFolderHandler,
@@ -185,6 +242,7 @@ const FileList: React.FC<{
   currentPath,
   renameFileHandler,
   deleteFileHandler,
+  previewFileHandler,
 }) => {
   const member = useSelector(selectCurrentMember);
 
@@ -229,6 +287,7 @@ const FileList: React.FC<{
                 accessFileHandler={accessFileHandler}
                 renameFileHandler={renameFileHandler}
                 deleteFileHandler={deleteFileHandler}
+                previewFileHandler={previewFileHandler}
               />
             ))}
           </TableBody>
@@ -294,6 +353,7 @@ const Ged: React.FC = () => {
   const [data, setData] = useState<File[]>([]);
   const [currentPath, setCurrentPath] = useState<string>("/");
   const member = useSelector(selectCurrentMember);
+  const [previewFile, setPreviewFile] = useState<string | null>(null);
 
   const loadDocuments = async () => {
     if (!member) return;
@@ -342,8 +402,26 @@ const Ged: React.FC = () => {
     updateView();
   }, [currentPath]);
 
-  const updateView = () => {
+  const updateViewHandler = () => {
     setData(originalData.filter((item: any) => item.path === currentPath));
+  };
+
+  const handlePreviewFile = async (id: number): Promise<string> => {
+    try {
+      const doc: any = await getDocument(id);
+      if (doc && doc.file) {
+        return doc.file;
+      } else {
+        throw new Error("File not found");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to preview the file.",
+        variant: "destructive",
+      });
+      throw error;
+    }
   };
 
   const onNewFolder = () => {
@@ -365,7 +443,37 @@ const Ged: React.FC = () => {
     };
     const updatedData: File[] = [...originalData, newFolder];
     setOriginalData(updatedData);
+    setData(
+      updatedData.filter(
+        (item: any) => item.path === currentPath
+      ) as SetStateAction<File[]>
+    );
+  };
+  const onNewFolderHandler = (): void => {
+    let finalPath: string = currentPath.endsWith("/")
+      ? currentPath
+      : currentPath + "/";
+    const newFolderList = originalData.filter(
+      (item: any) =>
+        item.type === "folder" && item.title.startsWith("New Folder")
+    );
+    const title =
+      "New Folder " + (newFolderList.length ? newFolderList.length : "");
+    const newFolder = {
+      title: title.trim(),
+      description: "New Folder",
+      type: "folder",
+      path: finalPath,
+      id: Date.now(),
+      name: title.trim(),
+    };
+    const updatedData = [...originalData, newFolder];
+    setOriginalData(updatedData);
     setData(updatedData.filter((item: any) => item.path === currentPath));
+  };
+
+  const updateView = () => {
+    setData(originalData.filter((item: any) => item.path === currentPath));
   };
 
   const onBack = () => {
@@ -460,12 +568,46 @@ const Ged: React.FC = () => {
         currentPath={currentPath}
         renameFileHandler={renameFile}
         deleteFileHandler={deleteFile}
+        previewFileHandler={handlePreviewFile}
       />
       {member?.isAdmin && (
         <UploadFile
           onDocumentUpload={loadDocuments}
           currentPath={currentPath}
         />
+      )}
+      {previewFile && (
+        <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>File Preview</DialogTitle>
+            </DialogHeader>
+            <div className="mt-4 h-[60vh] overflow-auto">
+              {previewFile.endsWith(".pdf") ? (
+                <iframe src={previewFile} className="w-full h-full" />
+              ) : previewFile.match(/\.(jpeg|jpg|gif|png)$/) ? (
+                <img
+                  src={previewFile}
+                  alt="Preview"
+                  className="max-w-full h-auto"
+                />
+              ) : (
+                <div className="text-center p-4">
+                  <p>Preview not available for this file type.</p>
+                  <Button asChild className="mt-4">
+                    <a
+                      href={previewFile}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Open File
+                    </a>
+                  </Button>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
